@@ -1,0 +1,50 @@
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  collection: "testing_session_data"
+
+before_script:
+  - GRADLE_USER_HOME="$(pwd)/server/.gradle"
+  - export GRADLE_USER_HOME
+
+cache:
+  paths:
+  - frontend/node_modules/
+  - frontend/dist/
+  - backend/build/
+  - backend/.gradle/
+
+stages:
+  - buildserver
+  - testserver
+  - buildclient
+  - testclient
+
+buildserver:
+  image: gradle:alpine
+  stage: buildserver
+  script:
+    - cd backend
+    - gradle --build-cache assemble
+
+testserver:
+  image: gradle:alpine
+  stage: testserver
+  script: 
+    - cd backend
+    - gradle test
+
+buildclient:
+  image: node:16
+  stage: buildclient
+  script:
+    - cd frontend
+    - npm install --progress=false
+    - npm run build
+
+testclient:
+  image: node:16
+  stage: frontend
+  script:
+    - cd client
+    - npm install --progress=false
+    - npm run test:unit
