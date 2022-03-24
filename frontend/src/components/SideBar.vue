@@ -5,13 +5,16 @@
         <button class="button is-primary" @click="newBillModal">
           New Bill
         </button>
-        <button class="button is-primary">New List</button>
+        <button class="button is-primary" @click="newListModal">
+          New List
+        </button>
       </div>
     </div>
   </aside>
 </template>
 <script>
 import CreateBillModal from "@/components/CreateBillModal";
+import CreateListModal from "@/components/CreateListModal";
 
 export default {
   name: "SideBar",
@@ -19,8 +22,8 @@ export default {
     return {
       formProps: {
         email: "evan@you.com",
-        password: "testing"
-      }
+        password: "testing",
+      },
     };
   },
   methods: {
@@ -31,16 +34,33 @@ export default {
         hasModalCard: true,
         trapFocus: true,
         props: {
-          users: ["leopold", "lukas", "lucas", "jonathan", "peter", "john", "paul", "anna", "jenny"]
-        }
+          users: [
+            "leopold",
+            "lukas",
+            "lucas",
+            "jonathan",
+            "peter",
+            "john",
+            "paul",
+            "anna",
+            "jenny",
+          ],
+        },
       });
-    }
-  }
+    },
+    newListModal() {
+      this.$buefy.modal.open({
+        parent: this,
+        component: CreateListModal,
+        hasModalCard: true,
+        trapFocus: true,
+      });
+    },
+  },
 };
 </script>
 
 <style scoped>
-
 .menu {
   display: inline-block;
   vertical-align: top;
@@ -55,5 +75,4 @@ hr {
   margin-top: 10px;
   margin-bottom: 10px;
 }
-
 </style>
