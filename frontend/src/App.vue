@@ -1,12 +1,18 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view />
+    <NavBar/>
+    <router-view/>
   </div>
 </template>
+<script>
+// @ is an alias to /src
+import NavBar from '@/components/NavBar.vue'
+export default {
+  components: {
+    NavBar
+  }
+}
+</script>
 
 <style>
 #app {
@@ -14,19 +20,45 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  height: 100vh;
+  width: 98%;
 }
 
-#nav {
-  padding: 30px;
+.center-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 75vh;
+}
+@media (min-width: 500px) {
+  .center-screen {
+    padding-right: 50px;
+    padding-left: 50px;
+  }
+}
+@media (max-width: 500px) {
+  .center-screen {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+}
+.v-scroll {
+  overflow-y: auto;
+}
+.h-scroll {
+  overflow-x: auto;
 }
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
+.error-text {
+  color: deeppink;
 }
 
-#nav a.router-link-exact-active {
-  color: #42b983;
+.button.is-disabled:hover {
+  cursor: default;
+}
+
+.router-link-active {
+  color: #7957d5!important;
 }
 </style>
