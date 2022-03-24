@@ -1,6 +1,6 @@
 <template>
   <div id="bill" class="box">
-    <p class="title">{{ title }}</p>
+    <p class="title">{{ name }}</p>
     <p class="subtitle">
       <span>Amount: {{ amount }}</span
       ><br />
@@ -32,7 +32,7 @@ export default {
   name: "Bill",
   props: {
     id: Number,
-    title: String,
+    name: String,
     description: String,
     amount: Number,
     percentages: Array,

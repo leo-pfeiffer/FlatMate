@@ -14,7 +14,7 @@
                 >
                   <article class="tile is-child">
                     <Bill
-                      :title="item.title"
+                      :name="item.name"
                       :description="item.description"
                       :percentages="item.percentages"
                       :amount="item.amount"
@@ -71,7 +71,7 @@ export default {
       bills: [
         {
           id: 1,
-          title: "Spotify",
+          name: "Spotify",
           description: "Monthly music subscription",
           amount: 9.99,
           percentages: [
@@ -84,7 +84,7 @@ export default {
         },
         {
           id: 2,
-          title: "Shopping",
+          name: "Shopping",
           description: "Grocery run",
           amount: 27.32,
           percentages: [
@@ -97,7 +97,7 @@ export default {
         },
         {
           id: 3,
-          title: "Drinks",
+          name: "Drinks",
           description: "Night out at the pub",
           amount: 22.1,
           percentages: [
@@ -110,7 +110,7 @@ export default {
         },
         {
           id: 4,
-          title: "Shopping",
+          name: "Shopping",
           description: "Another grocery run",
           amount: 34.1,
           percentages: [
@@ -123,7 +123,7 @@ export default {
         },
         {
           id: 5,
-          title: "Shopping",
+          name: "Shopping",
           description: "Another grocery run",
           amount: 34.1,
           percentages: [
@@ -136,7 +136,7 @@ export default {
         },
         {
           id: 6,
-          title: "Shopping",
+          name: "Shopping",
           description: "Another grocery run",
           amount: 34.1,
           percentages: [
