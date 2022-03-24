@@ -28,7 +28,26 @@
             </div>
           </b-tab-item>
           <b-tab-item label="Lists">
-            lists: Lorem ipsum dolor sit amet.
+            <div class="container">
+              <div class="tile is-ancestor" id="list-tiles">
+                <div
+                  class="tile is-parent is-3 bill-item"
+                  v-for="(item, index) of lists"
+                  :key="index"
+                >
+                  <article class="tile is-child">
+                    <List
+                      :id="item.id"
+                      :name="item.name"
+                      :description="item.description"
+                      :owner="item.owner"
+                      :list-items="item.listItems"
+                      :bill-id="item.billId"
+                    />
+                  </article>
+                </div>
+              </div>
+            </div>
           </b-tab-item>
         </b-tabs>
       </div>
@@ -38,12 +57,14 @@
 <script>
 import SideBar from "@/components/SideBar";
 import Bill from "@/components/Bill";
+import List from "@/components/List";
 
 export default {
   name: "Home",
   components: {
     SideBar,
     Bill,
+    List
   },
   data() {
     return {
@@ -127,6 +148,32 @@ export default {
           paid: true,
         },
       ],
+      lists: [
+        {
+          id: 1,
+          name: "Shopping list 1",
+          description: "Gotta eat",
+          owner: "lukas",
+          listItems: [{name: "Peach"}, {name: "Pear"}, {name: "Plums"}, {name: "Oranges"}],
+          billId: null
+        },
+        {
+          id: 2,
+          name: "Shopping list 2",
+          description: "Always hungry",
+          owner: "leopold",
+          listItems: [{name: "Peach"}, {name: "Pear"}, {name: "Plums"}, {name: "Oranges"}],
+          billId: null,
+        },
+        {
+          id: 3,
+          name: "Shopping list 3",
+          description: "Gimme gimme food",
+          owner: "lukas",
+          listItems: [{name: "Peach"}, {name: "Pear"}, {name: "Plums"}, {name: "Oranges"}],
+          billId: 1,
+        },
+      ]
     };
   },
 };
@@ -156,7 +203,8 @@ export default {
   max-width: 300px;
 }
 
-#bill-tiles {
+#bill-tiles,
+#list-tiles {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-evenly;
