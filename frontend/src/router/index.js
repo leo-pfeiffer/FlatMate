@@ -5,6 +5,7 @@ import Home from "@/views/Home.vue";
 import Register from "@/views/Register";
 import Login from "@/views/Login";
 import User from "@/views/User";
+import Admin from "@/views/Admin";
 
 Vue.use(VueRouter);
 
@@ -19,6 +20,12 @@ const routes = [
     path: "/user",
     name: "User",
     component: User,
+    meta: {requiresAuth: true},
+  },
+  {
+    path: "/admin",
+    name: "Admin",
+    component: Admin,
     meta: {requiresAuth: true},
   },
   {
