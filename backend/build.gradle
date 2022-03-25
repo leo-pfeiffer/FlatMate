@@ -22,8 +22,13 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.data:spring-data-jpa'
+
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-	 implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.xerial:sqlite-jdbc'
+	implementation 'org.hibernate:hibernate-core'
+
 	runtimeOnly 'com.h2database:h2'
 
 	compileOnly 'org.projectlombok:lombok'
