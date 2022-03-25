@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.HashMap;
 
+
 @RestController
 @SpringBootApplication
 public class Server {
@@ -62,7 +63,7 @@ public class Server {
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
-    @PostMapping("/createUser")
+    @PostMapping("/api/user/create")
     public String createUser(
             @RequestBody final UserCreator data
     ) {

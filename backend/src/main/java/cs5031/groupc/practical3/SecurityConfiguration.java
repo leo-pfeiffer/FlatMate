@@ -45,7 +45,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
                 .antMatchers("/").permitAll()
                 .antMatchers("/api").permitAll()
                 .antMatchers("/test").permitAll()
-                .antMatchers("/createUser").permitAll()
+                .antMatchers("/api/user/create").permitAll()
+                .antMatchers("/api/group/add").hasAnyRole("ADMIN")
+                .antMatchers("/api/group/remove").hasAnyRole("ADMIN")
+                .antMatchers("/api/group/changeAdmin").hasAnyRole("ADMIN")
                 .antMatchers("/api/**").hasAnyRole("USER","ADMIN")
                 .and().formLogin()
                 .and().cors().and().csrf().disable();
