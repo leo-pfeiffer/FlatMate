@@ -14,19 +14,19 @@ const routes = [
     path: "/",
     name: "Home",
     component: Home,
-    meta: {requiresAuth: true},
+    meta: { requiresAuth: true },
   },
   {
     path: "/user",
     name: "User",
     component: User,
-    meta: {requiresAuth: true},
+    meta: { requiresAuth: true },
   },
   {
     path: "/admin",
     name: "Admin",
     component: Admin,
-    meta: {requiresAuth: true},
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: "/register",
@@ -47,6 +47,20 @@ const router = new VueRouter({
   routes,
 });
 
+// Prevent users from visiting pages that are admin only
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAdmin)) {
+    if (store.getters.isAdmin) {
+      next();
+      return;
+    }
+    next("/");
+  } else {
+    next();
+  }
+});
+
+// Prevent guests from visiting pages that require login
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (store.getters.isAuthenticated) {
@@ -59,6 +73,7 @@ router.beforeEach((to, from, next) => {
   }
 });
 
+// Routing for guest sites
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.guest)) {
     if (store.getters.isAuthenticated) {
