@@ -18,6 +18,7 @@ public class DataAccessObject {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
+    // GROUPS ====================
     public ArrayList<Group> getAllGroups() {
         String sql = "SELECT * FROM 'group'";
         return (ArrayList<Group>) jdbcTemplate.query(sql, (rs, rowNum) -> new Group(
@@ -34,11 +35,12 @@ public class DataAccessObject {
         ), groupId);
     }
 
-    public Long getGroupIdForUser(String username) {
-        String sql = "SELECT group_id FROM 'user' WHERE username = ?";
-        return jdbcTemplate.queryForObject(sql, Long.class, username);
+    public int createGroup(String name) {
+        String sql = "INSERT INTO 'group' (name) VALUES (?)";
+        return jdbcTemplate.update(sql, name);
     }
 
+    // USERS ====================
     public User getUser(String username) {
         Long groupId = getGroupIdForUser(username);
         Group group;
@@ -57,16 +59,11 @@ public class DataAccessObject {
         ), username);
     }
 
-    public int createUser(String username, String password) {
+    public void createUser(String username, String password) {
         // new user is always USER
         String role = UserRole.USER.getRole();
         String sql = "INSERT INTO 'user' (username, password, role, enabled) VALUES (?, ?, ?, ?)";
-        return jdbcTemplate.update(sql, username, password, role, true);
-    }
-
-    public int createGroup(String name) {
-        String sql = "INSERT INTO 'group' (name) VALUES (?)";
-        return jdbcTemplate.update(sql, name);
+        jdbcTemplate.update(sql, username, password, role, true);
     }
 
     public int addUserToGroup(String username, Long groupId) {
@@ -79,11 +76,12 @@ public class DataAccessObject {
         return jdbcTemplate.update(sql, username);
     }
 
-    public String getUserIdForBill(Long billId) {
-        String sql = "SELECT owner FROM 'bill' WHERE bill_id = ?";
-        return jdbcTemplate.queryForObject(sql, String.class, billId);
+    public Long getGroupIdForUser(String username) {
+        String sql = "SELECT group_id FROM 'user' WHERE username = ?";
+        return jdbcTemplate.queryForObject(sql, Long.class, username);
     }
 
+    // BILL ====================
     public Bill getBill(Long billId) {
         String username = getUserIdForBill(billId);
         User owner = getUser(username);
@@ -99,16 +97,17 @@ public class DataAccessObject {
         )), billId);
     }
 
-    public String getUserIdForList(Long listId) {
-        String sql = "SELECT owner FROM 'list' WHERE list_id = ?";
-        return jdbcTemplate.queryForObject(sql, String.class, listId);
+    public String getUserIdForBill(Long billId) {
+        String sql = "SELECT owner FROM 'bill' WHERE bill_id = ?";
+        return jdbcTemplate.queryForObject(sql, String.class, billId);
     }
 
-    public Long getBillIdForList(Long listId) {
-        String sql = "SELECT bill_id FROM 'list' WHERE list_id = ?";
-        return jdbcTemplate.queryForObject(sql, Long.class, listId);
+    public String getUsernameForUserBill(Long billId) {
+        String sql = "SELECT username FROM 'user_bill' WHERE user_bill_id = ?";
+        return jdbcTemplate.queryForObject(sql, String.class, billId);
     }
 
+    // LIST ====================
     public List getList(Long listId) {
         String username = getUserIdForList(listId);
         assert username != null;
@@ -139,6 +138,16 @@ public class DataAccessObject {
         return getBill(billId);
     }
 
+    public String getUserIdForList(Long listId) {
+        String sql = "SELECT owner FROM 'list' WHERE list_id = ?";
+        return jdbcTemplate.queryForObject(sql, String.class, listId);
+    }
+
+    public Long getBillIdForList(Long listId) {
+        String sql = "SELECT bill_id FROM 'list' WHERE list_id = ?";
+        return jdbcTemplate.queryForObject(sql, Long.class, listId);
+    }
+
     public ArrayList<ListItem> getListItemsForList(Long listId) {
         List list = getList(listId);
         String sql = "SELECT * FROM 'list_item' WHERE list_id = ?";
@@ -149,11 +158,7 @@ public class DataAccessObject {
         )), listId);
     }
 
-    public String getUsernameForUserBill(Long billId) {
-        String sql = "SELECT username FROM 'user_bill' WHERE user_bill_id = ?";
-        return jdbcTemplate.queryForObject(sql, String.class, billId);
-    }
-
+    // USER BILL ====================
     public Long getBillIdForUserBill(Long userBillId) {
         String sql = "SELECT bill_id FROM 'user_bill' WHERE user_bill_id = ?";
         return jdbcTemplate.queryForObject(sql, Long.class, userBillId);

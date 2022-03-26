@@ -1,26 +1,15 @@
 package cs5031.groupc.practical3;
 
-public class UserCreator {
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+// Todo can we just use the User class?
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class UserCreator {
     private String username;
     private String password;
-
-    public UserCreator(){
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }
