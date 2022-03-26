@@ -1,20 +1,20 @@
 package cs5031.groupc.practical3;
 
+import java.util.HashMap;
 import cs5031.groupc.practical3.database.DataAccessObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import java.util.HashMap;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
@@ -24,10 +24,9 @@ public class Server {
     @Autowired
     DataAccessObject dao;
 
-    private String getUser(){
+    private String getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentPrincipalName = authentication.getName();
-        return currentPrincipalName;
+        return authentication.getName();
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
@@ -46,10 +45,10 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/test")
-    public HashMap<String,Integer[]> test() {
-        HashMap<String,Integer[]> test = new HashMap();
-        Integer[] t = {1,2,3,4};
-        test.put("bills",t);
+    public HashMap<String, Integer[]> test() {
+        HashMap<String, Integer[]> test = new HashMap();
+        Integer[] t = {1, 2, 3, 4};
+        test.put("bills", t);
         dao.createUser("jonathan", "password");
         return test;
     }
@@ -57,7 +56,7 @@ public class Server {
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/test")
     public String apitest() {
-       return "in api test";
+        return "in api test";
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
@@ -68,13 +67,12 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/user/create")
-    public String createUser(
-            @RequestBody final UserCreator data
-    ) {
+    public String createUser(@RequestBody final UserCreator data) {
         String ret = "";
-        try{
-           ret = data.getUsername() + " " + data.getPassword();
-        } catch(Exception e){}
+        try {
+            ret = data.getUsername() + " " + data.getPassword();
+        } catch (Exception e) {
+        }
         return ret;
         /*
         boolean successful = true;
@@ -94,20 +92,16 @@ public class Server {
     public ResponseEntity validateUsername(@RequestParam String user) {
         boolean validate = false;
         //TODO: validation logic
-        if (validate){
+        if (validate) {
             return ResponseEntity.ok().build();
         }
-        throw new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "entity not found"
-        );
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group")
-    public void getGroups(
-            @RequestParam final String groupname
-    ) {
+    public void getGroups(@RequestParam final String groupname) {
         /*
         TODO: create creation logic
         boolean successful = true;
@@ -125,13 +119,12 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/create")
-    public String createGroup(
-            @RequestParam final String groupname
-    ) {
+    public String createGroup(@RequestParam final String groupname) {
         String ret = "";
-        try{
+        try {
             ret = groupname;
-        } catch(Exception e){}
+        } catch (Exception e) {
+        }
         return ret;
         /*
         TODO: create creation logic
@@ -149,13 +142,12 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/add")
-    public String addToGroup(
-            @RequestParam final String username
-    ) {
+    public String addToGroup(@RequestParam final String username) {
         String ret = "";
-        try{
+        try {
             ret = username;
-        } catch(Exception e){}
+        } catch (Exception e) {
+        }
         return ret;
         /*
         TODO: create creation logic
@@ -173,13 +165,12 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/remove")
-    public String removeFromGroup(
-            @RequestParam final String username
-    ) {
+    public String removeFromGroup(@RequestParam final String username) {
         String ret = "";
-        try{
+        try {
             ret = username;
-        } catch(Exception e){}
+        } catch (Exception e) {
+        }
         return ret;
         /*
         TODO: create creation logic
@@ -194,15 +185,15 @@ public class Server {
 */
 
     }
+
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/changeAdmin")
-    public String changeGroupAdmin(
-            @RequestParam final String username
-    ) {
+    public String changeGroupAdmin(@RequestParam final String username) {
         String ret = "";
-        try{
+        try {
             ret = username;
-        } catch(Exception e){}
+        } catch (Exception e) {
+        }
         return ret;
         /*
         TODO: create creation logic
@@ -220,7 +211,7 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getUsers")
-    public void getGroupUsers(){
+    public void getGroupUsers() {
         /*
         TODO: create creation logic
         boolean successful = true;
@@ -237,7 +228,7 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getAllBills")
-    public void getAllGroupBills(){
+    public void getAllGroupBills() {
         /*
         TODO: create creation logic
         boolean successful = true;
@@ -254,7 +245,7 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getAllLists")
-    public void getAllGroupLists(){
+    public void getAllGroupLists() {
         /*
         TODO: create creation logic
         boolean successful = true;
@@ -270,13 +261,12 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getBill")
-    public int getBillByID(
-            @RequestParam int id
-    ){
+    public int getBillByID(@RequestParam int id) {
         int ret = -1;
-        try{
+        try {
             ret = id;
-        } catch(Exception e){}
+        } catch (Exception e) {
+        }
         return ret;
         /*
         TODO: create creation logic
@@ -293,13 +283,12 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getList")
-    public int getListByID(
-            @RequestParam int id
-    ){
+    public int getListByID(@RequestParam int id) {
         int ret = -1;
-        try{
+        try {
             ret = id;
-        } catch(Exception e){}
+        } catch (Exception e) {
+        }
         return ret;
         /*
         TODO: create creation logic
@@ -316,9 +305,7 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/bill/create")
-    public void createBill(
-            @RequestBody BillCreator data
-    ){
+    public void createBill(@RequestBody BillCreator data) {
         /*
         TODO: create creation logic
         boolean successful = true;
@@ -334,9 +321,7 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/bill/pay")
-    public void payBill(
-            @RequestParam int id
-    ){
+    public void payBill(@RequestParam int id) {
         /*
         TODO: create creation logic
         boolean successful = true;
@@ -352,9 +337,7 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/list/create")
-    public void createList(
-            @RequestBody ListCreator data
-    ){
+    public void createList(@RequestBody ListCreator data) {
         /*
         TODO: create creation logic
         boolean successful = true;
@@ -371,9 +354,7 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/list/addBill")
-    public void addBillToList(
-            @RequestBody BillAdder data
-    ){
+    public void addBillToList(@RequestBody BillAdder data) {
         /*
         TODO: create creation logic
         boolean successful = true;
@@ -386,7 +367,6 @@ public class Server {
         );
 */
     }
-
 
 
 }
