@@ -1,8 +1,11 @@
 package cs5031.groupc.practical3.database;
 
+import cs5031.groupc.practical3.SecurityConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -10,7 +13,9 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource("persistence.properties")
+@PropertySource("classpath:persistence.properties")
+@ComponentScan({"cs5031.groupc.practical3.*"})
+@Import({SecurityConfiguration.class})
 public class SQLiteDataSource {
 
     @Autowired
@@ -20,19 +25,16 @@ public class SQLiteDataSource {
         this.env = env;
     }
 
-    @Bean
+    @Bean(name = "dataSource")
     public DataSource dataSource() {
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(env.getProperty("driverClassName"));
+        String driverClass = env.getProperty("driverClassName");
+        assert driverClass != null;
+        dataSource.setDriverClassName(driverClass);
         dataSource.setUrl(env.getProperty("url"));
         // dataSource.setUsername(env.getProperty("user"));
         // dataSource.setPassword(env.getProperty("password"));
         return dataSource;
-    }
-
-    @Configuration
-    @PropertySource("classpath:persistence.properties")
-    static class SqliteConfig {
     }
 }
 

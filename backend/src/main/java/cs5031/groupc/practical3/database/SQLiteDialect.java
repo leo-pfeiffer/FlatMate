@@ -6,9 +6,9 @@ import org.hibernate.dialect.identity.IdentityColumnSupport;
 import java.sql.Types;
 
 /**
- * Shamelessly copied from Baeldung. Code belongs to him.
+ * SQLite Dialect definition
+ * https://www.baeldung.com/spring-boot-sqlite
  */
-
 public class SQLiteDialect extends Dialect {
 
     public SQLiteDialect() {

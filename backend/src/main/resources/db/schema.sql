@@ -13,8 +13,9 @@ CREATE TABLE "user"
     password VARCHAR(64) NOT NULL,
     group_id INTEGER,
     role     VARCHAR(20) NOT NULL,
+    enabled  BOOLEAN NOT NULL,
     FOREIGN KEY (group_id) REFERENCES "group",
-    CHECK (role IN ('member', 'admin'))
+    CHECK (role IN ('USER', 'ADMIN'))
 );
 
 CREATE TABLE "bill"

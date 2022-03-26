@@ -4,6 +4,7 @@ import org.hibernate.MappingException;
 import org.hibernate.dialect.identity.IdentityColumnSupportImpl;
 
 /**
+ * SQLite config to support identity columns
  * https://www.baeldung.com/spring-boot-sqlite
  */
 public class SQLiteIdentityColumnSupport extends IdentityColumnSupportImpl {
