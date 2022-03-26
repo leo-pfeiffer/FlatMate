@@ -19,7 +19,7 @@
             </p>
           </b-field>
 
-          <div class="box columns is-centered" v-if="searched">
+          <div class="box columns is-centered m-4" v-if="searched">
             <table class="centered-table" v-if="!noResults">
               <tr>
                 <td>
@@ -123,13 +123,4 @@ export default {
 </script>
 
 <style scoped>
-.centered-table {
-  border-collapse: separate;
-  border-spacing: 10px;
-}
-.centered-table td {
-  margin: 8px 8px 8px 8px;
-  padding: 8px 8px 8px 8px;
-  vertical-align: middle;
-}
 </style>

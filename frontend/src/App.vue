@@ -58,7 +58,17 @@ export default {
   cursor: default;
 }
 
-.router-link-active {
+.router-link-exact-active {
   color: #7957d5!important;
+}
+
+.centered-table {
+  border-collapse: separate;
+  border-spacing: 10px;
+}
+.centered-table td {
+  margin: 8px 8px 8px 8px;
+  padding: 8px 8px 8px 8px;
+  vertical-align: middle;
 }
 </style>
