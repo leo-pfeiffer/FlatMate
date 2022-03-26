@@ -1,13 +1,13 @@
 package cs5031.groupc.practical3;
 
+import cs5031.groupc.practical3.database.DataAccessObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,6 +20,9 @@ import java.util.HashMap;
 @RestController
 @SpringBootApplication
 public class Server {
+
+    @Autowired
+    DataAccessObject dao;
 
     private String getUser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

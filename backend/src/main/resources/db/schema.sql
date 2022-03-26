@@ -1,10 +1,17 @@
 PRAGMA
 foreign_keys = TRUE;
 
+DROP TABLE IF EXISTS "list_item";
+DROP TABLE IF EXISTS "list";
+DROP TABLE IF EXISTS "user_bill";
+DROP TABLE IF EXISTS "bill";
+DROP TABLE IF EXISTS "user";
+DROP TABLE IF EXISTS "group";
+
 CREATE TABLE "group"
 (
     group_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name     VARCHAR NOT NULL
+    name     VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE "user"
