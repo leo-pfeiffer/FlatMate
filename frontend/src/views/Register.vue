@@ -8,7 +8,11 @@
               <b-input type="text" name="username" v-model="form.username" />
             </b-field>
             <b-field label="Password">
-              <b-input type="password" name="password" v-model="form.password" />
+              <b-input
+                type="password"
+                name="password"
+                v-model="form.password"
+              />
             </b-field>
             <button class="button" type="submit">Register</button>
           </form>
@@ -29,9 +33,9 @@ export default {
     return {
       form: {
         username: "",
-        password: ""
+        password: "",
       },
-      showError: false
+      showError: false,
     };
   },
   methods: {
@@ -44,11 +48,9 @@ export default {
       } catch (error) {
         this.showError = true;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style scoped>
-</style>
-
+<style scoped></style>

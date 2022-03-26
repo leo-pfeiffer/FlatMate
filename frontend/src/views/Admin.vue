@@ -95,7 +95,7 @@ export default {
   methods: {
     search: function () {
       // todo
-      if (this.searchInput === 'error') {
+      if (this.searchInput === "error") {
         this.noResults = true;
       } else {
         this.searchResult = this.searchInput;
@@ -103,24 +103,23 @@ export default {
       }
       this.searched = true;
     },
-    setSearched: function(val) {
+    setSearched: function (val) {
       this.searched = val;
       this.searchResult = "";
       this.noResults = false;
     },
-    makeAdmin: function(username) {
+    makeAdmin: function (username) {
       // todo
       console.log("New admin", username);
     },
-    removeUser: function(username) {
+    removeUser: function (username) {
       console.log("Removed", username);
     },
-    addUser: function() {
-      console.log("New user", this.searchResult)
-    }
+    addUser: function () {
+      console.log("New user", this.searchResult);
+    },
   },
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

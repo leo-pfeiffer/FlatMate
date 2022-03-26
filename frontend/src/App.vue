@@ -1,17 +1,17 @@
 <template>
   <div id="app">
-    <NavBar/>
-    <router-view/>
+    <NavBar />
+    <router-view />
   </div>
 </template>
 <script>
 // @ is an alias to /src
-import NavBar from '@/components/NavBar.vue'
+import NavBar from "@/components/NavBar.vue";
 export default {
   components: {
-    NavBar
-  }
-}
+    NavBar,
+  },
+};
 </script>
 
 <style>
@@ -59,7 +59,7 @@ export default {
 }
 
 .router-link-exact-active {
-  color: #7957d5!important;
+  color: #7957d5 !important;
 }
 
 .centered-table {

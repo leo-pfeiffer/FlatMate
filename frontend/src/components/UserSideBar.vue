@@ -11,7 +11,6 @@
   </aside>
 </template>
 <script>
-
 export default {
   name: "SideBar",
   data() {
@@ -24,7 +23,7 @@ export default {
   },
   methods: {
     leaveGroup() {
-      console.log("Left group")
+      console.log("Left group");
     },
   },
 };

@@ -64,7 +64,7 @@ export default {
   components: {
     SideBar,
     Bill,
-    List
+    List,
   },
   data() {
     return {
@@ -154,15 +154,25 @@ export default {
           name: "Shopping list 1",
           description: "Gotta eat",
           owner: "lukas",
-          listItems: [{name: "Peach"}, {name: "Pear"}, {name: "Plums"}, {name: "Oranges"}],
-          billId: null
+          listItems: [
+            { name: "Peach" },
+            { name: "Pear" },
+            { name: "Plums" },
+            { name: "Oranges" },
+          ],
+          billId: null,
         },
         {
           id: 2,
           name: "Shopping list 2",
           description: "Always hungry",
           owner: "leopold",
-          listItems: [{name: "Peach"}, {name: "Pear"}, {name: "Plums"}, {name: "Oranges"}],
+          listItems: [
+            { name: "Peach" },
+            { name: "Pear" },
+            { name: "Plums" },
+            { name: "Oranges" },
+          ],
           billId: null,
         },
         {
@@ -170,10 +180,15 @@ export default {
           name: "Shopping list 3",
           description: "Gimme gimme food",
           owner: "lukas",
-          listItems: [{name: "Peach"}, {name: "Pear"}, {name: "Plums"}, {name: "Oranges"}],
+          listItems: [
+            { name: "Peach" },
+            { name: "Pear" },
+            { name: "Plums" },
+            { name: "Oranges" },
+          ],
           billId: 1,
         },
-      ]
+      ],
     };
   },
 };

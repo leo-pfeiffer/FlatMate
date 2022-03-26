@@ -7,21 +7,19 @@
     <div class="content">
       <p>{{ description }}</p>
       <ul class="inner-list">
-        <li
-          v-for="(item, index) of listItems"
-          :key="index"
-        >
+        <li v-for="(item, index) of listItems" :key="index">
           {{ item.name }}
         </li>
       </ul>
-      <button class="button is-warning" v-if="billId !== null">Create bill</button>
+      <button class="button is-warning" v-if="billId !== null">
+        Create bill
+      </button>
       <button class="button is-warning" v-else>Go to bill</button>
     </div>
   </div>
 </template>
 
 <script>
-
 import { mapGetters } from "vuex";
 
 export default {
@@ -32,12 +30,11 @@ export default {
     description: String,
     owner: String,
     listItems: Array,
-    billId: Number
+    billId: Number,
   },
   computed: {
-    ...mapGetters({User: "StateUser"})
+    ...mapGetters({ User: "StateUser" }),
   },
-
 };
 </script>
 

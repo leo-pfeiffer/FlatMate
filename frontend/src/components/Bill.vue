@@ -41,9 +41,8 @@ export default {
     paid: Boolean,
   },
   computed: {
-    ...mapGetters({User: "StateUser"})
+    ...mapGetters({ User: "StateUser" }),
   },
-
 };
 </script>
 
