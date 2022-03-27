@@ -49,7 +49,6 @@ public class Server {
         HashMap<String, Integer[]> test = new HashMap();
         Integer[] t = {1, 2, 3, 4};
         test.put("bills", t);
-        dao.createUser("jonathan", "password");
         return test;
     }
 
