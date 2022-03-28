@@ -32,6 +32,7 @@ testserver:
   script: 
     - cd backend
     - chmod +x db_setup.sh
+    - ls -al
     - ./db_setup.sh
     - gradle test
 
