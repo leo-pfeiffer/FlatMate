@@ -202,13 +202,45 @@ public class DataAccessObject {
                 bill.getOwner().getUsername());
     }
 
-    public ArrayList<Bill> getAllBillsForGroup(Long groupId) {
-        throw new UnsupportedOperationException("Not implemented yet");
+    /**
+     * Given a group ID, return all the bills for that group
+     *
+     * @param groupId The id of the group that the bill is associated with.
+     * @return An ArrayList of Bills.
+     */
+    public ArrayList<Bill> getBillsForGroup(Long groupId) {
+        assert groupId != null;
+        String sql = "SELECT * FROM 'bill' INNER JOIN user u ON bill.owner = u.username WHERE u.group_id = ?";
+        return (ArrayList<Bill>) jdbcTemplate.query(sql, (rs, rowNum) -> new Bill(
+                rs.getLong("bill_id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getDouble("amount"),
+                rs.getString("payment_method"),
+                getUser(rs.getString("owner"))
+        ), groupId);
     }
 
-    // all bills where the user is listed as a participant
-    public ArrayList<Bill> getAllBillsForUser(String username) {
-        throw new UnsupportedOperationException("Not implemented yet");
+    /**
+     * Given a username, return all the bills that the user is a participant of
+     *
+     * @param username The username of the user who owns the bill.
+     * @return An ArrayList of Bill objects.
+     */
+    public ArrayList<Bill> getBillsForUser(String username) {
+        assert username != null;
+        String sql = "SELECT b.bill_id as bill_id, name, description, amount, payment_method, owner " +
+                "FROM user_bill " +
+                "INNER JOIN bill b ON user_bill.bill_id = b.bill_id " +
+                "WHERE user_bill.username = ?";
+        return (ArrayList<Bill>) jdbcTemplate.query(sql, (rs, rowNum) -> new Bill(
+                rs.getLong("bill_id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getDouble("amount"),
+                rs.getString("payment_method"),
+                getUser(rs.getString("owner"))
+        ), username);
     }
 
 
@@ -246,8 +278,19 @@ public class DataAccessObject {
                 list.getBill().getBillId());
     }
 
-    public ArrayList<List> getAllListsForGroup(Long groupId) {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public ArrayList<List> getListsForGroup(Long groupId) {
+        assert groupId != null;
+        String sql = "SELECT list_id, name, description, owner, bill_id " +
+                "FROM list " +
+                "INNER JOIN user ON list.owner = user.username " +
+                "WHERE user.group_id = ?";
+        return (ArrayList<List>) jdbcTemplate.query(sql, (rs, rowNum) -> new List(
+                rs.getLong("list_id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                getUser(rs.getString("owner")),
+                getBill(rs.getLong("bill_id"))
+        ), groupId);
     }
 
     // LIST ITEM =============================================================
