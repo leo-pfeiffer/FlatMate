@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS "group";
 CREATE TABLE "group"
 (
     group_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name     VARCHAR(30) NOT NULL
+    name     VARCHAR(30) NOT NULL UNIQUE
 );
 
 CREATE TABLE "user"
