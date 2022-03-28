@@ -27,12 +27,27 @@ public class DataAccessObject {
      * @return A Group object.
      */
     public Group getGroup(Long groupId) {
-        if (groupId == null) return null;
+        if (groupId == null || groupId == 0L) return null;
         String sql = "SELECT * FROM 'group' WHERE group_id = ?";
         return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new Group(
                 rs.getLong("group_id"),
                 rs.getString("name")
         ), groupId);
+    }
+
+    /**
+     * Given a group name, return the group object
+     *
+     * @param name The name of the group to retrieve.
+     * @return A Group object.
+     */
+    public Group getGroup(String name) {
+        if (name == null) return null;
+        String sql = "SELECT * FROM 'group' WHERE name = ?";
+        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new Group(
+                rs.getLong("group_id"),
+                rs.getString("name")
+        ), name);
     }
 
     /**
@@ -72,7 +87,7 @@ public class DataAccessObject {
         return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new User(
                 rs.getString("username"),
                 rs.getString("password"),
-                getGroupForUser(rs.getString("username")),
+                getGroup(rs.getLong("group_id")),
                 UserRole.valueOf(rs.getString("role")),
                 rs.getBoolean("enabled")
         ), username);
@@ -102,22 +117,10 @@ public class DataAccessObject {
         return (ArrayList<User>) jdbcTemplate.query(sql, (rs, rowNum) -> new User(
                 rs.getString("username"),
                 rs.getString("password"),
-                getGroupForUser(rs.getString("username")),
+                getGroup(rs.getLong("group_id")),
                 UserRole.valueOf(rs.getString("role")),
                 rs.getBoolean("enabled")
         ));
-    }
-
-    /**
-     * Get the group for a user
-     *
-     * @param username The username of the user to get the group for.
-     * @return A Group object.
-     */
-    public Group getGroupForUser(String username) {
-        if (username == null) return null;
-        User user = getUser(username);
-        return user == null ? null : user.getGroup();
     }
 
     /**
@@ -130,6 +133,20 @@ public class DataAccessObject {
     public int addUserToGroup(String username, Long groupId) {
         String sql = "UPDATE 'user' SET 'group_id' = ? WHERE username = ?";
         return jdbcTemplate.update(sql, groupId, username);
+    }
+
+
+    /**
+     * Add a user to a group by group name
+     *
+     * @param username The username of the user to add to the group.
+     * @param groupName The name of the group to add the user to.
+     * @return The number of rows affected by the update.
+     */
+    public int addUserToGroup(String username, String groupName) {
+        Group group = getGroup(groupName);
+        String sql = "UPDATE 'user' SET 'group_id' = ? WHERE username = ?";
+        return jdbcTemplate.update(sql, group.getGroupId(), username);
     }
 
     /**
@@ -173,7 +190,7 @@ public class DataAccessObject {
      * @return A Bill object.
      */
     public Bill getBill(Long billId) {
-        if (billId == null) return null;
+        if (billId == null || billId == 0L) return null;
         String sql = "SELECT * FROM 'bill' WHERE bill_id = ?";
         return jdbcTemplate.queryForObject(sql, ((rs, rowNum) -> new Bill(
                 rs.getLong("bill_id"),
@@ -363,7 +380,7 @@ public class DataAccessObject {
      * @return A UserBill object.
      */
     public UserBill getUserBill(Long userBillId) {
-        if (userBillId == null) return null;
+        if (userBillId == null || userBillId == 0L) return null;
         String sql = "SELECT * FROM 'user_bill' WHERE user_bill_id = ?";
         return jdbcTemplate.queryForObject(sql, ((rs, rowNum) -> new UserBill(
                 rs.getLong("user_bill_id"),
