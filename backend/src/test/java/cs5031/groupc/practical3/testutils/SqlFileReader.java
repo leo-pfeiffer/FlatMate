@@ -4,13 +4,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Objects;
 
 public class SqlFileReader {
 
-    public String readFile(String pathToFile) {
+    public static String readFile(String pathToFile) {
         StringBuilder sb = null;
-        ClassLoader classLoader = getClass().getClassLoader();
 
         File file = new File(pathToFile);
 
