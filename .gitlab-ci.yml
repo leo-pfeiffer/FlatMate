@@ -31,6 +31,8 @@ testserver:
   stage: testserver
   script: 
     - cd backend
+    - chmod +x db_setup.sh
+    - ./db_setup.sh
     - gradle test
 
 # buildclient:
