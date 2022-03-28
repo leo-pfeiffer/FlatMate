@@ -35,10 +35,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api").permitAll()
                 .antMatchers("/test").permitAll()
                 .antMatchers("/api/user/create").permitAll()
-                .antMatchers("/api/group/add").hasAnyRole(UserRole.ADMIN.getRole())
-                .antMatchers("/api/group/remove").hasAnyRole(UserRole.ADMIN.getRole())
-                .antMatchers("/api/group/changeAdmin").hasAnyRole(UserRole.ADMIN.getRole())
-                .antMatchers("/api/**").hasAnyRole(UserRole.USER.getRole(), UserRole.ADMIN.getRole())
+                .antMatchers("/api/group/add").hasAnyAuthority(UserRole.ADMIN.getRole())
+                .antMatchers("/api/group/remove").hasAnyAuthority(UserRole.ADMIN.getRole())
+                .antMatchers("/api/group/changeAdmin").hasAnyAuthority(UserRole.ADMIN.getRole())
+                .antMatchers("/api/**").hasAnyAuthority(UserRole.USER.getRole(), UserRole.ADMIN.getRole())
                 .and().formLogin()
                 .and().cors().and().csrf().disable();
     }
