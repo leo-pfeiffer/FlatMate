@@ -27,16 +27,20 @@ public class DataAccessObjectTest {
 
     @BeforeEach
     public void setUp() {
+
+        final String DELETE_SCRIPT = "src/test/resources/db/delete.sql";
+        final String DEMO_SCRIPT = "src/test/resources/db/demo_data.sql";
+
         try {
             SqlFileReader reader = new SqlFileReader();
-            String schemaScript = reader.readFile("src/main/resources/db/delete.sql");
-            String demoScript = reader.readFile("src/main/resources/db/demo_data.sql");
+            String delete = reader.readFile(DELETE_SCRIPT);
+            String demo = reader.readFile(DEMO_SCRIPT);
 
-            for (String query : schemaScript.split(";")) {
+            for (String query : delete.split(";")) {
                 jdbcTemplate.execute(query);
             }
 
-            for (String query : demoScript.split(";")) {
+            for (String query : demo.split(";")) {
                 jdbcTemplate.execute(query);
             }
 
@@ -105,14 +109,19 @@ public class DataAccessObjectTest {
     }
 
     @Test
-    public void testGetGroupForUser() {
-        dao.createUser("nogroupuser", "pass");
-        dao.createUser("groupuser", "pass");
-        dao.addUserToGroup("groupuser", 1L);
-        Group group = dao.getUser("groupuser").getGroup();
-        assertNotNull(group);
+    public void testAddUserToGroupByName() {
+        dao.createUser("testuser", "pass");
+        dao.createGroup("testgroup");
+        dao.addUserToGroup("testuser", "testgroup");
+        Group group = dao.getUser("testuser").getGroup();
+        assertEquals("testgroup", group.getName());
+    }
+
+    @Test
+    public void testAddUserToGroupById() {
+        dao.createUser("testuser", "pass");
+        dao.addUserToGroup("testuser", 1L);
+        Group group = dao.getUser("testuser").getGroup();
         assertEquals(1L, group.getGroupId());
-        Group noGroup = dao.getUser("nogroupuser").getGroup();
-        assertNull(noGroup);
     }
 }
