@@ -269,7 +269,7 @@ public class DataAccessObject {
      * @return A List object.
      */
     public List getList(Long listId) {
-        String sql = "SELECT * FROM 'bill' WHERE bill_id = ?";
+        String sql = "SELECT * FROM 'list' WHERE list_id = ?";
         return jdbcTemplate.queryForObject(sql, ((rs, rowNum) -> new List(
                 rs.getLong("list_id"),
                 rs.getString("name"),
@@ -292,9 +292,15 @@ public class DataAccessObject {
                 list.getName(),
                 list.getDescription(),
                 list.getOwner().getUsername(),
-                list.getBill().getBillId());
+                list.getBill() == null ? null : list.getBill().getBillId());
     }
 
+    /**
+     * Get all the lists for a group
+     *
+     * @param groupId The id of the group that the user is a member of.
+     * @return A List object.
+     */
     public ArrayList<List> getListsForGroup(Long groupId) {
         assert groupId != null;
         String sql = "SELECT list_id, name, description, owner, bill_id " +

@@ -1,6 +1,7 @@
 package cs5031.groupc.practical3.database;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -9,7 +10,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.ArrayList;
 import cs5031.groupc.practical3.model.Bill;
 import cs5031.groupc.practical3.model.Group;
+import cs5031.groupc.practical3.model.List;
+import cs5031.groupc.practical3.model.ListItem;
 import cs5031.groupc.practical3.model.User;
+import cs5031.groupc.practical3.model.UserBill;
 import cs5031.groupc.practical3.testutils.SqlFileReader;
 import cs5031.groupc.practical3.vo.UserRole;
 import org.junit.jupiter.api.AfterEach;
@@ -208,5 +212,98 @@ public class DataAccessObjectTest {
         assertEquals(3, bills.size());
     }
 
+    @Test
+    public void testGetList() {
+        List list = dao.getList(1L);
+        assertNotNull(list);
+        assertEquals(1L, list.getListId());
+    }
+
+    @Test
+    public void testCreateList() {
+        User user = dao.getUser("leopold");
+        List list = new List();
+        list.setName("testlist");
+        list.setDescription("testdescription");
+        list.setOwner(user);
+        int numRows = dao.createList(list);
+        assertEquals(1, numRows);
+    }
+
+    @Test
+    public void testGetListsForGroup() {
+        // todo this is based on the demo data, maybe add data programmatically instead
+        ArrayList<List> lists = dao.getListsForGroup(1L);
+        assertEquals(3, lists.size());
+    }
+
+    @Test
+    public void testGetListItem() {
+        ListItem item = dao.getListItem(1L);
+        assertNotNull(item);
+        assertEquals(1L, item.getListItemId());
+    }
+
+    @Test
+    public void testGetListItemsForList() {
+        // todo this is based on the demo data, maybe add data programmatically instead
+        ArrayList<ListItem> items = dao.getListItemsForList(1L);
+        assertEquals(4, items.size());
+    }
+
+    @Test
+    public void testCreateListItem() {
+        List list = dao.getList(1L);
+        ListItem item = new ListItem();
+        item.setName("testitem");
+        item.setList(list);
+        int numRows = dao.createListItem(item);
+        assertEquals(1, numRows);
+    }
+
+    @Test
+    public void testCreateUserBill() {
+        Bill bill = dao.getBill(1L);
+        User user = dao.getUser("leopold");
+        UserBill userBill = new UserBill();
+        userBill.setBill(bill);
+        userBill.setUser(user);
+        userBill.setPercentage(0.5d);
+        userBill.setPaid(false);
+        int numRows = dao.createUserBill(userBill);
+        assertEquals(1, numRows);
+    }
+
+    @Test
+    public void testGetUserBill() {
+        UserBill userBill = dao.getUserBill(1L);
+        assertNotNull(userBill);
+        assertEquals(1L, userBill.getUserBillId());
+    }
+
+    @Test
+    public void testGetUserBillsForBill() {
+        // todo this is based on the demo data, maybe add data programmatically instead
+        ArrayList<UserBill> userBills = dao.getUserBillsForBill(1L);
+        assertEquals(4, userBills.size());
+    }
+
+    @Test
+    public void testSetUserBillToPaid() {
+        dao.setUserBillToPaid(2L, "leopold");
+
+        ArrayList<UserBill> billsPre = dao.getUserBillsForBill(2L);
+
+        for (UserBill userBill : billsPre) {
+            assertFalse(userBill.isPaid());
+            dao.setUserBillToPaid(userBill.getUserBillId(), userBill.getUser().getUsername());
+        }
+
+        ArrayList<UserBill> billsPost = dao.getUserBillsForBill(2L);
+
+        for (UserBill userBill : billsPost) {
+            assertTrue(userBill.isPaid());
+        }
+    }
 
 }
