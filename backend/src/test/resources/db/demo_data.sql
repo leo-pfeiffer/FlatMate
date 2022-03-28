@@ -1,3 +1,9 @@
+INSERT INTO 'group' (name)
+VALUES ('macintosh'),
+       ('gannochy'),
+       ('fife park'),
+       ('powell hall');
+
 INSERT INTO user (username, password, group_id, role, enabled)
 VALUES ('admin', 'pass', NULL, 'ADMIN', true),
        ('user', 'pass', NULL, 'USER', true),
@@ -12,12 +18,6 @@ VALUES ('admin', 'pass', NULL, 'ADMIN', true),
        ('john', 'pass', 3, 'USER', true),
        ('chris', 'pass', 3, 'USER', true),
        ('will', 'pass', 3, 'USER', true);
-
-INSERT INTO 'group' (name)
-VALUES ('macintosh'),
-       ('gannochy'),
-       ('fife park'),
-       ('powell hall');
 
 INSERT INTO 'bill' (name, description, amount, payment_method, owner)
 VALUES ('spotify', 'monthly music service', 9.99, 'cash', 'leopold'),
