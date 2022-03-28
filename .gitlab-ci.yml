@@ -8,16 +8,16 @@ before_script:
 
 cache:
   paths:
-  - frontend/node_modules/
-  - frontend/dist/
+  # - frontend/node_modules/
+  # - frontend/dist/
   - backend/build/
   - backend/.gradle/
 
 stages:
   - buildserver
   - testserver
-  - buildclient
-  - testclient
+  # - buildclient
+  # - testclient
 
 buildserver:
   image: gradle:alpine
@@ -33,18 +33,18 @@ testserver:
     - cd backend
     - gradle test
 
-buildclient:
-  image: node:16
-  stage: buildclient
-  script:
-    - cd frontend
-    - npm install --progress=false
-    - npm run build
+# buildclient:
+#   image: node:16
+#   stage: buildclient
+#   script:
+#     - cd frontend
+#     - npm install --progress=false
+#     - npm run build
 
-testclient:
-  image: node:16
-  stage: frontend
-  script:
-    - cd client
-    - npm install --progress=false
-    - npm run test:unit
+# testclient:
+#   image: node:16
+#   stage: frontend
+#   script:
+#     - cd client
+#     - npm install --progress=false
+#     - npm run test:unit
