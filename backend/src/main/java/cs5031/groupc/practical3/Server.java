@@ -32,6 +32,11 @@ public class Server {
         return authentication.getName();
     }
 
+    private Bill privatize(Bill b){
+        b.getOwner().setPassword(null);
+        return b;
+    }
+
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/")
     public String serverRunning() {
@@ -278,7 +283,17 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getBill")
-    public void getBillByID(@RequestParam int id) {
+    public Bill getBillByID(@RequestParam long id) {
+        try {
+            Bill bill = dao.getBill(id);
+            Bill dpBill = privatize(bill);
+            return dpBill;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "entity not found"
+        );
 
     }
 
