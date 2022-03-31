@@ -24,9 +24,19 @@ const actions = {
   },
 
   async LogIn({ commit }, user) {
-    await axios.post("login", user);
+    const config = {
+      method: "post",
+      url: "login",
+      headers: { "Content-Type": "multipart/form-data" },
+      data: user,
+    };
+
+    // todo cookie?
+    const isAdmin = await axios(config).then((res) => {
+      return res.data["roles"].indexOf("ADMIN") !== -1; // check if user is admin
+    });
     await commit("setUser", user.get("username"));
-    await commit("setAdmin", user.get("username") === "leopold"); // todo
+    await commit("setAdmin", isAdmin); // todo
   },
 
   async LogOut({ commit }) {

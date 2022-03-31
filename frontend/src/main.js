@@ -9,11 +9,13 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
+// Axios configuration
 axios.defaults.withCredentials = true;
 
-// axios.defaults.baseURL = "http://localhost:8081/api/"; // todo
-axios.defaults.baseURL = "https://gabbyblog.herokuapp.com/";
+axios.defaults.baseURL = "http://localhost:8080/";
+// axios.defaults.baseURL = "https://gabbyblog.herokuapp.com/";
 
+// interceptors for authorisation and rerouting
 axios.interceptors.response.use(undefined, function (error) {
   if (error) {
     const originalRequest = error.config;
