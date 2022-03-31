@@ -2,6 +2,7 @@ package cs5031.groupc.practical3;
 
 import java.util.HashMap;
 import java.util.ArrayList;
+
 import cs5031.groupc.practical3.database.DataAccessObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,7 +20,6 @@ import org.springframework.web.server.ResponseStatusException;
 import cs5031.groupc.practical3.model.*;
 
 
-
 @RestController
 @SpringBootApplication
 public class Server {
@@ -32,11 +32,22 @@ public class Server {
         return authentication.getName();
     }
 
-    private Bill privatize(Bill b){
+    private Bill privatize(Bill b) {
         b.getOwner().setPassword(null);
         return b;
     }
 
+    private ArrayList<Bill> privatize(ArrayList<Bill> groupBills) {
+        for (Bill b : groupBills) {
+            privatize(b);
+        }
+        return groupBills;
+    }
+
+    /**
+     * A method that confirms that the server is in fact running. --> Works!
+     * @return Returns a string confirming the server is running.
+     */
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/")
     public String serverRunning() {
@@ -44,6 +55,10 @@ public class Server {
     }
 
 
+    /**
+     * A method that decribes the API. --> Works!
+     * @return Returns a string that describes the API.
+     */
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api")
     public String apiDescription() {
@@ -61,7 +76,6 @@ public class Server {
     }
 
 
-
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/test")
     public String apitest() {
@@ -76,7 +90,8 @@ public class Server {
 
 
     /**
-     * A Enpoint that creates a new User and stores it in the database.
+     * A Enpoint that creates a new User and stores it in the database. --> Works!
+     *
      * @param data The necessary data to create a new user, consisting of the username and password.
      * @return returns a 200 OK response if successfull, and a 404 NOT FOUND if unsuccessful.
      */
@@ -85,7 +100,7 @@ public class Server {
     public ResponseEntity createUser(@RequestBody final UserCreator data) {
 
         try {
-            dao.createUser(data.getUsername(),data.getPassword());
+            dao.createUser(data.getUsername(), data.getPassword());
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -98,18 +113,21 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/user/validate")
-    public ResponseEntity validateUsername(@RequestParam String user) {
-        boolean validate = false;
-        //TODO: validation logic
-        if (validate) {
-            return ResponseEntity.ok().build();
+    public ArrayList<User> validateUsername(@RequestParam String username) {
+
+        try {
+            ArrayList<User> users = dao.getAllUsers();
+            return users;
+        } catch (Exception e) {
+
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
 
     /**
-     * A Endpoint that returns a group object from the group name.
+     * A Endpoint that returns a group object from the group name. --> Works!
+     *
      * @param groupname The name of the group to be retrieved.
      * @return Returns a group object.
      */
@@ -129,7 +147,8 @@ public class Server {
 
 
     /**
-     * An endpoint that creates a group, add the creating user to the group, and makes the creating user to the admin of the group.
+     * An endpoint that creates a group, add the creating user to the group, and makes the creating user to the admin of the group. --> Works!
+     *
      * @param groupname the name of the prospective group.
      * @return returns a 200 OK if successful and a 404 NOT FOUND if unsuccessful.
      */
@@ -139,7 +158,7 @@ public class Server {
         try {
             dao.createGroup(groupname);
             //Group group = dao.getGroup(groupname);
-            dao.addUserToGroup(getUser(),groupname);
+            dao.addUserToGroup(getUser(), groupname);
             dao.setRoleToAdmin(getUser());
             return ResponseEntity.ok().build();
         } catch (Exception e) {
@@ -151,7 +170,8 @@ public class Server {
     }
 
     /**
-     * A endpoint that adds a user by username to the group of the user adding the new user.
+     * A endpoint that adds a user by username to the group of the user adding the new user.  --> Works!
+     *
      * @param username The username of the user that will be added to the group.
      * @return Returns a 200 OK if successful and a 404 NOT FOUND if unsuccessful.
      */
@@ -161,7 +181,8 @@ public class Server {
         try {
             User actingUser = dao.getUser(getUser());
             String groupname = actingUser.getGroup().getName();
-            dao.addUserToGroup(username,groupname);
+            System.out.println(username);
+            dao.addUserToGroup(username, groupname);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -173,7 +194,8 @@ public class Server {
     }
 
     /**
-     * A endpoit that removes a user bz username from the group of the user removing the user.
+     * A endpoit that removes a user by username from the group of the user removing the user.  --> Works!
+     *
      * @param username the username of the user that is supposed to be removed.
      * @return Returns a 200 OK if successful and a 404 NOT FOUND if unsuccessful.
      */
@@ -193,7 +215,8 @@ public class Server {
     }
 
     /**
-     * A endpoint that sets a user' role to admin (by username) and set the current admin's role to user.
+     * A endpoint that sets a user' role to admin (by username) and set the current admin's role to user. --> Works!
+     *
      * @param username The username of the user soon to be admin
      * @return Returns a 200 OK if successful and a 404 NOT FOUND if unsuccessful.
      */
@@ -215,24 +238,30 @@ public class Server {
 
 
     /**
-     * A endpoit that returns all names of members in the calling user's group.
+     * A endpoit that returns all names of members in the calling user's group. --> Works!
+     *
      * @return Returns a HashMap in the style {"user": [USERS]}
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getUsers")
-    public HashMap<String,ArrayList<String>> getGroupUsers() {
+    public HashMap<String, ArrayList<String>> getGroupUsers() {
         try {
             User actingUser = dao.getUser(getUser());
             Group group = actingUser.getGroup();
+            long groupID = group.getGroupId();
             ArrayList<User> users = dao.getAllUsers();
             ArrayList<String> groupUsers = new ArrayList();
-            for(User u: users){
-                if(u.getGroup().equals(group)){
+            for (User u : users) {
+                Group userGroup = u.getGroup();
+                if (userGroup == null) {
+                    continue;
+                }
+                if (userGroup.getGroupId().equals(groupID)) {
                     groupUsers.add(u.getUsername());
                 }
             }
-            HashMap<String,ArrayList<String>> ret = new HashMap();
-            ret.put("users",groupUsers);
+            HashMap<String, ArrayList<String>> ret = new HashMap();
+            ret.put("users", groupUsers);
             return ret;
 
         } catch (Exception e) {
@@ -247,22 +276,23 @@ public class Server {
 
 
     /**
-     * A endpoint that returns a JSON with all teh bills in teh calling user's group.
+     * A endpoint that returns a JSON with all teh bills in teh calling user's group. --> Works!
+     *
      * @return returns a HashMap in the format {"bills":[BILLS]} (will be cast to JSON).
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getAllBills")
-    public HashMap<String,ArrayList<ReturnBill>> getAllGroupBills() {
+    public HashMap<String, ArrayList<Bill>> getAllGroupBills() {
         try {
             User actingUser = dao.getUser(getUser());
             long groupId = actingUser.getGroup().getGroupId();
-            ArrayList<Bill> groupBills = dao.getBillsForGroup(groupId);
-            ArrayList<ReturnBill> dataProtectedBills = new ArrayList();
-            for(Bill b: groupBills){
-                dataProtectedBills.add(new ReturnBill(b));
-            }
-            HashMap<String,ArrayList<ReturnBill>> ret = new HashMap();
-            ret.put("bills",dataProtectedBills);
+            ArrayList<Bill> groupBills = privatize(dao.getBillsForGroup(groupId));
+            /*//ArrayList<Bill> dataProtectedBills = new ArrayList();
+            for (Bill b : groupBills) {
+                privatize(b);
+            }*/
+            HashMap<String, ArrayList<Bill>> ret = new HashMap();
+            ret.put("bills", groupBills);
             return ret;
         } catch (Exception e) {
             e.printStackTrace();
@@ -281,6 +311,11 @@ public class Server {
 
     }
 
+    /**
+     * A method that returns a bill by its id. --> Works!
+     * @param id The id of the bill.
+     * @return Returns a bill object.
+     */
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getBill")
     public Bill getBillByID(@RequestParam long id) {

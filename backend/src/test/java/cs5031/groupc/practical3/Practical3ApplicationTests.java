@@ -9,7 +9,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 
-import cs5031.groupc.practical3.database.*;
+import cs5031.groupc.practical3.database.DataAccessObject;
+import cs5031.groupc.practical3.database.SQLiteDataSource;
 import cs5031.groupc.practical3.model.Bill;
 import cs5031.groupc.practical3.model.Group;
 import cs5031.groupc.practical3.model.List;
@@ -31,13 +32,17 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.context.annotation.Configuration;
 
-@SpringBootTest(classes = Practical3Application.class)
-@ComponentScan({"cs5031.groupc.practical3.*"})
+@SpringBootTest(classes = Server.class)
+//@ComponentScan({"cs5031.groupc.practical3.*"})
 class Practical3ApplicationTests {
 
-	//@Autowired
-	//DataAccessObject dao;
+
+
+	@Autowired
+	DataAccessObject dao;
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
