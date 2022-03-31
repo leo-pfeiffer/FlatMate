@@ -17,4 +17,5 @@ public class Bill {
     private double amount;
     private String paymentMethod;
     private User owner;
+    private Long createTime;    // unix timestamp
 }

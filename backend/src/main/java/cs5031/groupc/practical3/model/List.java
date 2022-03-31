@@ -16,4 +16,5 @@ public class List {
     private String description;
     private User owner;
     private Bill bill;
+    private Long createTime;    // unix timestamp
 }

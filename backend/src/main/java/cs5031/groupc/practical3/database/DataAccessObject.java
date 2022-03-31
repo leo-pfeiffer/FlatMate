@@ -198,7 +198,8 @@ public class DataAccessObject {
                 rs.getString("description"),
                 rs.getDouble("amount"),
                 rs.getString("payment_method"),
-                getUser(rs.getString("owner"))
+                getUser(rs.getString("owner")),
+                rs.getLong("create_time")
         )), billId);
     }
 
@@ -210,13 +211,14 @@ public class DataAccessObject {
      */
     public int createBill(Bill bill) {
         assert bill != null;
-        String sql = "INSERT INTO 'bill' (name, description, amount, payment_method, owner) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO 'bill' (name, description, amount, payment_method, owner, create_time) VALUES (?, ?, ?, ?, ?, ?)";
         return jdbcTemplate.update(sql,
                 bill.getName(),
                 bill.getDescription(),
                 bill.getAmount(),
                 bill.getPaymentMethod(),
-                bill.getOwner().getUsername());
+                bill.getOwner().getUsername(),
+                bill.getCreateTime());
     }
 
     /**
@@ -234,7 +236,8 @@ public class DataAccessObject {
                 rs.getString("description"),
                 rs.getDouble("amount"),
                 rs.getString("payment_method"),
-                getUser(rs.getString("owner"))
+                getUser(rs.getString("owner")),
+                rs.getLong("create_time")
         ), groupId);
     }
 
@@ -256,7 +259,8 @@ public class DataAccessObject {
                 rs.getString("description"),
                 rs.getDouble("amount"),
                 rs.getString("payment_method"),
-                getUser(rs.getString("owner"))
+                getUser(rs.getString("owner")),
+                rs.getLong("create_time")
         ), username);
     }
 
@@ -275,7 +279,8 @@ public class DataAccessObject {
                 rs.getString("name"),
                 rs.getString("description"),
                 getUser(rs.getString("owner")),
-                getBill(rs.getLong("bill_id"))
+                getBill(rs.getLong("bill_id")),
+                rs.getLong("create_time")
         )), listId);
     }
 
@@ -287,12 +292,13 @@ public class DataAccessObject {
      */
     public int createList(List list) {
         assert list != null;
-        String sql = "INSERT INTO 'list' (name, description, owner, bill_id) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO 'list' (name, description, owner, bill_id, create_time) VALUES (?, ?, ?, ?, ?)";
         return jdbcTemplate.update(sql,
                 list.getName(),
                 list.getDescription(),
                 list.getOwner().getUsername(),
-                list.getBill() == null ? null : list.getBill().getBillId());
+                list.getBill() == null ? null : list.getBill().getBillId(),
+                list.getCreateTime());
     }
 
     /**
@@ -312,7 +318,8 @@ public class DataAccessObject {
                 rs.getString("name"),
                 rs.getString("description"),
                 getUser(rs.getString("owner")),
-                getBill(rs.getLong("bill_id"))
+                getBill(rs.getLong("bill_id")),
+                rs.getLong("create_time")
         ), groupId);
     }
 
