@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
+import com.google.gson.Gson;
 import cs5031.groupc.practical3.vo.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -22,7 +24,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -52,22 +58,30 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     private AuthenticationSuccessHandler successHandler() {
-        return new AuthenticationSuccessHandler() {
-            @Override
-            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                response.getWriter().append("OK");
-                response.setStatus(200);
+        return (request, response, authentication) -> {
+
+            // return a json response to the user containing the list of authorities of the user
+            HashMap<String, ArrayList<String>> res = new HashMap<>();
+
+            ArrayList<String> roles = new ArrayList<>();
+            for (GrantedAuthority a : authentication.getAuthorities()) {
+                roles.add(a.getAuthority());
             }
+            res.put("roles", roles);
+
+            String json = new Gson().toJson(res);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(json);
+            response.setStatus(200);
         };
     }
 
     private AuthenticationFailureHandler failureHandler() {
-        return new AuthenticationFailureHandler() {
-            @Override
-            public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-                response.getWriter().append("Authentication failed");
-                response.setStatus(401);
-            }
+        return (request, response, exception) -> {
+            // user could not be authenticated
+            response.getWriter().append("Authentication failed");
+            response.setStatus(401);
         };
     }
 

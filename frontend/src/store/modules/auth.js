@@ -24,7 +24,6 @@ const actions = {
   },
 
   async LogIn({ commit }, user) {
-
     const config = {
       method: "post",
       url: "login",
@@ -32,9 +31,12 @@ const actions = {
       data: user,
     };
 
-    await axios(config);
+    // todo cookie?
+    const isAdmin = await axios(config).then((res) => {
+      return res.data["roles"].indexOf("ADMIN") !== -1; // check if user is admin
+    });
     await commit("setUser", user.get("username"));
-    await commit("setAdmin", user.get("username") === "leopold"); // todo
+    await commit("setAdmin", isAdmin); // todo
   },
 
   async LogOut({ commit }) {
