@@ -193,6 +193,7 @@ public class DataAccessObjectTest {
         bill.setAmount(12.12d);
         bill.setPaymentMethod("Cash");
         bill.setOwner(user);
+        bill.setCreateTime(1648727482L);
 
         int numRows = dao.createBill(bill);
         assertEquals(1, numRows);
@@ -226,6 +227,7 @@ public class DataAccessObjectTest {
         list.setName("testlist");
         list.setDescription("testdescription");
         list.setOwner(user);
+        list.setCreateTime(1648727482L);
         int numRows = dao.createList(list);
         assertEquals(1, numRows);
     }

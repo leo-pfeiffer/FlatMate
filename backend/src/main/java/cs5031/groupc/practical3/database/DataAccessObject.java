@@ -249,7 +249,7 @@ public class DataAccessObject {
      */
     public ArrayList<Bill> getBillsForUser(String username) {
         assert username != null;
-        String sql = "SELECT b.bill_id as bill_id, name, description, amount, payment_method, owner " +
+        String sql = "SELECT b.bill_id as bill_id, name, description, amount, payment_method, owner, create_time " +
                 "FROM user_bill " +
                 "INNER JOIN bill b ON user_bill.bill_id = b.bill_id " +
                 "WHERE user_bill.username = ?";
@@ -309,7 +309,7 @@ public class DataAccessObject {
      */
     public ArrayList<List> getListsForGroup(Long groupId) {
         assert groupId != null;
-        String sql = "SELECT list_id, name, description, owner, bill_id " +
+        String sql = "SELECT list_id, name, description, owner, bill_id, create_time " +
                 "FROM list " +
                 "INNER JOIN user ON list.owner = user.username " +
                 "WHERE user.group_id = ?";
