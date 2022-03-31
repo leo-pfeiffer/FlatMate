@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.6.4'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id 'application'
 }
 
 group = 'cs5031.groupc'
@@ -19,15 +20,29 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.xerial:sqlite-jdbc'
+	implementation 'org.hibernate:hibernate-core'
+
+    // sqlite dialect
+	implementation 'com.github.gwenn:sqlite-dialect:0.1.2'
+
+	// runtimeOnly 'com.h2database:h2'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
+	// testImplementation group: 'com.h2database', name: 'h2', version: '1.3.148'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+mainClassName = 'cs5031.groupc.practical3.Practical3Application'

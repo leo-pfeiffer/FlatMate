@@ -38,3 +38,4 @@ out/
 
 # Project specific
 /src/main/resources/db/db.sqlite
+/src/test/resources/db/db.sqlite

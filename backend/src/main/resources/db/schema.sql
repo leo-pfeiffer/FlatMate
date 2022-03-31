@@ -1,10 +1,17 @@
 PRAGMA
-foreign_keys = TRUE;
+    foreign_keys = TRUE;
+
+DROP TABLE IF EXISTS "list_item";
+DROP TABLE IF EXISTS "list";
+DROP TABLE IF EXISTS "user_bill";
+DROP TABLE IF EXISTS "bill";
+DROP TABLE IF EXISTS "user";
+DROP TABLE IF EXISTS "group";
 
 CREATE TABLE "group"
 (
     group_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name     VARCHAR NOT NULL
+    name     VARCHAR(30) NOT NULL UNIQUE
 );
 
 CREATE TABLE "user"
@@ -13,8 +20,9 @@ CREATE TABLE "user"
     password VARCHAR(64) NOT NULL,
     group_id INTEGER,
     role     VARCHAR(20) NOT NULL,
+    enabled  BOOLEAN     NOT NULL,
     FOREIGN KEY (group_id) REFERENCES "group",
-    CHECK (role IN ('member', 'admin'))
+    CHECK (role IN ('USER', 'ADMIN'))
 );
 
 CREATE TABLE "bill"
@@ -23,6 +31,7 @@ CREATE TABLE "bill"
     name           VARCHAR(30)   NOT NULL,
     description    VARCHAR(100),
     amount         DECIMAL(5, 2) NOT NULL,
+    create_time    INTEGER       NOT NULL,  -- UNIX timestamp
     payment_method VARCHAR(30),
     owner          VARCHAR(20)   NOT NULL,
     FOREIGN KEY (owner) REFERENCES "user" ON UPDATE CASCADE
@@ -45,6 +54,7 @@ CREATE TABLE "list"
     list_id     INTEGER PRIMARY KEY AUTOINCREMENT,
     name        VARCHAR(30) NOT NULL,
     description VARCHAR(100),
+    create_time    INTEGER       NOT NULL,  -- UNIX timestamp
     owner       VARCHAR(20) NOT NULL,
     bill_id     INTEGER,
     FOREIGN KEY (owner) REFERENCES "user" ON UPDATE CASCADE,
