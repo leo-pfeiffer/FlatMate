@@ -24,7 +24,15 @@ const actions = {
   },
 
   async LogIn({ commit }, user) {
-    await axios.post("login", user);
+
+    const config = {
+      method: "post",
+      url: "login",
+      headers: { "Content-Type": "multipart/form-data" },
+      data: user,
+    };
+
+    await axios(config);
     await commit("setUser", user.get("username"));
     await commit("setAdmin", user.get("username") === "leopold"); // todo
   },
