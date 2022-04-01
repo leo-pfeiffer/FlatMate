@@ -124,6 +124,11 @@ export default {
       for (let li of listItems) {
         let listId = li.list.listId;
         const list = li.list;
+        if (list.bill !== null) {
+          list["billId"] = list.bill.billId;
+        } else {
+          list["billId"] = null;
+        }
         if (!(listId in lists)) {
           list["listItems"] = [
             {
@@ -137,7 +142,7 @@ export default {
           });
         }
       }
-
+      console.log(Object.keys(lists).map((e) => lists[e]));
       return Object.keys(lists).map((e) => lists[e]);
     },
   },

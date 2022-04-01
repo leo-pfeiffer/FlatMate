@@ -69,6 +69,10 @@ const getListItemsForGroup = function () {
   return axios.get("api/group/getAllListItems");
 };
 
+const getListsForGroup = function () {
+  return axios.get("api/group/getAllLists");
+};
+
 const payBill = function (billId) {
   return axios.post("api/bill/pay", null, {
     params: { billId: billId },
@@ -83,8 +87,14 @@ const createListItem = function (listItem) {
   return axios.post("api/list/createItem", listItem);
 };
 
-const createBill = function (bill) {
-  return axios.post("api/bill/create", bill);
+const createBill = function (bill, listId) {
+  const params = {};
+  console.log("listId", listId);
+  if (listId !== null && listId !== "") {
+    params["listId"] = listId;
+  }
+
+  return axios.post("api/bill/create", bill, { params: params });
 };
 
 const createUserBill = function (billId, username, percentage) {
@@ -111,6 +121,7 @@ module.exports = {
   addUserToGroup: addUserToGroup,
   getUserBillsForGroup: getUserBillsForGroup,
   getListItemsForGroup: getListItemsForGroup,
+  getListsForGroup: getListsForGroup,
   payBill: payBill,
   createList: createList,
   createListItem: createListItem,

@@ -15,6 +15,7 @@
 <script>
 import CreateBillModal from "@/components/CreateBillModal";
 import CreateListModal from "@/components/CreateListModal";
+import { getListsForGroup, getUsers } from "@/api/api";
 
 export default {
   name: "SideBar",
@@ -27,28 +28,25 @@ export default {
     };
   },
   methods: {
-    newBillModal() {
+    getGroupUsers() {
+      return getUsers().then((res) => res.data.users);
+    },
+    getGroupLists() {
+      return getListsForGroup().then((res) => res.data.lists);
+    },
+    async newBillModal() {
       this.$buefy.modal.open({
         parent: this,
         component: CreateBillModal,
         hasModalCard: true,
         trapFocus: true,
         props: {
-          users: [
-            "leopold",
-            "lukas",
-            "lucas",
-            "jonathan",
-            "peter",
-            "john",
-            "paul",
-            "anna",
-            "jenny",
-          ],
+          users: await this.getGroupUsers(),
+          lists: await this.getGroupLists(),
         },
         events: {
-          'BillAdded': () => {
-            this.$emit('BillAdded')
+          BillAdded: () => {
+            this.$emit("BillAdded");
           },
         },
       });
@@ -60,8 +58,8 @@ export default {
         hasModalCard: true,
         trapFocus: true,
         events: {
-          'ListAdded': () => {
-            this.$emit('ListAdded')
+          ListAdded: () => {
+            this.$emit("ListAdded");
           },
         },
       });

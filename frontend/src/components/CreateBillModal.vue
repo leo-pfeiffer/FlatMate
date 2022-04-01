@@ -51,7 +51,11 @@
                 expanded
                 v-model="form.listId"
               >
-                <option v-for="list in lists" :value="list.id" :key="list.id">
+                <option
+                  v-for="list in lists"
+                  :value="list.listId"
+                  :key="list.listId"
+                >
                   {{ list.name }}
                 </option>
               </b-select>
@@ -128,7 +132,7 @@ export default {
         description: "",
         amount: 0,
         paymentMethod: "",
-        listId: "",
+        listId: null,
         selectedUsers: [],
         selectedPercentages: {},
       },
@@ -174,7 +178,7 @@ export default {
           paymentMethod: this.form.paymentMethod,
         };
 
-        await createBill(bill)
+        await createBill(bill, this.form.listId)
           .then((res) => res.data)
           .then((createdBill) => {
             return Object.keys(this.form.selectedPercentages).map((k) => {
