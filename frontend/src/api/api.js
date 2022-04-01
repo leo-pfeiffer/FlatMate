@@ -61,6 +61,10 @@ const usernameExists = function (username) {
   });
 };
 
+const getUserBillsForGroup = function() {
+  return axios.get("api/group/getAllUserBills");
+}
+
 module.exports = {
   testServerUp: testServerUp,
   register: register,
@@ -73,4 +77,5 @@ module.exports = {
   changeAdmin: changeAdmin,
   usernameExists: usernameExists,
   addUserToGroup: addUserToGroup,
+  getUserBillsForGroup: getUserBillsForGroup,
 };

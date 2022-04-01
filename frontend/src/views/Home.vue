@@ -18,7 +18,7 @@
                       :description="item.description"
                       :percentages="item.percentages"
                       :amount="item.amount"
-                      :owner="item.owner"
+                      :owner="item.owner.username"
                       :payment-method="item.paymentMethod"
                       :paid="item.paid"
                     />
@@ -58,6 +58,7 @@
 import SideBar from "@/components/SideBar";
 import Bill from "@/components/Bill";
 import List from "@/components/List";
+import { getUserBillsForGroup } from "@/api/api";
 
 export default {
   name: "Home",
@@ -68,86 +69,7 @@ export default {
   },
   data() {
     return {
-      bills: [
-        {
-          id: 1,
-          name: "Spotify",
-          description: "Monthly music subscription",
-          amount: 9.99,
-          percentages: [
-            { username: "leopold", percentage: 0.5 },
-            { username: "lukas", percentage: 0.5 },
-          ],
-          owner: "leopold",
-          paymentMethod: "Cash",
-          paid: false,
-        },
-        {
-          id: 2,
-          name: "Shopping",
-          description: "Grocery run",
-          amount: 27.32,
-          percentages: [
-            { username: "leopold", percentage: 0.5 },
-            { username: "lukas", percentage: 0.5 },
-          ],
-          owner: "lukas",
-          paymentMethod: "Cash",
-          paid: false,
-        },
-        {
-          id: 3,
-          name: "Drinks",
-          description: "Night out at the pub",
-          amount: 22.1,
-          percentages: [
-            { username: "leopold", percentage: 0.6 },
-            { username: "lukas", percentage: 0.4 },
-          ],
-          owner: "lukas",
-          paymentMethod: "Cash",
-          paid: true,
-        },
-        {
-          id: 4,
-          name: "Shopping",
-          description: "Another grocery run",
-          amount: 34.1,
-          percentages: [
-            { username: "leopold", percentage: 0.6 },
-            { username: "lukas", percentage: 0.4 },
-          ],
-          owner: "lukas",
-          paymentMethod: "Cash",
-          paid: true,
-        },
-        {
-          id: 5,
-          name: "Shopping",
-          description: "Another grocery run",
-          amount: 34.1,
-          percentages: [
-            { username: "leopold", percentage: 0.6 },
-            { username: "lukas", percentage: 0.4 },
-          ],
-          owner: "lukas",
-          paymentMethod: "Cash",
-          paid: true,
-        },
-        {
-          id: 6,
-          name: "Shopping",
-          description: "Another grocery run",
-          amount: 34.1,
-          percentages: [
-            { username: "leopold", percentage: 0.6 },
-            { username: "lukas", percentage: 0.4 },
-          ],
-          owner: "lukas",
-          paymentMethod: "Cash",
-          paid: true,
-        },
-      ],
+      bills: [],
       lists: [
         {
           id: 1,
@@ -190,6 +112,36 @@ export default {
         },
       ],
     };
+  },
+  async mounted() {
+    this.bills = await this.getBills();
+  },
+  methods: {
+    getBills: async function () {
+      const userBills = await getUserBillsForGroup().then((res) => res.data);
+      const bills = {};
+
+      for (let ub of userBills) {
+        let billId = ub.bill.billId;
+        const bill = ub.bill;
+        if (!(billId in bills)) {
+          bill["percentages"] = [
+            {
+              username: ub.user.username,
+              percentage: ub.percentage,
+            },
+          ];
+          bills[billId] = bill;
+        } else {
+          bills[billId]["percentages"].push({
+            username: ub.user.username,
+            percentage: ub.percentage,
+          });
+        }
+      }
+      return Object.keys(bills).map(e => bills[e]);
+    },
+    getLists: function () {},
   },
 };
 </script>
