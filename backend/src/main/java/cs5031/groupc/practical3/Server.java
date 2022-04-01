@@ -94,16 +94,15 @@ public class Server {
     }
 
 
-    /**
-     * A method that decribes the API. --> Works!
-     * @return Returns a string that describes the API.
-     */
-    @CrossOrigin(origins = "http://localhost:3000")
-    @GetMapping("/api")
-    public String apiDescription() {
-        ApiDescriber apiD = new ApiDescriber();
-        return apiD.describe();
-    }
+//    /**
+//     * A method that decribes the API. --> Works!
+//     * @return Returns a string that describes the API.
+//     */
+//    @CrossOrigin(origins = "http://localhost:3000")
+//    @GetMapping("/api")
+//    public String apiDescription() {
+//        return "redirect:/swagger-ui/index.html"
+//    }
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/test")
