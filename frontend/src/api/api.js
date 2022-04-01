@@ -1,8 +1,8 @@
 const axios = require("axios");
 
-const testServerUp = function() {
+const testServerUp = function () {
   return axios.get("up");
-}
+};
 
 const register = function (data) {
   return axios.post("api/user/create", data);
@@ -61,13 +61,19 @@ const usernameExists = function (username) {
   });
 };
 
-const getUserBillsForGroup = function() {
+const getUserBillsForGroup = function () {
   return axios.get("api/group/getAllUserBills");
-}
+};
 
-const getListItemsForGroup = function() {
+const getListItemsForGroup = function () {
   return axios.get("api/group/getAllListItems");
-}
+};
+
+const payBill = function (billId) {
+  return axios.post("api/bill/pay", null, {
+    params: { billId: billId },
+  });
+};
 
 module.exports = {
   testServerUp: testServerUp,
@@ -83,4 +89,5 @@ module.exports = {
   addUserToGroup: addUserToGroup,
   getUserBillsForGroup: getUserBillsForGroup,
   getListItemsForGroup: getListItemsForGroup,
+  payBill: payBill,
 };

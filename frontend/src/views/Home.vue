@@ -14,13 +14,13 @@
                 >
                   <article class="tile is-child">
                     <Bill
+                      :id="item.billId"
                       :name="item.name"
                       :description="item.description"
                       :percentages="item.percentages"
                       :amount="item.amount"
                       :owner="item.owner.username"
                       :payment-method="item.paymentMethod"
-                      :paid="item.paid"
                     />
                   </article>
                 </div>
@@ -37,7 +37,7 @@
                 >
                   <article class="tile is-child">
                     <List
-                      :id="item.id"
+                      :id="item.listId"
                       :name="item.name"
                       :description="item.description"
                       :owner="item.owner.username"
@@ -70,21 +70,7 @@ export default {
   data() {
     return {
       bills: [],
-      lists: [
-        {
-          id: 1,
-          name: "Shopping list 1",
-          description: "Gotta eat",
-          owner: "lukas",
-          listItems: [
-            { name: "Peach" },
-            { name: "Pear" },
-            { name: "Plums" },
-            { name: "Oranges" },
-          ],
-          billId: null,
-        },
-      ],
+      lists: [],
     };
   },
   async mounted() {
@@ -104,6 +90,7 @@ export default {
             {
               username: ub.user.username,
               percentage: ub.percentage,
+              paid: ub.paid,
             },
           ];
           bills[billId] = bill;
@@ -111,31 +98,35 @@ export default {
           bills[billId]["percentages"].push({
             username: ub.user.username,
             percentage: ub.percentage,
+            paid: ub.paid,
           });
         }
       }
-      return Object.keys(bills).map(e => bills[e]);
+      console.log(Object.keys(bills).map((e) => bills[e]));
+      return Object.keys(bills).map((e) => bills[e]);
     },
     getLists: async function () {
-      const listItems = await getListItemsForGroup().then(res => res.data)
+      const listItems = await getListItemsForGroup().then((res) => res.data);
       const lists = {};
 
       for (let li of listItems) {
         let listId = li.list.listId;
         const list = li.list;
         if (!(listId in lists)) {
-          list['listItems'] = [{
-            name: li.name
-          }]
+          list["listItems"] = [
+            {
+              name: li.name,
+            },
+          ];
           lists[listId] = list;
         } else {
-          lists[listId]['listItems'].push({
-            name: li.name
+          lists[listId]["listItems"].push({
+            name: li.name,
           });
         }
       }
 
-      return Object.keys(lists).map(e => lists[e])
+      return Object.keys(lists).map((e) => lists[e]);
     },
   },
 };
