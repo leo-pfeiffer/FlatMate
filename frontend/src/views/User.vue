@@ -97,6 +97,8 @@
 
 <script>
 import UserSideBar from "@/components/UserSideBar";
+import { getUserBillsForGroup, payBill } from "@/api/api";
+import { mapGetters } from "vuex";
 
 export default {
   name: "User",
@@ -120,6 +122,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({ User: "StateUser" }),
     totalPaymentAmount: function () {
       return this.history.reduce(
         (agg, next) => next.amount * next.percentage + agg,
@@ -133,14 +136,50 @@ export default {
       );
     },
   },
+  mounted() {
+    this.setHistory();
+    this.setDuePayments();
+  },
   methods: {
-    payAll: function () {
-      console.log("Pay of all due bills.");
+    payAll: async function () {
+      for (let dueBill of this.duePayments) {
+        await payBill(dueBill.id);
+      }
+      await this.setHistory();
+      await this.setDuePayments();
+    },
+    getAllUserBills: function () {
+      return getUserBillsForGroup()
+        .then((res) => res.data)
+        .then((userBills) => {
+          const myBills = [];
+          for (let ub of userBills) {
+            if (ub.user.username === this.User) {
+              myBills.push({
+                id: ub.bill.billId,
+                name: ub.bill.name,
+                amount: ub.bill.amount,
+                percentage: ub.percentage,
+                paid: ub.paid,
+              });
+            }
+          }
+          return myBills;
+        });
+    },
+    setHistory: async function () {
+      const userBills = await this.getAllUserBills();
+      this.history = userBills.filter((e) => e.paid);
+    },
+    setDuePayments: async function () {
+      const userBills = await this.getAllUserBills();
+      this.duePayments = userBills.filter((e) => !e.paid);
     },
   },
 };
 </script>
 
+<!--suppress CssUnusedSymbol -->
 <style scoped>
 #user {
   height: 100%;
