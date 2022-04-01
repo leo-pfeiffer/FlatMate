@@ -11,6 +11,9 @@
   </aside>
 </template>
 <script>
+import { mapGetters } from "vuex";
+import { removeCurrentUserFromGroup } from "@/api/api";
+
 export default {
   name: "SideBar",
   data() {
@@ -21,9 +24,15 @@ export default {
       },
     };
   },
+  computed: {
+    ...mapGetters({ User: "StateUser" }),
+  },
   methods: {
-    leaveGroup() {
-      console.log("Left group");
+    async leaveGroup() {
+      await removeCurrentUserFromGroup(this.User)
+        .then(() => this.$store.dispatch("CurrentGroup"))
+        .then(() => this.$store.dispatch("AdminRole"))
+        .then(() => this.$router.push("/lobby"));
     },
   },
 };

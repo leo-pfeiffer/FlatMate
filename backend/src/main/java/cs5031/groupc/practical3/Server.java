@@ -277,7 +277,25 @@ public class Server {
         throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "entity not found"
         );
+    }
 
+    /**
+     * Remove the current user from their group.
+     *
+     * @return Returns a 200 OK if successful and a 404 NOT FOUND if unsuccessful.
+     */
+    @CrossOrigin(origins = "http://localhost:3000")
+    @PostMapping("/api/group/removeCurrent")
+    public ResponseEntity removeCurrentUserFromGroup() {
+        try {
+            dao.removeUserFromGroup(getUser());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "entity not found"
+        );
     }
 
     /**

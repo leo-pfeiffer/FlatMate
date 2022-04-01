@@ -43,6 +43,10 @@ const removeUserFromGroup = function (username) {
   });
 };
 
+const removeCurrentUserFromGroup = function () {
+  return axios.post("api/group/removeCurrent");
+};
+
 const addUserToGroup = function (username) {
   return axios.post("api/group/add", null, {
     params: { username: username },
@@ -115,6 +119,7 @@ module.exports = {
   getCurrentUser: getCurrentUser,
   createGroup: createGroup,
   removeUserFromGroup: removeUserFromGroup,
+  removeCurrentUserFromGroup: removeCurrentUserFromGroup,
   getUsers: getUsers,
   changeAdmin: changeAdmin,
   usernameExists: usernameExists,

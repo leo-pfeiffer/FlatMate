@@ -142,13 +142,13 @@ export default {
           });
         }
       }
-      console.log(Object.keys(lists).map((e) => lists[e]));
       return Object.keys(lists).map((e) => lists[e]);
     },
   },
 };
 </script>
 
+<!--suppress CssUnusedSymbol -->
 <style scoped>
 #home {
   height: 100%;
