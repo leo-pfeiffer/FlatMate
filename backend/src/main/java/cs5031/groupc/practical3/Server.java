@@ -256,6 +256,10 @@ public class Server {
             User actingUser = dao.getUser(getUser());
             String groupname = actingUser.getGroup().getName();
             System.out.println(username);
+
+            // todo check if user with 'username' is already in a group.
+            //  If yes, abort (user must leave group first).
+
             dao.addUserToGroup(username, groupname);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
