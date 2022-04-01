@@ -40,7 +40,7 @@
                       :id="item.id"
                       :name="item.name"
                       :description="item.description"
-                      :owner="item.owner"
+                      :owner="item.owner.username"
                       :list-items="item.listItems"
                       :bill-id="item.billId"
                     />
@@ -58,7 +58,7 @@
 import SideBar from "@/components/SideBar";
 import Bill from "@/components/Bill";
 import List from "@/components/List";
-import { getUserBillsForGroup } from "@/api/api";
+import { getListItemsForGroup, getUserBillsForGroup } from "@/api/api";
 
 export default {
   name: "Home",
@@ -84,37 +84,12 @@ export default {
           ],
           billId: null,
         },
-        {
-          id: 2,
-          name: "Shopping list 2",
-          description: "Always hungry",
-          owner: "leopold",
-          listItems: [
-            { name: "Peach" },
-            { name: "Pear" },
-            { name: "Plums" },
-            { name: "Oranges" },
-          ],
-          billId: null,
-        },
-        {
-          id: 3,
-          name: "Shopping list 3",
-          description: "Gimme gimme food",
-          owner: "lukas",
-          listItems: [
-            { name: "Peach" },
-            { name: "Pear" },
-            { name: "Plums" },
-            { name: "Oranges" },
-          ],
-          billId: 1,
-        },
       ],
     };
   },
   async mounted() {
     this.bills = await this.getBills();
+    this.lists = await this.getLists();
   },
   methods: {
     getBills: async function () {
@@ -141,7 +116,27 @@ export default {
       }
       return Object.keys(bills).map(e => bills[e]);
     },
-    getLists: function () {},
+    getLists: async function () {
+      const listItems = await getListItemsForGroup().then(res => res.data)
+      const lists = {};
+
+      for (let li of listItems) {
+        let listId = li.list.listId;
+        const list = li.list;
+        if (!(listId in lists)) {
+          list['listItems'] = [{
+            name: li.name
+          }]
+          lists[listId] = list;
+        } else {
+          lists[listId]['listItems'].push({
+            name: li.name
+          });
+        }
+      }
+
+      return Object.keys(lists).map(e => lists[e])
+    },
   },
 };
 </script>

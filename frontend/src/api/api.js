@@ -65,6 +65,10 @@ const getUserBillsForGroup = function() {
   return axios.get("api/group/getAllUserBills");
 }
 
+const getListItemsForGroup = function() {
+  return axios.get("api/group/getAllListItems");
+}
+
 module.exports = {
   testServerUp: testServerUp,
   register: register,
@@ -78,4 +82,5 @@ module.exports = {
   usernameExists: usernameExists,
   addUserToGroup: addUserToGroup,
   getUserBillsForGroup: getUserBillsForGroup,
+  getListItemsForGroup: getListItemsForGroup,
 };

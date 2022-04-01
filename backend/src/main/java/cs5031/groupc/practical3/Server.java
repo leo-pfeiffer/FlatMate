@@ -422,6 +422,36 @@ public class Server {
     }
 
     /**
+     * A Endpoint that returns all list items for a group. --> Works!
+     *
+     * @return returns an ArrayList of all list items.
+     */
+    @CrossOrigin(origins = "http://localhost:3000")
+    @GetMapping("/api/group/getAllListItems")
+    public ArrayList<ListItem> getAllGroupListItems() {
+        try {
+            User actingUser = dao.getUser(getUser());
+            long groupId = actingUser.getGroup().getGroupId();
+            ArrayList<ListItem> groupListItems = new ArrayList<>();
+            ArrayList<List> groupLists = dao.getListsForGroup(groupId);
+
+            for (List l : groupLists) {
+                ArrayList<ListItem> listItems = dao.getListItemsForList(l.getListId());
+                for (ListItem li : listItems) {
+                    privatize(li.getList());
+                }
+                groupListItems.addAll(listItems);
+            }
+            return groupListItems;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "entity not found"
+        );
+    }
+
+    /**
      * A method that returns a bill by its id. --> Works!
      * @param id The id of the bill.
      * @return Returns a bill object.
