@@ -73,6 +73,7 @@
 <script>
 import { mapGetters } from "vuex";
 import {
+  addUserToGroup,
   changeAdmin,
   getUsers,
   removeUserFromGroup,
@@ -94,17 +95,20 @@ export default {
     ...mapGetters({ User: "StateUser" }),
   },
   async mounted() {
-    this.users = await getUsers()
-      .then((res) => {
-        return res.data.users;
-      })
-      .then((users) =>
-        users.map((u) => {
-          return { username: u };
-        })
-      );
+    this.users = await this.getUsersFromGroup();
   },
   methods: {
+    getUsersFromGroup: function () {
+      return getUsers()
+        .then((res) => {
+          return res.data.users;
+        })
+        .then((users) =>
+          users.map((u) => {
+            return { username: u };
+          })
+        );
+    },
     search: async function () {
       if (this.searchInput.length > 0) {
         const res = await usernameExists(this.searchInput).then(
@@ -137,8 +141,19 @@ export default {
       await removeUserFromGroup(username);
       this.removeUserFromList(username);
     },
-    addUser: function () {
+    addUser: async function () {
       console.log("New user", this.searchResult);
+      if (this.searchResult.length > 0) {
+        const exists = await usernameExists(this.searchInput).then(
+          (res) => res.data
+        );
+        if (exists) {
+          await addUserToGroup(this.searchInput);
+          this.users = await this.getUsersFromGroup();
+        } else {
+          this.noResults = true;
+        }
+      }
     },
     removeUserFromList: function (username) {
       let index = -1;
