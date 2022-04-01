@@ -13,5 +13,7 @@ public class ListCreator {
 
     private String name;
     private String description;
-    private int bill_id;
+    private String bill_id;
+
+
 }

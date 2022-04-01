@@ -44,6 +44,26 @@ public class Server {
         return groupBills;
     }
 
+    private List privatize(List l) {
+        l.getOwner().setPassword(null);
+        Bill b = l.getBill();
+        if(b != null){
+            privatize(b);
+        }
+        return l;
+    }
+
+
+
+    private long getListID() {
+        long ret = 0;
+        ArrayList<Group> groups = dao.getAllGroups();
+        for(Group group : groups){
+            //ArrayList<List> lists = dao.get
+        }
+        return ret;
+    }
+
     /**
      * A method that confirms that the server is in fact running. --> Works!
      * @return Returns a string confirming the server is running.
@@ -287,10 +307,6 @@ public class Server {
             User actingUser = dao.getUser(getUser());
             long groupId = actingUser.getGroup().getGroupId();
             ArrayList<Bill> groupBills = privatize(dao.getBillsForGroup(groupId));
-            /*//ArrayList<Bill> dataProtectedBills = new ArrayList();
-            for (Bill b : groupBills) {
-                privatize(b);
-            }*/
             HashMap<String, ArrayList<Bill>> ret = new HashMap();
             ret.put("bills", groupBills);
             return ret;
@@ -332,9 +348,25 @@ public class Server {
 
     }
 
+    /**
+     * A method that returns a list by its ID.
+     * @param id The id of the list.
+     * @return The list.
+     */
+
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getList")
-    public void getListByID(@RequestParam int id) {
+    public List getListByID(@RequestParam long id) {
+        try {
+            List list = dao.getList(id);
+            List dpList = privatize(list);
+            return dpList;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "entity not found"
+        );
 
     }
 
@@ -344,15 +376,50 @@ public class Server {
 
     }
 
+
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/bill/pay")
-    public void payBill(@RequestParam int id) {
+    public ResponseEntity payBill(@RequestParam long billId) {
+        try {
+            dao.setUserBillToPaid(billId,getUser());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "entity not found"
+        );
 
     }
 
+    /**
+     * A enpoint that creates a new list
+     * @param data A Dataobject conteining the name, description and billID
+     * @return 200 OK if sucessful or 404 NOT FOUND if not.
+     */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/list/create")
-    public void createList(@RequestBody ListCreator data) {
+    public ResponseEntity createList(@RequestBody ListCreator data) {
+        try {
+            List list = new List();
+            list.setListId(getListID());
+            list.setName(data.getName());
+            list.setDescription(data.getDescription());
+            list.setOwner(dao.getUser(getUser()));
+            if(data.getBill_id() != null){
+                long billID = Long.parseLong(data.getBill_id());
+                 list.setBill(dao.getBill(billID));
+            }
+            long time = System.currentTimeMillis() / 1000L;
+            list.setCreateTime(time);
+            dao.createList(list);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "entity not found"
+        );
 
     }
 
