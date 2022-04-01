@@ -74,15 +74,6 @@ public class Server {
     }
 */
 
-    private long getListID() {
-        long ret = dao.getHighestListId();
-        return ret + 1;
-    }
-
-    private long getBillID() {
-        long ret = dao.getHighestBillId();
-        return ret + 1;
-    }
     /**
      * A method that confirms that the server is in fact running. --> Works!
      * @return Returns a string confirming the server is running.
@@ -456,7 +447,6 @@ public class Server {
                                      @RequestParam(required=false) Long listId) {
         try {
             System.out.println(listId);
-            bill.setBillId(getBillID());
             bill.setOwner(dao.getUser(getUser()));
             long time = System.currentTimeMillis() / 1000L;
             bill.setCreateTime(time);
@@ -508,7 +498,6 @@ public class Server {
     @PostMapping("/api/list/create")
     public ResponseEntity createList(@RequestBody List list) {
         try {
-            list.setListId(getListID());
             list.setOwner(dao.getUser(getUser()));
             list.setBill(null);
             long time = System.currentTimeMillis() / 1000L;
