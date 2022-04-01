@@ -157,7 +157,7 @@ public class Server {
     /**
      * A Enpoint that creates a new User and stores it in the database. --> Works!
      *
-     * @param data The necessary data to create a new user, consisting of the username and password.
+     * @param user The necessary data to create a new user, consisting of the username and password.
      * @return returns a 200 OK response if successfull, and a 404 NOT FOUND if unsuccessful.
      */
     @CrossOrigin(origins = "http://localhost:3000")
@@ -364,8 +364,35 @@ public class Server {
         throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "entity not found"
         );
+    }
 
-
+    /**
+     * An endpoint that returns an array list with all user bill objects of the group.
+     *
+     * @return returns an ArrayList in the format (will be cast to JSON).
+     */
+    @CrossOrigin(origins = "http://localhost:3000")
+    @GetMapping("/api/group/getAllUserBills")
+    public ArrayList<UserBill> getUserBillsForGroup() {
+        try {
+            User actingUser = dao.getUser(getUser());
+            long groupId = actingUser.getGroup().getGroupId();
+            ArrayList<UserBill> groupUserBills = new ArrayList<>();
+            ArrayList<Bill> groupBills = privatize(dao.getBillsForGroup(groupId));
+            for (Bill b : groupBills) {
+                ArrayList<UserBill> userBills = dao.getUserBillsForBill(b.getBillId());
+                for (UserBill ub : userBills) {
+                    privatize(ub.getBill());
+                }
+                groupUserBills.addAll(userBills);
+            }
+            return groupUserBills;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "entity not found"
+        );
     }
 
 
@@ -491,7 +518,7 @@ public class Server {
 
     /**
      * A enpoint that creates a new list --> Works!
-     * @param data A Dataobject conteining the name, description and billID
+     * @param list A Dataobject conteining the name, description and billID
      * @return 200 OK if sucessful or 404 NOT FOUND if not.
      */
     @CrossOrigin(origins = "http://localhost:3000")
