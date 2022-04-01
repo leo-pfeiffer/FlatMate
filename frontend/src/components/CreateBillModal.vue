@@ -74,7 +74,7 @@
 
           <div class="column" v-if="form.selectedUsers.length > 0">
             <div>
-              <span class="has-text-weight-bold">Contribution share</span><br>
+              <span class="has-text-weight-bold">Contribution share</span><br />
               <span class="has-text-danger" v-if="percentageSum !== 1">
                 Sum: {{ percentageSum.toFixed(2) }}
               </span>
@@ -104,12 +104,15 @@
       <footer class="modal-card-foot">
         <b-button label="Close" @click="$emit('close')" />
         <b-button label="Save" type="is-primary" @click="submitForm" />
+        <p v-if="created" class="has-text-success-dark">Bill added!</p>
       </footer>
     </div>
   </form>
 </template>
 
 <script>
+import { createBill, createUserBill } from "@/api/api";
+
 export default {
   name: "CreateBillModal",
   props: {
@@ -118,6 +121,7 @@ export default {
   },
   data() {
     return {
+      created: false,
       percentageSum: 0,
       form: {
         name: "",
@@ -161,9 +165,36 @@ export default {
           .reduce((a, b) => a && b, true)
       );
     },
-    submitForm: function () {
+    submitForm: async function () {
       if (this.formFilledOut()) {
-        console.log(this.form);
+        const bill = {
+          name: this.form.name,
+          description: this.form.description,
+          amount: this.form.amount,
+          paymentMethod: this.form.paymentMethod,
+        };
+
+        await createBill(bill)
+          .then((res) => res.data)
+          .then((createdBill) => {
+            return Object.keys(this.form.selectedPercentages).map((k) => {
+              const p = this.form.selectedPercentages[k];
+              return {
+                billId: createdBill.billId,
+                username: k,
+                percentage: p,
+              };
+            });
+          })
+          .then(async (userBills) => {
+            for (let ub of userBills) {
+              await createUserBill(ub.billId, ub.username, ub.percentage);
+            }
+          })
+          .then(() => {
+            this.created = true;
+            this.$emit("BillAdded");
+          });
       }
     },
   },

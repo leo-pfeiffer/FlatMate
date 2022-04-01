@@ -1,6 +1,11 @@
 <template>
   <div id="home" class="columns">
-    <SideBar id="my-side-bar" class="column" />
+    <SideBar
+      id="my-side-bar"
+      class="column"
+      @ListAdded="updateLists"
+      @BillAdded="updateBills"
+    />
     <section id="content-section">
       <div class="container">
         <b-tabs>
@@ -16,6 +21,7 @@
                     <Bill
                       :id="item.billId"
                       :name="item.name"
+                      :time="item.createTime"
                       :description="item.description"
                       :percentages="item.percentages"
                       :amount="item.amount"
@@ -38,6 +44,7 @@
                   <article class="tile is-child">
                     <List
                       :id="item.listId"
+                      :time="item.createTime"
                       :name="item.name"
                       :description="item.description"
                       :owner="item.owner.username"
@@ -73,11 +80,17 @@ export default {
       lists: [],
     };
   },
-  async mounted() {
-    this.bills = await this.getBills();
-    this.lists = await this.getLists();
+  mounted() {
+    this.updateBills();
+    this.updateLists();
   },
   methods: {
+    updateLists: async function () {
+      this.lists = await this.getLists();
+    },
+    updateBills: async function () {
+      this.bills = await this.getBills();
+    },
     getBills: async function () {
       const userBills = await getUserBillsForGroup().then((res) => res.data);
       const bills = {};
@@ -102,7 +115,6 @@ export default {
           });
         }
       }
-      console.log(Object.keys(bills).map((e) => bills[e]));
       return Object.keys(bills).map((e) => bills[e]);
     },
     getLists: async function () {

@@ -75,6 +75,28 @@ const payBill = function (billId) {
   });
 };
 
+const createList = function (list) {
+  return axios.post("api/list/create", list);
+};
+
+const createListItem = function (listItem) {
+  return axios.post("api/list/createItem", listItem);
+};
+
+const createBill = function (bill) {
+  return axios.post("api/bill/create", bill);
+};
+
+const createUserBill = function (billId, username, percentage) {
+  return axios.post("api/bill/createUserBill", null, {
+    params: {
+      billId: billId,
+      username: username,
+      percentage: percentage,
+    },
+  });
+};
+
 module.exports = {
   testServerUp: testServerUp,
   register: register,
@@ -90,4 +112,8 @@ module.exports = {
   getUserBillsForGroup: getUserBillsForGroup,
   getListItemsForGroup: getListItemsForGroup,
   payBill: payBill,
+  createList: createList,
+  createListItem: createListItem,
+  createBill: createBill,
+  createUserBill: createUserBill,
 };

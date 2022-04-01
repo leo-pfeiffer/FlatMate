@@ -488,24 +488,26 @@ public class Server {
     }
 
     /**
-     * A Endpoit that creates a Bill --> Works!
+     * An endpoint that creates a Bill --> Works!
      *
      * @param bill The bill name, description, amount, and payment method.
+     * @return The created bill object
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/bill/create")
-    public ResponseEntity createBill(@RequestBody Bill bill,
+    public Bill createBill(@RequestBody Bill bill,
                                      @RequestParam(required = false) Long listId) {
         try {
             System.out.println(listId);
             bill.setOwner(dao.getUser(getUser()));
             long time = System.currentTimeMillis() / 1000L;
             bill.setCreateTime(time);
-            dao.createBill(bill);
+            Bill createdBill = dao.createBillAndReturnId(bill);
+            createdBill.protect();
             if (listId != null) {
                 dao.addBillToList(listId, bill.getBillId());
             }
-            return ResponseEntity.ok().build();
+            return createdBill;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -545,17 +547,38 @@ public class Server {
      * A enpoint that creates a new list --> Works!
      *
      * @param list A Dataobject conteining the name, description and billID
-     * @return 200 OK if sucessful or 404 NOT FOUND if not.
+     * @return The created list item
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/list/create")
-    public ResponseEntity createList(@RequestBody List list) {
+    public List createList(@RequestBody List list) {
         try {
             list.setOwner(dao.getUser(getUser()));
             list.setBill(null);
             long time = System.currentTimeMillis() / 1000L;
             list.setCreateTime(time);
-            dao.createList(list);
+            List created = dao.createListAndReturnId(list);
+            created.protect();
+            return created;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "entity not found"
+        );
+    }
+
+    /**
+     * An endpoint that creates a new list item
+     *
+     * @param listItem List Item to create
+     * @return 200 OK if successful or 404 NOT FOUND if not.
+     */
+    @CrossOrigin(origins = "http://localhost:3000")
+    @PostMapping("/api/list/createItem")
+    public ResponseEntity createListItem(@RequestBody ListItem listItem) {
+        try {
+            dao.createListItem(listItem);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -563,6 +586,31 @@ public class Server {
         throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "entity not found"
         );
+    }
 
+    /**
+     * An endpoint that creates a new list item
+     *
+     * @return 200 OK if successful or 404 NOT FOUND if not.
+     */
+    @CrossOrigin(origins = "http://localhost:3000")
+    @PostMapping("/api/bill/createUserBill")
+    public ResponseEntity createUserBill(@RequestParam long billId,
+                                         @RequestParam String username,
+                                         @RequestParam double percentage) {
+        try {
+            UserBill userBill = new UserBill();
+            userBill.setUser(dao.getUser(username));
+            userBill.setBill(dao.getBill(billId));
+            userBill.setPercentage(percentage);
+
+            dao.createUserBill(userBill);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "entity not found"
+        );
     }
 }

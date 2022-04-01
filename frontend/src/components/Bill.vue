@@ -8,6 +8,7 @@
       ><br />
     </p>
     <div class="content">
+      <p>{{ (new Date(time * 1e3)).toISOString().slice(0, 10) }}<br></p>
       <p>{{ description }}</p>
       <table>
         <tr
@@ -35,6 +36,7 @@ export default {
   name: "Bill",
   props: {
     id: Number,
+    time: Number,
     name: String,
     description: String,
     amount: Number,

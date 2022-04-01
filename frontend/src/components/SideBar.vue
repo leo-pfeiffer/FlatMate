@@ -46,6 +46,11 @@ export default {
             "jenny",
           ],
         },
+        events: {
+          'BillAdded': () => {
+            this.$emit('BillAdded')
+          },
+        },
       });
     },
     newListModal() {
@@ -54,6 +59,11 @@ export default {
         component: CreateListModal,
         hasModalCard: true,
         trapFocus: true,
+        events: {
+          'ListAdded': () => {
+            this.$emit('ListAdded')
+          },
+        },
       });
     },
   },

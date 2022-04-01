@@ -5,6 +5,7 @@
       <span>Created by: {{ owner }}</span>
     </p>
     <div class="content">
+      <p>{{ (new Date(time * 1e3)).toISOString().slice(0, 10) }}<br></p>
       <p>{{ description }}</p>
       <ul class="inner-list">
         <li v-for="(item, index) of listItems" :key="index">
@@ -26,6 +27,7 @@ export default {
   name: "List",
   props: {
     id: Number,
+    time: Number,
     name: String,
     description: String,
     owner: String,
