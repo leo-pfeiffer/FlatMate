@@ -433,4 +433,24 @@ public class DataAccessObject {
         return jdbcTemplate.update(sql, true, billId, username);
     }
 
+    /**
+     * Get the highest bill ID in the database so the server can assign valid IDs after restart.
+     *
+     * @return Returns the highst bill ID.
+     */
+    public long highestBillId(){
+        //TODO: get currently highest bill ID
+        return 0l;
+    }
+
+    /**
+     * Get the highest list ID in the database so the server can assign valid IDs after restart.
+     *
+     * @return Returns the highst list ID.
+     */
+    public long highestListId(){
+        //TODO: get currently highest list ID
+        return 0l;
+    }
+
 }
