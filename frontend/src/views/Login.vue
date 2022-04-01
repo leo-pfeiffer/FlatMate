@@ -43,10 +43,7 @@ export default {
   methods: {
     ...mapActions(["LogIn"]),
     async submit() {
-      const salt = process.env.VUE_APP_SALT;
-      console.log(salt);
       const User = new FormData();
-      // todo add salt to password
       User.append("username", this.form.username);
       User.append("password", this.form.password);
       try {

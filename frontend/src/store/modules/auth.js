@@ -1,4 +1,5 @@
 import axios from "axios";
+import crypto from "crypto";
 
 // built with the help of
 // https://www.smashingmagazine.com/2020/10/authentication-in-vue-js/
@@ -16,7 +17,13 @@ const getters = {
 
 const actions = {
   async Register({ dispatch }, form) {
-    await axios.post("api/user/create", form);
+    // salt and hash password
+    const config = {
+      username: form.username,
+      password: hashWithSalt(form.password),
+    };
+
+    await axios.post("api/user/create", config);
     let UserForm = new FormData();
     UserForm.append("username", form.username);
     UserForm.append("password", form.password);
@@ -24,6 +31,9 @@ const actions = {
   },
 
   async LogIn({ commit }, user) {
+    // hash password with salt
+    user.set("password", hashWithSalt(user.get("password")));
+
     const config = {
       method: "post",
       url: "login",
@@ -58,6 +68,11 @@ const mutations = {
   logout(state, user) {
     state.user = user;
   },
+};
+
+const hashWithSalt = function (password) {
+  const SALT = process.env.VUE_APP_SALT;
+  return crypto.createHmac("sha256", password).update(SALT).digest("hex");
 };
 
 export default {
