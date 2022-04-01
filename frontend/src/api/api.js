@@ -1,5 +1,9 @@
 const axios = require("axios");
 
+const testServerUp = function() {
+  return axios.get("up");
+}
+
 const register = function (data) {
   return axios.post("api/user/create", data);
 };
@@ -58,6 +62,7 @@ const usernameExists = function (username) {
 };
 
 module.exports = {
+  testServerUp: testServerUp,
   register: register,
   login: login,
   logout: logout,

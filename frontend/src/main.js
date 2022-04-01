@@ -12,8 +12,8 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 // Axios configuration
 axios.defaults.withCredentials = true;
 
-axios.defaults.baseURL = "http://localhost:8080/";
-// axios.defaults.baseURL = "https://gabbyblog.herokuapp.com/";
+// set the base URL
+axios.defaults.baseURL = process.env.VUE_APP_BASE_URL;
 
 // interceptors for authorisation and rerouting
 axios.interceptors.response.use(undefined, function (error) {
