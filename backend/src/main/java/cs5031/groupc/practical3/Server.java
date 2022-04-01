@@ -88,6 +88,24 @@ public class Server {
         return "in api test2";
     }
 
+    /**
+     * Get the user object for the currently logged-in user.
+     * @return User object
+     * */
+    @CrossOrigin(origins = "http://localhost:3000")
+    @GetMapping("/api/user")
+    public User getCurrentUser() {
+        try {
+            User user = dao.getUser(getUser());
+            user.setPassword(null);
+            return user;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "entity not found"
+        );
+    }
 
     /**
      * A Enpoint that creates a new User and stores it in the database. --> Works!
