@@ -45,6 +45,12 @@ const changeAdmin = function (username) {
   });
 };
 
+const usernameExists = function (username) {
+  return axios.get("api/user/exists", {
+    params: { username: username },
+  });
+};
+
 module.exports = {
   register: register,
   login: login,
@@ -54,4 +60,5 @@ module.exports = {
   removeUserFromGroup: removeUserFromGroup,
   getUsers: getUsers,
   changeAdmin: changeAdmin,
+  usernameExists: usernameExists,
 };

@@ -72,7 +72,12 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { changeAdmin, getUsers, removeUserFromGroup } from "@/api/api";
+import {
+  changeAdmin,
+  getUsers,
+  removeUserFromGroup,
+  usernameExists,
+} from "@/api/api";
 
 export default {
   name: "Admin",
@@ -100,15 +105,20 @@ export default {
       );
   },
   methods: {
-    search: function () {
-      // todo
-      if (this.searchInput === "error") {
-        this.noResults = true;
-      } else {
-        this.searchResult = this.searchInput;
-        this.noResults = false;
+    search: async function () {
+      if (this.searchInput.length > 0) {
+        const res = await usernameExists(this.searchInput).then(
+          (res) => res.data
+        );
+
+        if (!res) {
+          this.noResults = true;
+        } else {
+          this.searchResult = this.searchInput;
+          this.noResults = false;
+        }
+        this.searched = true;
       }
-      this.searched = true;
     },
     setSearched: function (val) {
       this.searched = val;
