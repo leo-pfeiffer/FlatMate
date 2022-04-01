@@ -23,11 +23,17 @@ const getCurrentUser = function () {
   return axios.get("api/user");
 };
 
-const createGroup = async function (groupName) {
-  return await axios.post("api/group/create", null, {
+const createGroup = function (groupName) {
+  return axios.post("api/group/create", null, {
     params: { groupname: groupName },
   });
 };
+
+const removeUserFromGroup = function(username) {
+  return axios.post("api/group/remove", null, {
+    params: { username: username }
+  })
+}
 
 module.exports = {
   register: register,
@@ -35,4 +41,5 @@ module.exports = {
   logout: logout,
   getCurrentUser: getCurrentUser,
   createGroup: createGroup,
+  removeUserFromGroup: removeUserFromGroup,
 };

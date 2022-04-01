@@ -72,6 +72,7 @@
 
 <script>
 import { mapGetters } from "vuex";
+import { removeUserFromGroup } from "@/api/api";
 
 export default {
   name: "Admin",
@@ -114,6 +115,15 @@ export default {
     },
     removeUser: function (username) {
       console.log("Removed", username);
+      removeUserFromGroup(username);
+
+      let index = -1;
+      for(let i = 0; i < this.users.length; i++) {
+        if (this.users[i].username === username) {
+          index = i;
+        }
+      }
+      this.users.splice(index, 1);
     },
     addUser: function () {
       console.log("New user", this.searchResult);
