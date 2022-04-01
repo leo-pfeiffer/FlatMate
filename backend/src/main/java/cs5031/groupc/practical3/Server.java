@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import cs5031.groupc.practical3.database.DataAccessObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -135,6 +136,26 @@ public class Server {
     }
 
     /**
+     * Returns true if the username exists, else false. This can be used, for example, for searches.
+     * @return Boolean
+     * */
+    @CrossOrigin(origins = "http://localhost:3000")
+    @GetMapping("/api/user/exists")
+    public boolean getUserExists(@RequestParam String username) {
+        try {
+            User user = dao.getUser(username);
+            return user != null;
+        } catch (EmptyResultDataAccessException e) {
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "entity not found"
+        );
+    }
+
+    /**
      * A Enpoint that creates a new User and stores it in the database. --> Works!
      *
      * @param data The necessary data to create a new user, consisting of the username and password.
@@ -226,6 +247,10 @@ public class Server {
             User actingUser = dao.getUser(getUser());
             String groupname = actingUser.getGroup().getName();
             System.out.println(username);
+
+            // todo check if user with 'username' is already in a group.
+            //  If yes, abort (user must leave group first).
+
             dao.addUserToGroup(username, groupname);
             return ResponseEntity.ok().build();
         } catch (Exception e) {

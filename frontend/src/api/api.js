@@ -23,9 +23,37 @@ const getCurrentUser = function () {
   return axios.get("api/user");
 };
 
-const createGroup = async function (groupName) {
-  return await axios.post("api/group/create", null, {
+const createGroup = function (groupName) {
+  return axios.post("api/group/create", null, {
     params: { groupname: groupName },
+  });
+};
+
+const getUsers = function () {
+  return axios.get("api/group/getUsers");
+};
+
+const removeUserFromGroup = function (username) {
+  return axios.post("api/group/remove", null, {
+    params: { username: username },
+  });
+};
+
+const addUserToGroup = function (username) {
+  return axios.post("api/group/add", null, {
+    params: { username: username },
+  });
+};
+
+const changeAdmin = function (username) {
+  return axios.post("api/group/changeAdmin", null, {
+    params: { username: username },
+  });
+};
+
+const usernameExists = function (username) {
+  return axios.get("api/user/exists", {
+    params: { username: username },
   });
 };
 
@@ -35,4 +63,9 @@ module.exports = {
   logout: logout,
   getCurrentUser: getCurrentUser,
   createGroup: createGroup,
+  removeUserFromGroup: removeUserFromGroup,
+  getUsers: getUsers,
+  changeAdmin: changeAdmin,
+  usernameExists: usernameExists,
+  addUserToGroup: addUserToGroup,
 };
