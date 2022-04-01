@@ -41,6 +41,9 @@ const actions = {
 
   async LogOut({ commit }) {
     let user = null;
+    // logout from backend
+    await axios("logout");
+    // remove user object from store
     commit("logout", user);
   },
 };
