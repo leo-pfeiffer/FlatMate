@@ -29,11 +29,15 @@ const createGroup = function (groupName) {
   });
 };
 
-const removeUserFromGroup = function(username) {
+const getUsers = function () {
+  return axios.get("api/group/getUsers");
+};
+
+const removeUserFromGroup = function (username) {
   return axios.post("api/group/remove", null, {
-    params: { username: username }
-  })
-}
+    params: { username: username },
+  });
+};
 
 module.exports = {
   register: register,
@@ -42,4 +46,5 @@ module.exports = {
   getCurrentUser: getCurrentUser,
   createGroup: createGroup,
   removeUserFromGroup: removeUserFromGroup,
+  getUsers: getUsers,
 };

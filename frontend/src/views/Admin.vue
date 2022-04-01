@@ -72,18 +72,13 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { removeUserFromGroup } from "@/api/api";
+import { getUsers, removeUserFromGroup } from "@/api/api";
 
 export default {
   name: "Admin",
   data() {
     return {
-      users: [
-        { username: "leopold" },
-        { username: "lukas" },
-        { username: "lucas" },
-        { username: "jonathan" },
-      ],
+      users: [],
       searchInput: "",
       searchResult: "",
       noResults: false,
@@ -92,6 +87,17 @@ export default {
   },
   computed: {
     ...mapGetters({ User: "StateUser" }),
+  },
+  async mounted() {
+    this.users = await getUsers()
+      .then((res) => {
+        return res.data.users;
+      })
+      .then((users) =>
+        users.map((u) => {
+          return { username: u };
+        })
+      );
   },
   methods: {
     search: function () {
@@ -118,7 +124,7 @@ export default {
       removeUserFromGroup(username);
 
       let index = -1;
-      for(let i = 0; i < this.users.length; i++) {
+      for (let i = 0; i < this.users.length; i++) {
         if (this.users[i].username === username) {
           index = i;
         }
