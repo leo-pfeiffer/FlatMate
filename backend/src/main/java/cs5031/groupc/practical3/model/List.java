@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class List {
+public class List implements DataProtection{
 
     private Long listId;
     private String name;
@@ -17,4 +17,11 @@ public class List {
     private User owner;
     private Bill bill;
     private Long createTime;    // unix timestamp
+
+    public void protect(){
+        this.owner.protect();
+        if (this.bill != null){
+            this.bill.protect();
+        }
+    }
 }

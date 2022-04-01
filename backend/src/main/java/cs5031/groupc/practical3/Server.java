@@ -33,49 +33,48 @@ public class Server {
         return authentication.getName();
     }
 
-    private Bill privatize(Bill b) {
-        b.getOwner().setPassword(null);
+    private Bill protect (Bill b) {
+        b.protect();
         return b;
     }
 
-    private User privatize(User u) {
-        u.setPassword(null);
+    private User protect (User u) {
+        u.protect();
         return u;
     }
 
-    private ArrayList<Bill> privatize(ArrayList<Bill> groupBills) {
+    /*
+    private ArrayList<Bill> protect (ArrayList<Bill> groupBills) {
         for (Bill b : groupBills) {
-            privatize(b);
+            b.protect();
         }
         return groupBills;
     }
+*/
 
-    /*private <T> ArrayList<T> privatize(ArrayList<T> groupBills) {
-        for (T b : groupBills) {
-            privatize(b);
+    private <T> ArrayList<T> protect (ArrayList<T> group) {
+        for (T t : group) {
+            DataProtection dp = (DataProtection) t;
+            dp.protect();
         }
-        return groupBills;
-    } */
+        return group;
+    }
 
-    private List privatize(List l) {
+
+
+    private List protect (List l) {
         l.getOwner().setPassword(null);
         Bill b = l.getBill();
-        if(b != null){
-            privatize(b);
+        if (b != null) {
+            b.protect();
         }
         return l;
     }
 
-    /*private ArrayList<List> privatize(ArrayList<List> groupLists) {
-        for (List l : groupLists) {
-            privatize(l);
-        }
-        return groupLists;
-    }
-*/
 
     /**
      * A method that confirms that the server is in fact running. --> Works!
+     *
      * @return Returns a string confirming the server is running.
      */
     @CrossOrigin(origins = "http://localhost:3000")
@@ -117,14 +116,14 @@ public class Server {
 
     /**
      * Get the user object for the currently logged-in user. --> Works!
+     *
      * @return User object
-     * */
+     */
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/user")
     public User getCurrentUser() {
         try {
-            User user = privatize(dao.getUser(getUser()));
-            //user.setPassword(null);
+            User user = protect(dao.getUser(getUser()));
             return user;
         } catch (Exception e) {
             e.printStackTrace();
@@ -136,8 +135,9 @@ public class Server {
 
     /**
      * Returns true if the username exists, else false. This can be used, for example, for searches.
+     *
      * @return Boolean
-     * */
+     */
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/user/exists")
     public boolean getUserExists(@RequestParam String username) {
@@ -189,7 +189,6 @@ public class Server {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
-
     /**
      * A Endpoint that returns a group object from the group name. --> Works!
      *
@@ -209,7 +208,6 @@ public class Server {
                 HttpStatus.NOT_FOUND, "entity not found"
         );
     }
-
 
     /**
      * An endpoint that creates a group, add the creating user to the group, and makes the creating user to the admin of the group. --> Works!
@@ -247,7 +245,7 @@ public class Server {
             String groupname = actingUser.getGroup().getName();
             System.out.println(username);
 
-            // todo check if user with 'username' is already in a group.
+            // TODO: check if user with 'username' is already in a group.
             //  If yes, abort (user must leave group first).
 
             dao.addUserToGroup(username, groupname);
@@ -304,7 +302,6 @@ public class Server {
 
     }
 
-
     /**
      * A endpoit that returns all names of members in the calling user's group. --> Works!
      *
@@ -354,7 +351,7 @@ public class Server {
         try {
             User actingUser = dao.getUser(getUser());
             long groupId = actingUser.getGroup().getGroupId();
-            ArrayList<Bill> groupBills = privatize(dao.getBillsForGroup(groupId));
+            ArrayList<Bill> groupBills = protect(dao.getBillsForGroup(groupId));
             HashMap<String, ArrayList<Bill>> ret = new HashMap();
             ret.put("bills", groupBills);
             return ret;
@@ -376,13 +373,13 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getAllLists")
-    public   HashMap<String, ArrayList<List>> getAllGroupLists() {
+    public HashMap<String, ArrayList<List>> getAllGroupLists() {
 
         try {
             User actingUser = dao.getUser(getUser());
             long groupId = actingUser.getGroup().getGroupId();
-            ArrayList<List> groupLists = dao.getListsForGroup(groupId);
-            //TODO: privatize groupLists
+            ArrayList<List> groupLists = protect(dao.getListsForGroup(groupId));
+            //TODO: protect groupLists
             HashMap<String, ArrayList<List>> ret = new HashMap();
             ret.put("lists", groupLists);
             return ret;
@@ -396,6 +393,7 @@ public class Server {
 
     /**
      * A method that returns a bill by its id. --> Works!
+     *
      * @param id The id of the bill.
      * @return Returns a bill object.
      */
@@ -404,7 +402,7 @@ public class Server {
     public Bill getBillByID(@RequestParam long id) {
         try {
             Bill bill = dao.getBill(id);
-            Bill dpBill = privatize(bill);
+            Bill dpBill = protect(bill);
             return dpBill;
         } catch (Exception e) {
             e.printStackTrace();
@@ -417,6 +415,7 @@ public class Server {
 
     /**
      * A method that returns a list by its ID. --> Works!
+     *
      * @param id The id of the list.
      * @return The list.
      */
@@ -426,7 +425,7 @@ public class Server {
     public List getListByID(@RequestParam long id) {
         try {
             List list = dao.getList(id);
-            List dpList = privatize(list);
+            List dpList = protect(list);
             return dpList;
         } catch (Exception e) {
             e.printStackTrace();
@@ -439,20 +438,21 @@ public class Server {
 
     /**
      * A Endpoit that creates a Bill --> Works!
+     *
      * @param bill The bill name, description, amount, and payment method.
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/bill/create")
     public ResponseEntity createBill(@RequestBody Bill bill,
-                                     @RequestParam(required=false) Long listId) {
+                                     @RequestParam(required = false) Long listId) {
         try {
             System.out.println(listId);
             bill.setOwner(dao.getUser(getUser()));
             long time = System.currentTimeMillis() / 1000L;
             bill.setCreateTime(time);
             dao.createBill(bill);
-            if(listId != null){
-                dao.addBillToList(listId,bill.getBillId());
+            if (listId != null) {
+                dao.addBillToList(listId, bill.getBillId());
             }
             return ResponseEntity.ok().build();
         } catch (Exception e) {
@@ -466,6 +466,7 @@ public class Server {
 
     /**
      * A endpoint that lets you pay your bill. --> Works!
+     *
      * @param billId The id of the userBill object to be paid.
      * @return Returns 200 OK if successful and 404 NOT FOUND if not.
      */
@@ -474,9 +475,9 @@ public class Server {
     public ResponseEntity payBill(@RequestParam long billId) {
         try {
             ArrayList<UserBill> userBills = dao.getUserBillsForUser(getUser());
-            for( UserBill ub: userBills){
-                if(ub.getBill().getBillId().equals(billId)){
-                    dao.setUserBillToPaid(ub.getUserBillId(),getUser());
+            for (UserBill ub : userBills) {
+                if (ub.getBill().getBillId().equals(billId)) {
+                    dao.setUserBillToPaid(ub.getUserBillId(), getUser());
                 }
             }
             return ResponseEntity.ok().build();
@@ -491,6 +492,7 @@ public class Server {
 
     /**
      * A enpoint that creates a new list --> Works!
+     *
      * @param data A Dataobject conteining the name, description and billID
      * @return 200 OK if sucessful or 404 NOT FOUND if not.
      */

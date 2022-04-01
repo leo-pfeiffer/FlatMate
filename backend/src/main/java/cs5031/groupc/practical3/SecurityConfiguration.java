@@ -48,6 +48,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/").permitAll()
                 .antMatchers("/api").permitAll()
                 .antMatchers("/test").permitAll()
+                .antMatchers("/swagger-ui/**").permitAll()
                 .antMatchers("/api/user/create").permitAll()
                 .antMatchers("/api/group/add").hasAnyAuthority(UserRole.ADMIN.getRole())
                 .antMatchers("/api/group/remove").hasAnyAuthority(UserRole.ADMIN.getRole())
