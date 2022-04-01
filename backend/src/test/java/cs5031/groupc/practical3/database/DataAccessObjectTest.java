@@ -201,14 +201,12 @@ public class DataAccessObjectTest {
 
     @Test
     public void testGetBillsForGroup() {
-        // todo this is based on the demo data, maybe add data programmatically instead
         ArrayList<Bill> bills = dao.getBillsForGroup(1L);
         assertEquals(4, bills.size());
     }
 
     @Test
     public void testGetBillsForUser() {
-        // todo this is based on the demo data, maybe add data programmatically instead
         ArrayList<Bill> bills = dao.getBillsForUser("leopold");
         assertEquals(3, bills.size());
     }
@@ -234,7 +232,6 @@ public class DataAccessObjectTest {
 
     @Test
     public void testGetListsForGroup() {
-        // todo this is based on the demo data, maybe add data programmatically instead
         ArrayList<List> lists = dao.getListsForGroup(1L);
         assertEquals(3, lists.size());
     }
@@ -248,7 +245,6 @@ public class DataAccessObjectTest {
 
     @Test
     public void testGetListItemsForList() {
-        // todo this is based on the demo data, maybe add data programmatically instead
         ArrayList<ListItem> items = dao.getListItemsForList(1L);
         assertEquals(4, items.size());
     }
@@ -311,15 +307,12 @@ public class DataAccessObjectTest {
 
     @Test
     public void testGetUserBillsForUser() {
-        // todo this is based on the demo data, maybe add data programmatically instead
         ArrayList<UserBill> userBills = dao.getUserBillsForUser("leopold");
         assertEquals(3, userBills.size());
     }
 
     @Test
     public void testAddBillToList() {
-        // todo this is based on the demo data, maybe add data programmatically instead
-
         dao.addBillToList(3l, 2l);
         List gottenList = dao.getList(3l);
         Bill gottenBill =  gottenList.getBill();
