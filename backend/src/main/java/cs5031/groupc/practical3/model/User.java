@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class User implements DataProtection{
 
     private String username;
     private String password;
@@ -18,4 +18,9 @@ public class User {
     private UserRole role;
     private boolean enabled;
 
+
+
+    public void protect(){
+        this.password = null;
+    }
 }
