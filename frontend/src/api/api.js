@@ -39,6 +39,12 @@ const removeUserFromGroup = function (username) {
   });
 };
 
+const changeAdmin = function (username) {
+  return axios.post("api/group/changeAdmin", null, {
+    params: { username: username },
+  });
+};
+
 module.exports = {
   register: register,
   login: login,
@@ -47,4 +53,5 @@ module.exports = {
   createGroup: createGroup,
   removeUserFromGroup: removeUserFromGroup,
   getUsers: getUsers,
+  changeAdmin: changeAdmin,
 };

@@ -72,7 +72,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { getUsers, removeUserFromGroup } from "@/api/api";
+import { changeAdmin, getUsers, removeUserFromGroup } from "@/api/api";
 
 export default {
   name: "Admin",
@@ -115,14 +115,22 @@ export default {
       this.searchResult = "";
       this.noResults = false;
     },
-    makeAdmin: function (username) {
-      // todo
+    makeAdmin: async function (username) {
       console.log("New admin", username);
+      await changeAdmin(username);
+      await this.$store.dispatch("AdminRole");
+      await this.$router.push("/");
+      this.removeUserFromList(username);
     },
-    removeUser: function (username) {
+    removeUser: async function (username) {
       console.log("Removed", username);
-      removeUserFromGroup(username);
-
+      await removeUserFromGroup(username);
+      this.removeUserFromList(username);
+    },
+    addUser: function () {
+      console.log("New user", this.searchResult);
+    },
+    removeUserFromList: function (username) {
       let index = -1;
       for (let i = 0; i < this.users.length; i++) {
         if (this.users[i].username === username) {
@@ -130,9 +138,6 @@ export default {
         }
       }
       this.users.splice(index, 1);
-    },
-    addUser: function () {
-      console.log("New user", this.searchResult);
     },
   },
 };
