@@ -42,9 +42,6 @@ export default {
     ...mapActions(["Register"]),
     async submit() {
       try {
-        const salt = process.env.VUE_APP_SALT;
-        console.log(salt);
-        // todo this.form.password += salt;
         await this.Register(this.form);
         this.$router.push("/");
         this.showError = false;

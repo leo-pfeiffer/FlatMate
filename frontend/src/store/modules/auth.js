@@ -1,4 +1,5 @@
-import axios from "axios";
+import crypto from "crypto";
+import { login, logout, register } from "@/api/api";
 
 // built with the help of
 // https://www.smashingmagazine.com/2020/10/authentication-in-vue-js/
@@ -16,7 +17,13 @@ const getters = {
 
 const actions = {
   async Register({ dispatch }, form) {
-    await axios.post("register", form);
+    // salt and hash password
+    const config = {
+      username: form.username,
+      password: hashWithSalt(form.password),
+    };
+
+    await register(config);
     let UserForm = new FormData();
     UserForm.append("username", form.username);
     UserForm.append("password", form.password);
@@ -24,15 +31,11 @@ const actions = {
   },
 
   async LogIn({ commit }, user) {
-    const config = {
-      method: "post",
-      url: "login",
-      headers: { "Content-Type": "multipart/form-data" },
-      data: user,
-    };
+    // hash password with salt
+    user.set("password", hashWithSalt(user.get("password")));
 
     // todo cookie?
-    const isAdmin = await axios(config).then((res) => {
+    const isAdmin = await login(user).then((res) => {
       return res.data["roles"].indexOf("ADMIN") !== -1; // check if user is admin
     });
     await commit("setUser", user.get("username"));
@@ -41,6 +44,9 @@ const actions = {
 
   async LogOut({ commit }) {
     let user = null;
+    // logout from backend
+    await logout();
+    // remove user object from store
     commit("logout", user);
   },
 };
@@ -55,6 +61,11 @@ const mutations = {
   logout(state, user) {
     state.user = user;
   },
+};
+
+const hashWithSalt = function (password) {
+  const SALT = process.env.VUE_APP_SALT;
+  return crypto.createHmac("sha256", password).update(SALT).digest("hex");
 };
 
 export default {
