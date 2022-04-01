@@ -16,7 +16,7 @@ const getters = {
 
 const actions = {
   async Register({ dispatch }, form) {
-    await axios.post("register", form);
+    await axios.post("api/user/create", form);
     let UserForm = new FormData();
     UserForm.append("username", form.username);
     UserForm.append("password", form.password);
