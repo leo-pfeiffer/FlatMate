@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import cs5031.groupc.practical3.database.DataAccessObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -119,6 +120,26 @@ public class Server {
             User user = dao.getUser(getUser());
             user.setPassword(null);
             return user;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "entity not found"
+        );
+    }
+
+    /**
+     * Returns true if the username exists, else false. This can be used, for example, for searches.
+     * @return Boolean
+     * */
+    @CrossOrigin(origins = "http://localhost:3000")
+    @GetMapping("/api/user/exists")
+    public boolean getUserExists(@RequestParam String username) {
+        try {
+            User user = dao.getUser(username);
+            return user != null;
+        } catch (EmptyResultDataAccessException e) {
+            return false;
         } catch (Exception e) {
             e.printStackTrace();
         }
