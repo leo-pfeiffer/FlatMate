@@ -323,6 +323,19 @@ public class DataAccessObject {
         ), groupId);
     }
 
+    /**
+     * Adds a bill to a list.
+     *
+     * @param listId The id of the ist to which a bill shall be added.
+     * @param billId The id of the bill that shall be added.
+     * @return The number of rows affected by the update.
+     */
+    public int addBillToList(Long listId, Long billId) {
+        String sql = "UPDATE 'list' SET bill_id = ? WHERE list_id = ?";
+        return jdbcTemplate.update(sql,billId, listId);
+        //TODO: add tests
+    }
+
     // LIST ITEM =============================================================
 
     /**
@@ -422,6 +435,25 @@ public class DataAccessObject {
     }
 
     /**
+     * Given a username, return all user bills for that username. For testing
+     *
+     * @param username The username of the user to get the user bills for.
+     * @return An ArrayList of UserBill objects.
+     */
+    public ArrayList<UserBill> getUserBillsForUser(String username) {
+        String sql = "SELECT * FROM 'user_bill' WHERE username = ?";
+        return (ArrayList<UserBill>) jdbcTemplate.query(sql, ((rs, rowNum) -> new UserBill(
+                rs.getLong("user_bill_id"),
+                getUser(rs.getString("username")),
+                getBill(rs.getLong("bill_id")),
+                rs.getDouble("percentage"),
+                rs.getBoolean("paid")
+        )), username);
+        //TODO: add tests
+    }
+
+
+    /**
      * Update the paid field of the user_bill table to true if the billId and username match
      *
      * @param billId The id of the bill to be paid.
@@ -433,14 +465,17 @@ public class DataAccessObject {
         return jdbcTemplate.update(sql, true, billId, username);
     }
 
+
+    // Server Consistency =============================================================
     /**
      * Get the highest bill ID in the database so the server can assign valid IDs after restart.
      *
      * @return Returns the highst bill ID.
      */
-    public long highestBillId(){
-        //TODO: get currently highest bill ID
-        return 0l;
+    public long getHighestBillId(){
+        String sql = "SELECT MAX(bill_id) FROM 'bill'";
+        return (long) jdbcTemplate.queryForObject(sql, long.class);
+        //TODO: Add tests
     }
 
     /**
@@ -448,9 +483,10 @@ public class DataAccessObject {
      *
      * @return Returns the highst list ID.
      */
-    public long highestListId(){
-        //TODO: get currently highest list ID
-        return 0l;
+    public long getHighestListId(){
+        String sql = "SELECT MAX(list_id) FROM 'list'";
+        return (long) jdbcTemplate.queryForObject(sql, long.class);
+        //TODO: Add tests
     }
 
 }

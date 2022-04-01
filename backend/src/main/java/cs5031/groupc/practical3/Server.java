@@ -37,12 +37,24 @@ public class Server {
         return b;
     }
 
+    private User privatize(User u) {
+        u.setPassword(null);
+        return u;
+    }
+
     private ArrayList<Bill> privatize(ArrayList<Bill> groupBills) {
         for (Bill b : groupBills) {
             privatize(b);
         }
         return groupBills;
     }
+
+    /*private <T> ArrayList<T> privatize(ArrayList<T> groupBills) {
+        for (T b : groupBills) {
+            privatize(b);
+        }
+        return groupBills;
+    } */
 
     private List privatize(List l) {
         l.getOwner().setPassword(null);
@@ -53,17 +65,23 @@ public class Server {
         return l;
     }
 
-
+    /*private ArrayList<List> privatize(ArrayList<List> groupLists) {
+        for (List l : groupLists) {
+            privatize(l);
+        }
+        return groupLists;
+    }
+*/
 
     private long getListID() {
-        long ret = 0;
-        ArrayList<Group> groups = dao.getAllGroups();
-        for(Group group : groups){
-            //ArrayList<List> lists = dao.get
-        }
-        return ret;
+        long ret = dao.getHighestListId();
+        return ret + 1;
     }
 
+    private long getBillID() {
+        long ret = dao.getHighestBillId();
+        return ret + 1;
+    }
     /**
      * A method that confirms that the server is in fact running. --> Works!
      * @return Returns a string confirming the server is running.
@@ -88,11 +106,9 @@ public class Server {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/test")
-    public HashMap<String, ArrayList<User>> test() {
-        HashMap<String, ArrayList<User>> test = new HashMap();
-        ArrayList<User> t = dao.getAllUsers();
-        test.put("users", t);
-        return test;
+    public ArrayList<UserBill> test() {
+
+        return dao.getUserBillsForUser(getUser());
     }
 
 
@@ -109,15 +125,15 @@ public class Server {
     }
 
     /**
-     * Get the user object for the currently logged-in user.
+     * Get the user object for the currently logged-in user. --> Works!
      * @return User object
      * */
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/user")
     public User getCurrentUser() {
         try {
-            User user = dao.getUser(getUser());
-            user.setPassword(null);
+            User user = privatize(dao.getUser(getUser()));
+            //user.setPassword(null);
             return user;
         } catch (Exception e) {
             e.printStackTrace();
@@ -135,10 +151,10 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/user/create")
-    public ResponseEntity createUser(@RequestBody final UserCreator data) {
+    public ResponseEntity createUser(@RequestBody final User user) {
 
         try {
-            dao.createUser(data.getUsername(), data.getPassword());
+            dao.createUser(user.getUsername(), user.getPassword());
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -195,7 +211,6 @@ public class Server {
     public ResponseEntity createGroup(@RequestParam final String groupname) {
         try {
             dao.createGroup(groupname);
-            //Group group = dao.getGroup(groupname);
             dao.addUserToGroup(getUser(), groupname);
             dao.setRoleToAdmin(getUser());
             return ResponseEntity.ok().build();
@@ -339,10 +354,29 @@ public class Server {
     }
 
 
+    /**
+     * A Endpoint that returns all lists for a group. --> Works!
+     *
+     * @return returns an ArrayList of all lists.
+     */
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getAllLists")
-    public void getAllGroupLists() {
+    public   HashMap<String, ArrayList<List>> getAllGroupLists() {
 
+        try {
+            User actingUser = dao.getUser(getUser());
+            long groupId = actingUser.getGroup().getGroupId();
+            ArrayList<List> groupLists = dao.getListsForGroup(groupId);
+            //TODO: privatize groupLists
+            HashMap<String, ArrayList<List>> ret = new HashMap();
+            ret.put("lists", groupLists);
+            return ret;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "entity not found"
+        );
     }
 
     /**
@@ -367,7 +401,7 @@ public class Server {
     }
 
     /**
-     * A method that returns a list by its ID.
+     * A method that returns a list by its ID. --> Works!
      * @param id The id of the list.
      * @return The list.
      */
@@ -388,18 +422,49 @@ public class Server {
 
     }
 
+    /**
+     * A Endpoit that creates a Bill --> Works!
+     * @param bill The bill name, description, amount, and payment method.
+     */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/bill/create")
-    public void createBill(@RequestBody BillCreator data) {
-
+    public ResponseEntity createBill(@RequestBody Bill bill,
+                                     @RequestParam(required=false) Long listId) {
+        try {
+            System.out.println(listId);
+            bill.setBillId(getBillID());
+            bill.setOwner(dao.getUser(getUser()));
+            long time = System.currentTimeMillis() / 1000L;
+            bill.setCreateTime(time);
+            dao.createBill(bill);
+            if(listId != null){
+                dao.addBillToList(listId,bill.getBillId());
+            }
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "entity not found"
+        );
     }
 
 
+    /**
+     * A endpoint that lets you pay your bill. --> Works!
+     * @param billId The id of the userBill object to be paid.
+     * @return Returns 200 OK if successful and 404 NOT FOUND if not.
+     */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/bill/pay")
     public ResponseEntity payBill(@RequestParam long billId) {
         try {
-            dao.setUserBillToPaid(billId,getUser());
+            ArrayList<UserBill> userBills = dao.getUserBillsForUser(getUser());
+            for( UserBill ub: userBills){
+                if(ub.getBill().getBillId().equals(billId)){
+                    dao.setUserBillToPaid(ub.getUserBillId(),getUser());
+                }
+            }
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -411,23 +476,17 @@ public class Server {
     }
 
     /**
-     * A enpoint that creates a new list
+     * A enpoint that creates a new list --> Works!
      * @param data A Dataobject conteining the name, description and billID
      * @return 200 OK if sucessful or 404 NOT FOUND if not.
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/list/create")
-    public ResponseEntity createList(@RequestBody ListCreator data) {
+    public ResponseEntity createList(@RequestBody List list) {
         try {
-            List list = new List();
             list.setListId(getListID());
-            list.setName(data.getName());
-            list.setDescription(data.getDescription());
             list.setOwner(dao.getUser(getUser()));
-            if(data.getBill_id() != null){
-                long billID = Long.parseLong(data.getBill_id());
-                 list.setBill(dao.getBill(billID));
-            }
+            list.setBill(null);
             long time = System.currentTimeMillis() / 1000L;
             list.setCreateTime(time);
             dao.createList(list);
@@ -440,13 +499,4 @@ public class Server {
         );
 
     }
-
-
-    @CrossOrigin(origins = "http://localhost:3000")
-    @PostMapping("/api/list/addBill")
-    public void addBillToList(@RequestBody BillAdder data) {
-
-    }
-
-
 }
