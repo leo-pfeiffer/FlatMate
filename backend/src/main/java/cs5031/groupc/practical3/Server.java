@@ -375,12 +375,9 @@ public class Server {
             User actingUser = dao.getUser(getUser());
             long groupId = actingUser.getGroup().getGroupId();
             ArrayList<UserBill> groupUserBills = new ArrayList<>();
-            ArrayList<Bill> groupBills = privatize(dao.getBillsForGroup(groupId));
+            ArrayList<Bill> groupBills = protect(dao.getBillsForGroup(groupId));
             for (Bill b : groupBills) {
-                ArrayList<UserBill> userBills = dao.getUserBillsForBill(b.getBillId());
-                for (UserBill ub : userBills) {
-                    privatize(ub.getBill());
-                }
+                ArrayList<UserBill> userBills = protect(dao.getUserBillsForBill(b.getBillId()));
                 groupUserBills.addAll(userBills);
             }
             return groupUserBills;
@@ -433,10 +430,7 @@ public class Server {
             ArrayList<List> groupLists = dao.getListsForGroup(groupId);
 
             for (List l : groupLists) {
-                ArrayList<ListItem> listItems = dao.getListItemsForList(l.getListId());
-                for (ListItem li : listItems) {
-                    privatize(li.getList());
-                }
+                ArrayList<ListItem> listItems = protect(dao.getListItemsForList(l.getListId()));
                 groupListItems.addAll(listItems);
             }
             return groupListItems;

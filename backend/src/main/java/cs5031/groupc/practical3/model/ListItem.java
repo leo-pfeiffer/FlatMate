@@ -9,8 +9,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ListItem {
+public class ListItem implements DataProtection {
     private Long listItemId;
     private String name;
     private List list;
+
+    @Override
+    public void protect() {
+        this.list.protect();
+    }
 }
