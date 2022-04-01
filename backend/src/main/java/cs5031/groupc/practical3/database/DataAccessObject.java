@@ -333,7 +333,6 @@ public class DataAccessObject {
     public int addBillToList(Long listId, Long billId) {
         String sql = "UPDATE 'list' SET bill_id = ? WHERE list_id = ?";
         return jdbcTemplate.update(sql,billId, listId);
-        //TODO: add tests
     }
 
     // LIST ITEM =============================================================
@@ -449,7 +448,6 @@ public class DataAccessObject {
                 rs.getDouble("percentage"),
                 rs.getBoolean("paid")
         )), username);
-        //TODO: add tests
     }
 
 
@@ -465,28 +463,5 @@ public class DataAccessObject {
         return jdbcTemplate.update(sql, true, billId, username);
     }
 
-
-    // Server Consistency =============================================================
-    /**
-     * Get the highest bill ID in the database so the server can assign valid IDs after restart.
-     *
-     * @return Returns the highst bill ID.
-     */
-    public long getHighestBillId(){
-        String sql = "SELECT MAX(bill_id) FROM 'bill'";
-        return (long) jdbcTemplate.queryForObject(sql, long.class);
-        //TODO: Add tests
-    }
-
-    /**
-     * Get the highest list ID in the database so the server can assign valid IDs after restart.
-     *
-     * @return Returns the highst list ID.
-     */
-    public long getHighestListId(){
-        String sql = "SELECT MAX(list_id) FROM 'list'";
-        return (long) jdbcTemplate.queryForObject(sql, long.class);
-        //TODO: Add tests
-    }
 
 }
