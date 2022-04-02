@@ -31,6 +31,6 @@ testclient:
   image: node:16
   stage: testclient
   script:
-    - cd client
+    - cd frontend
     - npm install --progress=false
     - npm run test:unit
