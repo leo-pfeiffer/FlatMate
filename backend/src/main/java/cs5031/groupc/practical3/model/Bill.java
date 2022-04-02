@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Bill {
+public class Bill implements DataProtection{
 
     private Long billId;
     private String name;
@@ -18,4 +18,9 @@ public class Bill {
     private String paymentMethod;
     private User owner;
     private Long createTime;    // unix timestamp
+
+
+    public void protect(){
+        this.owner.protect();
+    }
 }

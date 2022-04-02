@@ -1,6 +1,11 @@
 <template>
   <div id="home" class="columns">
-    <SideBar id="my-side-bar" class="column" />
+    <SideBar
+      id="my-side-bar"
+      class="column"
+      @ListAdded="updateLists"
+      @BillAdded="updateBills"
+    />
     <section id="content-section">
       <div class="container">
         <b-tabs>
@@ -14,13 +19,14 @@
                 >
                   <article class="tile is-child">
                     <Bill
+                      :id="item.billId"
                       :name="item.name"
+                      :time="item.createTime"
                       :description="item.description"
                       :percentages="item.percentages"
                       :amount="item.amount"
-                      :owner="item.owner"
+                      :owner="item.owner.username"
                       :payment-method="item.paymentMethod"
-                      :paid="item.paid"
                     />
                   </article>
                 </div>
@@ -37,10 +43,11 @@
                 >
                   <article class="tile is-child">
                     <List
-                      :id="item.id"
+                      :id="item.listId"
+                      :time="item.createTime"
                       :name="item.name"
                       :description="item.description"
-                      :owner="item.owner"
+                      :owner="item.owner.username"
                       :list-items="item.listItems"
                       :bill-id="item.billId"
                     />
@@ -58,6 +65,7 @@
 import SideBar from "@/components/SideBar";
 import Bill from "@/components/Bill";
 import List from "@/components/List";
+import { getListItemsForGroup, getUserBillsForGroup } from "@/api/api";
 
 export default {
   name: "Home",
@@ -68,132 +76,79 @@ export default {
   },
   data() {
     return {
-      bills: [
-        {
-          id: 1,
-          name: "Spotify",
-          description: "Monthly music subscription",
-          amount: 9.99,
-          percentages: [
-            { username: "leopold", percentage: 0.5 },
-            { username: "lukas", percentage: 0.5 },
-          ],
-          owner: "leopold",
-          paymentMethod: "Cash",
-          paid: false,
-        },
-        {
-          id: 2,
-          name: "Shopping",
-          description: "Grocery run",
-          amount: 27.32,
-          percentages: [
-            { username: "leopold", percentage: 0.5 },
-            { username: "lukas", percentage: 0.5 },
-          ],
-          owner: "lukas",
-          paymentMethod: "Cash",
-          paid: false,
-        },
-        {
-          id: 3,
-          name: "Drinks",
-          description: "Night out at the pub",
-          amount: 22.1,
-          percentages: [
-            { username: "leopold", percentage: 0.6 },
-            { username: "lukas", percentage: 0.4 },
-          ],
-          owner: "lukas",
-          paymentMethod: "Cash",
-          paid: true,
-        },
-        {
-          id: 4,
-          name: "Shopping",
-          description: "Another grocery run",
-          amount: 34.1,
-          percentages: [
-            { username: "leopold", percentage: 0.6 },
-            { username: "lukas", percentage: 0.4 },
-          ],
-          owner: "lukas",
-          paymentMethod: "Cash",
-          paid: true,
-        },
-        {
-          id: 5,
-          name: "Shopping",
-          description: "Another grocery run",
-          amount: 34.1,
-          percentages: [
-            { username: "leopold", percentage: 0.6 },
-            { username: "lukas", percentage: 0.4 },
-          ],
-          owner: "lukas",
-          paymentMethod: "Cash",
-          paid: true,
-        },
-        {
-          id: 6,
-          name: "Shopping",
-          description: "Another grocery run",
-          amount: 34.1,
-          percentages: [
-            { username: "leopold", percentage: 0.6 },
-            { username: "lukas", percentage: 0.4 },
-          ],
-          owner: "lukas",
-          paymentMethod: "Cash",
-          paid: true,
-        },
-      ],
-      lists: [
-        {
-          id: 1,
-          name: "Shopping list 1",
-          description: "Gotta eat",
-          owner: "lukas",
-          listItems: [
-            { name: "Peach" },
-            { name: "Pear" },
-            { name: "Plums" },
-            { name: "Oranges" },
-          ],
-          billId: null,
-        },
-        {
-          id: 2,
-          name: "Shopping list 2",
-          description: "Always hungry",
-          owner: "leopold",
-          listItems: [
-            { name: "Peach" },
-            { name: "Pear" },
-            { name: "Plums" },
-            { name: "Oranges" },
-          ],
-          billId: null,
-        },
-        {
-          id: 3,
-          name: "Shopping list 3",
-          description: "Gimme gimme food",
-          owner: "lukas",
-          listItems: [
-            { name: "Peach" },
-            { name: "Pear" },
-            { name: "Plums" },
-            { name: "Oranges" },
-          ],
-          billId: 1,
-        },
-      ],
+      bills: [],
+      lists: [],
     };
+  },
+  mounted() {
+    this.updateBills();
+    this.updateLists();
+  },
+  methods: {
+    updateLists: async function () {
+      this.lists = await this.getLists();
+    },
+    updateBills: async function () {
+      this.bills = await this.getBills();
+    },
+    getBills: async function () {
+      const userBills = await getUserBillsForGroup().then((res) => res.data);
+      const bills = {};
+
+      for (let ub of userBills) {
+        let billId = ub.bill.billId;
+        const bill = ub.bill;
+        if (!(billId in bills)) {
+          bill["percentages"] = [
+            {
+              username: ub.user.username,
+              percentage: ub.percentage,
+              paid: ub.paid,
+            },
+          ];
+          bills[billId] = bill;
+        } else {
+          bills[billId]["percentages"].push({
+            username: ub.user.username,
+            percentage: ub.percentage,
+            paid: ub.paid,
+          });
+        }
+      }
+      return Object.keys(bills).map((e) => bills[e]);
+    },
+    getLists: async function () {
+      const listItems = await getListItemsForGroup().then((res) => res.data);
+      const lists = {};
+
+      for (let li of listItems) {
+        let listId = li.list.listId;
+        const list = li.list;
+        if (list.bill !== null) {
+          list["billId"] = list.bill.billId;
+        } else {
+          list["billId"] = null;
+        }
+        if (!(listId in lists)) {
+          list["listItems"] = [
+            {
+              name: li.name,
+            },
+          ];
+          lists[listId] = list;
+        } else {
+          lists[listId]["listItems"].push({
+            name: li.name,
+          });
+        }
+      }
+      return Object.keys(lists).map((e) => lists[e]);
+    },
   },
 };
 </script>
 
+<!--suppress CssUnusedSymbol -->
 <style scoped>
 #home {
   height: 100%;

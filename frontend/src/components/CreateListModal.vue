@@ -43,7 +43,7 @@
             </div>
             <ul class="bullets">
               <li v-for="(item, index) in form.listItems" :key="index">
-                {{item}}
+                {{ item }}
               </li>
             </ul>
           </div>
@@ -52,16 +52,20 @@
       <footer class="modal-card-foot">
         <b-button label="Close" @click="$emit('close')" />
         <b-button label="Save" type="is-primary" @click="submitForm" />
+        <p v-if="created" class="has-text-success-dark">List added!</p>
       </footer>
     </div>
   </form>
 </template>
 
 <script>
+import { createList, createListItem } from "@/api/api";
+
 export default {
   name: "CreateListModal",
   data() {
     return {
+      created: false,
       currentItem: "",
       form: {
         name: "",
@@ -77,12 +81,35 @@ export default {
         this.currentItem = "";
       }
     },
-    formFilledOut: function() {
+    formFilledOut: function () {
       return this.form.name !== "" && this.form.listItems.length !== 0;
     },
-    submitForm: function () {
+    submitForm: async function () {
       if (this.formFilledOut()) {
-        console.log(this.form);
+        const list = {
+          name: this.form.name,
+          description: this.form.description,
+        };
+
+        await createList(list)
+          .then((res) => res.data)
+          .then((createdList) => {
+            return this.form.listItems.map((e) => {
+              return {
+                name: e,
+                list: createdList,
+              };
+            });
+          })
+          .then(async (listItems) => {
+            for (let li of listItems) {
+              await createListItem(li);
+            }
+          })
+          .then(() => {
+            this.created = true;
+            this.$emit("ListAdded");
+          });
       }
     },
   },

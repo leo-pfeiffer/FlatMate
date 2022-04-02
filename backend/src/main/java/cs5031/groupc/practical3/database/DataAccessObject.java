@@ -1,6 +1,8 @@
 package cs5031.groupc.practical3.database;
 
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
+import java.util.Objects;
 import cs5031.groupc.practical3.model.Bill;
 import cs5031.groupc.practical3.model.Group;
 import cs5031.groupc.practical3.model.List;
@@ -10,13 +12,20 @@ import cs5031.groupc.practical3.model.UserBill;
 import cs5031.groupc.practical3.vo.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class DataAccessObject {
 
-    @Autowired
+    final
     JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public DataAccessObject(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     // GROUPS ====================
 
@@ -221,6 +230,26 @@ public class DataAccessObject {
                 bill.getCreateTime());
     }
 
+    public Bill createBillAndReturnId(Bill bill) {
+        assert bill != null;
+        String sql = "INSERT INTO 'bill' (name, description, amount, payment_method, owner, create_time) VALUES (?, ?, ?, ?, ?, ?)";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, bill.getName());
+            ps.setString(2, bill.getDescription());
+            ps.setDouble(3, bill.getAmount());
+            ps.setString(4, bill.getPaymentMethod());
+            ps.setString(5, bill.getOwner().getUsername());
+            ps.setLong(6, bill.getCreateTime());
+            return ps;
+        }, keyHolder);
+
+        Long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
+        return this.getBill(id);
+    }
+
     /**
      * Given a group ID, return all the bills for that group
      *
@@ -301,6 +330,30 @@ public class DataAccessObject {
                 list.getCreateTime());
     }
 
+    public List createListAndReturnId(List list) {
+        assert list != null;
+        String sql = "INSERT INTO 'list' (name, description, owner, bill_id, create_time) VALUES (?, ?, ?, ?, ?)";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, list.getName());
+            ps.setString(2, list.getDescription());
+            ps.setString(3, list.getOwner().getUsername());
+            if (list.getBill() == null) {
+                ps.setNull(4, 0);
+            } else {
+                ps.setLong(4, list.getBill().getBillId());
+            }
+            ps.setLong(5, list.getCreateTime());
+            return ps;
+        }, keyHolder);
+
+        Long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
+        return this.getList(id);
+    }
+
     /**
      * Get all the lists for a group
      *
@@ -321,6 +374,18 @@ public class DataAccessObject {
                 getBill(rs.getLong("bill_id")),
                 rs.getLong("create_time")
         ), groupId);
+    }
+
+    /**
+     * Adds a bill to a list.
+     *
+     * @param listId The id of the ist to which a bill shall be added.
+     * @param billId The id of the bill that shall be added.
+     * @return The number of rows affected by the update.
+     */
+    public int addBillToList(Long listId, Long billId) {
+        String sql = "UPDATE 'list' SET bill_id = ? WHERE list_id = ?";
+        return jdbcTemplate.update(sql,billId, listId);
     }
 
     // LIST ITEM =============================================================
@@ -422,6 +487,24 @@ public class DataAccessObject {
     }
 
     /**
+     * Given a username, return all user bills for that username. For testing
+     *
+     * @param username The username of the user to get the user bills for.
+     * @return An ArrayList of UserBill objects.
+     */
+    public ArrayList<UserBill> getUserBillsForUser(String username) {
+        String sql = "SELECT * FROM 'user_bill' WHERE username = ?";
+        return (ArrayList<UserBill>) jdbcTemplate.query(sql, ((rs, rowNum) -> new UserBill(
+                rs.getLong("user_bill_id"),
+                getUser(rs.getString("username")),
+                getBill(rs.getLong("bill_id")),
+                rs.getDouble("percentage"),
+                rs.getBoolean("paid")
+        )), username);
+    }
+
+
+    /**
      * Update the paid field of the user_bill table to true if the billId and username match
      *
      * @param billId The id of the bill to be paid.
@@ -432,5 +515,6 @@ public class DataAccessObject {
         String sql = "UPDATE 'user_bill' SET paid = ? WHERE user_bill_id = ? AND username = ?";
         return jdbcTemplate.update(sql, true, billId, username);
     }
+
 
 }

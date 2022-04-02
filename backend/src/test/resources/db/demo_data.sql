@@ -5,19 +5,19 @@ VALUES ('macintosh'),
        ('powell hall');
 
 INSERT INTO user (username, password, group_id, role, enabled)
-VALUES ('admin', 'pass', NULL, 'ADMIN', true),
-       ('user', 'pass', NULL, 'USER', true),
-       ('leopold', 'pass', 1, 'ADMIN', true),
-       ('lukas', 'pass', 1, 'USER', true),
-       ('lucas', 'pass', 1, 'USER', true),
-       ('jonathan', 'pass', 1, 'USER', true),
-       ('anna', 'pass', 2, 'ADMIN', true),
-       ('jane', 'pass', 2, 'USER', true),
-       ('mary', 'pass', 2, 'USER', true),
-       ('claire', 'pass', 3, 'ADMIN', true),
-       ('john', 'pass', 3, 'USER', true),
-       ('chris', 'pass', 3, 'USER', true),
-       ('will', 'pass', 3, 'USER', true);
+VALUES ('admin', '87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61', NULL, 'ADMIN', true),
+       ('user', '87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61', NULL, 'USER', true),
+       ('leopold', '87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61', 1, 'ADMIN', true),
+       ('lukas', '87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61', 1, 'USER', true),
+       ('lucas', '87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61', 1, 'USER', true),
+       ('jonathan', '87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61', 1, 'USER', true),
+       ('anna', '87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61', 2, 'ADMIN', true),
+       ('jane', '87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61', 2, 'USER', true),
+       ('mary', '87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61', 2, 'USER', true),
+       ('claire', '87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61', 3, 'ADMIN', true),
+       ('john', '87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61', 3, 'USER', true),
+       ('chris', '87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61', 3, 'USER', true),
+       ('will', '87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61', 3, 'USER', true);
 
 INSERT INTO 'bill' (name, description, amount, create_time, payment_method, owner)
 VALUES ('spotify', 'monthly music service', 9.99, 1648727500, 'cash', 'leopold'),

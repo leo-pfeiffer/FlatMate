@@ -72,17 +72,19 @@
 
 <script>
 import { mapGetters } from "vuex";
+import {
+  addUserToGroup,
+  changeAdmin,
+  getUsers,
+  removeUserFromGroup,
+  usernameExists,
+} from "@/api/api";
 
 export default {
   name: "Admin",
   data() {
     return {
-      users: [
-        { username: "leopold" },
-        { username: "lukas" },
-        { username: "lucas" },
-        { username: "jonathan" },
-      ],
+      users: [],
       searchInput: "",
       searchResult: "",
       noResults: false,
@@ -92,31 +94,75 @@ export default {
   computed: {
     ...mapGetters({ User: "StateUser" }),
   },
+  async mounted() {
+    this.users = await this.getUsersFromGroup();
+  },
   methods: {
-    search: function () {
-      // todo
-      if (this.searchInput === "error") {
-        this.noResults = true;
-      } else {
-        this.searchResult = this.searchInput;
-        this.noResults = false;
+    getUsersFromGroup: function () {
+      return getUsers()
+        .then((res) => {
+          return res.data.users;
+        })
+        .then((users) =>
+          users.map((u) => {
+            return { username: u };
+          })
+        );
+    },
+    search: async function () {
+      if (this.searchInput.length > 0) {
+        const res = await usernameExists(this.searchInput).then(
+          (res) => res.data
+        );
+
+        if (!res) {
+          this.noResults = true;
+        } else {
+          this.searchResult = this.searchInput;
+          this.noResults = false;
+        }
+        this.searched = true;
       }
-      this.searched = true;
     },
     setSearched: function (val) {
       this.searched = val;
       this.searchResult = "";
       this.noResults = false;
     },
-    makeAdmin: function (username) {
-      // todo
+    makeAdmin: async function (username) {
       console.log("New admin", username);
+      await changeAdmin(username);
+      await this.$store.dispatch("AdminRole");
+      await this.$router.push("/");
+      this.removeUserFromList(username);
     },
-    removeUser: function (username) {
+    removeUser: async function (username) {
       console.log("Removed", username);
+      await removeUserFromGroup(username);
+      this.removeUserFromList(username);
     },
-    addUser: function () {
+    addUser: async function () {
       console.log("New user", this.searchResult);
+      if (this.searchResult.length > 0) {
+        const exists = await usernameExists(this.searchInput).then(
+          (res) => res.data
+        );
+        if (exists) {
+          await addUserToGroup(this.searchInput);
+          this.users = await this.getUsersFromGroup();
+        } else {
+          this.noResults = true;
+        }
+      }
+    },
+    removeUserFromList: function (username) {
+      let index = -1;
+      for (let i = 0; i < this.users.length; i++) {
+        if (this.users[i].username === username) {
+          index = i;
+        }
+      }
+      this.users.splice(index, 1);
     },
   },
 };

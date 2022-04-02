@@ -9,11 +9,16 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserBill {
+public class UserBill implements DataProtection{
 
     private Long userBillId;
     private User user;
     private Bill bill;
     private double percentage;
     private boolean paid;
+
+    public void protect(){
+        this.user.protect();
+        this.bill.protect();
+    }
 }

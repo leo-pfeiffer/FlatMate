@@ -28,10 +28,12 @@ dependencies {
 	implementation 'org.xerial:sqlite-jdbc'
 	implementation 'org.hibernate:hibernate-core'
 
-    // sqlite dialect
+	// sqlite dialect
 	implementation 'com.github.gwenn:sqlite-dialect:0.1.2'
 
 	implementation 'com.google.code.gson:gson:2.9.0'
+
+	implementation ('org.springdoc:springdoc-openapi-ui:1.6.4')
 
 	// runtimeOnly 'com.h2database:h2'
 

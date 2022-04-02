@@ -1,22 +1,8 @@
 package cs5031.groupc.practical3;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.ArrayList;
-
 import cs5031.groupc.practical3.database.DataAccessObject;
-import cs5031.groupc.practical3.database.SQLiteDataSource;
-import cs5031.groupc.practical3.model.Bill;
-import cs5031.groupc.practical3.model.Group;
-import cs5031.groupc.practical3.model.List;
-import cs5031.groupc.practical3.model.ListItem;
-import cs5031.groupc.practical3.model.User;
-import cs5031.groupc.practical3.model.UserBill;
 import cs5031.groupc.practical3.testutils.SqlFileReader;
 import cs5031.groupc.practical3.vo.UserRole;
 import org.junit.jupiter.api.AfterEach;
@@ -24,28 +10,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.context.annotation.Configuration;
 
-@SpringBootTest(classes = Server.class)
-//@ComponentScan({"cs5031.groupc.practical3.*"})
+@SpringBootTest
 class Practical3ApplicationTests {
-
-
-
-	@Autowired
-	DataAccessObject dao;
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+
+	@Autowired
+	DataAccessObject dao;
 
 	WebTestClient client;
 	String userrole = "";
@@ -73,7 +50,7 @@ class Practical3ApplicationTests {
 			e.printStackTrace();
 			fail("Failed setup: " + e.getMessage());
 		}
-		client = WebTestClient.bindToController(new Server()).build();
+		client = WebTestClient.bindToController(new Server(dao)).build();
 	}
 
 	@AfterEach

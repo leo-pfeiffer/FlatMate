@@ -3,6 +3,7 @@ variables:
   collection: "testing_session_data"
 
 before_script:
+  - apk add --update sqlite
   - GRADLE_USER_HOME="$(pwd)/server/.gradle"
   - export GRADLE_USER_HOME
 
@@ -14,17 +15,17 @@ cache:
   - backend/.gradle/
 
 stages:
-  - buildserver
+  # - buildserver
   - testserver
   # - buildclient
   # - testclient
 
-buildserver:
-  image: gradle:alpine
-  stage: buildserver
-  script:
-    - cd backend
-    - gradle --build-cache assemble
+# buildserver:
+#   image: gradle:alpine
+#   stage: buildserver
+#   script:
+#     - cd backend
+#     - gradle --build-cache assemble
 
 testserver:
   image: gradle:alpine
