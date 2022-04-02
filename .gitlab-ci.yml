@@ -30,7 +30,7 @@ testserver:
 
 testclient:
   image: node:16
-  stage: frontend
+  stage: testclient
   script:
     - cd client
     - npm install --progress=false
