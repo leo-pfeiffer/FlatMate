@@ -18,9 +18,10 @@ import javax.sql.DataSource;
 @Import({SecurityConfiguration.class})
 public class SQLiteDataSource {
 
-    @Autowired
+    final
     Environment env;
 
+    @Autowired
     public SQLiteDataSource(Environment env) {
         this.env = env;
     }
@@ -32,8 +33,6 @@ public class SQLiteDataSource {
         assert driverClass != null;
         dataSource.setDriverClassName(driverClass);
         dataSource.setUrl(env.getProperty("url"));
-        // dataSource.setUsername(env.getProperty("user"));
-        // dataSource.setPassword(env.getProperty("password"));
         return dataSource;
     }
 }

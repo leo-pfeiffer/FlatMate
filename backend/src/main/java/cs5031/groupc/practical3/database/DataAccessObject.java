@@ -19,8 +19,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class DataAccessObject {
 
-    @Autowired
+    final
     JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public DataAccessObject(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     // GROUPS ====================
 

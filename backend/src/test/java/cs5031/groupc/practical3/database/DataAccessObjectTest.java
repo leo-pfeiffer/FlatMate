@@ -313,10 +313,10 @@ public class DataAccessObjectTest {
 
     @Test
     public void testAddBillToList() {
-        dao.addBillToList(3l, 2l);
-        List gottenList = dao.getList(3l);
+        dao.addBillToList(3L, 2L);
+        List gottenList = dao.getList(3L);
         Bill gottenBill =  gottenList.getBill();
-        assertEquals(2l,gottenBill.getBillId());
+        assertEquals(2L,gottenBill.getBillId());
 
 
     }
