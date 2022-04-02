@@ -1,10 +1,15 @@
 package cs5031.groupc.practical3;
 
-import java.util.HashMap;
 import java.util.ArrayList;
-
+import java.util.HashMap;
 import cs5031.groupc.practical3.database.DataAccessObject;
-import org.springframework.beans.factory.annotation.Autowired;
+import cs5031.groupc.practical3.model.Bill;
+import cs5031.groupc.practical3.model.DataProtection;
+import cs5031.groupc.practical3.model.Group;
+import cs5031.groupc.practical3.model.List;
+import cs5031.groupc.practical3.model.ListItem;
+import cs5031.groupc.practical3.model.User;
+import cs5031.groupc.practical3.model.UserBill;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -18,15 +23,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import cs5031.groupc.practical3.model.*;
 
 
 @RestController
 @SpringBootApplication
 public class Server {
 
-    @Autowired
+    final
     DataAccessObject dao;
+
+    public Server(DataAccessObject dao) {
+        this.dao = dao;
+    }
 
     private String getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
