@@ -86,10 +86,12 @@ public class Server {
             return user;
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -104,10 +106,12 @@ public class Server {
             return user != null;
         } catch (EmptyResultDataAccessException e) {
             return false;
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -123,25 +127,12 @@ public class Server {
             return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (UncategorizedSQLException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username already exists");
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-
-    // todo do we still need this?
-    @CrossOrigin(origins = "http://localhost:3000")
-    @GetMapping("/api/user/validate")
-    public ArrayList<User> validateUsername(@RequestParam String username) {
-        try {
-            return dao.getAllUsers();
-        } catch (EmptyResultDataAccessException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -153,13 +144,21 @@ public class Server {
     @PostMapping("/api/group")
     public Group getGroup(@RequestParam final String groupname) {
         try {
+            // the requesting user must be a member of the group
+            User user = dao.getUser(getUser());
+            if (!user.getGroup().getName().equals(groupname)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "user can only retrieve their own group");
+            }
+
             return dao.getGroup(groupname);
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -172,6 +171,13 @@ public class Server {
     @PostMapping("/api/group/create")
     public ResponseEntity<HashMap<String, Boolean>> createGroup(@RequestParam final String groupname) {
         try {
+
+            User user = dao.getUser(getUser());
+            // user must not be in a group when creating a new one. If they are, they should leave the group first.
+            if (user.getGroup() != null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is already in a group.");
+            }
+
             dao.createGroup(groupname);
             dao.addUserToGroup(getUser(), groupname);
             dao.setRoleToAdmin(getUser());
@@ -182,10 +188,12 @@ public class Server {
         } catch (UncategorizedSQLException e) {
             // group name already exists
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Group name already exists.");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -199,8 +207,6 @@ public class Server {
         try {
             User actingUser = dao.getUser(getUser());
             String groupname = actingUser.getGroup().getName();
-            System.out.println(username);
-
             User userToAdd = dao.getUser(username);
 
             // if user with 'username' is already in a group, user must leave group first
@@ -212,10 +218,12 @@ public class Server {
             return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 
@@ -228,14 +236,24 @@ public class Server {
     @PostMapping("/api/group/remove")
     public ResponseEntity<HashMap<String, Boolean>> removeFromGroup(@RequestParam final String username) {
         try {
+
+            User actingUser = dao.getUser(getUser());
+            User userToRemove = dao.getUser(username);
+
+            if (!actingUser.getGroup().getGroupId().equals(userToRemove.getGroup().getGroupId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot remove user from different group.");
+            }
+
             dao.removeUserFromGroup(username);
             return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -250,10 +268,12 @@ public class Server {
             return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -266,15 +286,25 @@ public class Server {
     @PostMapping("/api/group/changeAdmin")
     public ResponseEntity<HashMap<String, Boolean>> changeGroupAdmin(@RequestParam final String username) {
         try {
+
+            User actingUser = dao.getUser(getUser());
+            User userToRemove = dao.getUser(username);
+
+            if (!actingUser.getGroup().getGroupId().equals(userToRemove.getGroup().getGroupId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Users must be in the same group.");
+            }
+
             dao.setRoleToAdmin(username);
             dao.setRoleToUser(getUser());
             return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 
@@ -306,12 +336,12 @@ public class Server {
 
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-
-
     }
 
     /**
@@ -330,10 +360,12 @@ public class Server {
             return ret;
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -355,10 +387,12 @@ public class Server {
             return groupUserBills;
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 
@@ -378,10 +412,12 @@ public class Server {
             return ret;
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -404,10 +440,12 @@ public class Server {
             return groupListItems;
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -419,16 +457,25 @@ public class Server {
     @GetMapping("/api/group/getBill")
     public Bill getBillByID(@RequestParam long id) {
         try {
+            // User must be in same group as owner of bill
+            User actingUser = dao.getUser(getUser());
             Bill bill = dao.getBill(id);
+            User owner = bill.getOwner();
+
+            if (!actingUser.getGroup().getGroupId().equals(owner.getGroup().getGroupId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be in same group as bill owner.");
+            }
+
             bill.protect();
             return bill;
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-
     }
 
     /**
@@ -441,15 +488,26 @@ public class Server {
     @GetMapping("/api/group/getList")
     public List getListByID(@RequestParam long id) {
         try {
+
+            // User must be in same group as owner of list
+            User actingUser = dao.getUser(getUser());
             List list = dao.getList(id);
+            User owner = list.getOwner();
+
+            if (!actingUser.getGroup().getGroupId().equals(owner.getGroup().getGroupId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be in same group as list owner.");
+            }
+
             list.protect();
             return list;
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -461,22 +519,36 @@ public class Server {
     @PostMapping("/api/bill/create")
     public Bill createBill(@RequestBody Bill bill, @RequestParam(required = false) Long listId) {
         try {
-            System.out.println(listId);
+
             bill.setOwner(dao.getUser(getUser()));
             long time = System.currentTimeMillis() / 1000L;
             bill.setCreateTime(time);
             Bill createdBill = dao.createBillAndReturnId(bill);
             createdBill.protect();
+
             if (listId != null) {
+
+                // list owner must be in same group as user
+                List list = dao.getList(listId);
+                User actingUser = dao.getUser(getUser());
+                User owner = list.getOwner();
+
+                if (!actingUser.getGroup().getGroupId().equals(owner.getGroup().getGroupId())) {
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be in same group as list owner.");
+                }
+
                 dao.addBillToList(listId, bill.getBillId());
             }
+
             return createdBill;
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 
@@ -489,6 +561,15 @@ public class Server {
     @PostMapping("/api/bill/pay")
     public ResponseEntity<HashMap<String, Boolean>> payBill(@RequestParam long billId) {
         try {
+            // user must be in the same group as the bill
+            Bill bill = dao.getBill(billId);
+            User actingUser = dao.getUser(getUser());
+            User owner = bill.getOwner();
+
+            if (!actingUser.getGroup().getGroupId().equals(owner.getGroup().getGroupId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be in same group as bill owner.");
+            }
+
             ArrayList<UserBill> userBills = dao.getUserBillsForUser(getUser());
             for (UserBill ub : userBills) {
                 if (ub.getBill().getBillId().equals(billId)) {
@@ -498,11 +579,12 @@ public class Server {
             return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-
     }
 
     /**
@@ -523,10 +605,12 @@ public class Server {
             return created;
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -538,14 +622,26 @@ public class Server {
     @PostMapping("/api/list/createItem")
     public ResponseEntity<HashMap<String, Boolean>> createListItem(@RequestBody ListItem listItem) {
         try {
+
+            // user must be in the same group of the owner of the list
+            List list = dao.getList(listItem.getList().getListId());
+            User actingUser = dao.getUser(getUser());
+            User owner = list.getOwner();
+
+            if (!actingUser.getGroup().getGroupId().equals(owner.getGroup().getGroupId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be in same group as list owner.");
+            }
+
             dao.createListItem(listItem);
             return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -556,6 +652,37 @@ public class Server {
     @PostMapping("/api/bill/createUserBill")
     public ResponseEntity<HashMap<String, Boolean>> createUserBill(@RequestParam long billId, @RequestParam String username, @RequestParam double percentage) {
         try {
+
+            // percentage must be between 0 and 1
+            if (0 > percentage || percentage > 1) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Percentage must be between 0 and 1.");
+            }
+
+            // sum of percentages of one user bill must not exceed 1;
+            double curSum = percentage;
+            ArrayList<UserBill> userBills = dao.getUserBillsForBill(billId);
+            for (UserBill ub : userBills) {
+                curSum += ub.getPercentage();
+            }
+            if (curSum > 1) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Percentages must not exceed 1.");
+            }
+
+            // user must be in the same group as owner of associated bill
+            Bill bill = dao.getBill(billId);
+            User actingUser = dao.getUser(getUser());
+            User owner = bill.getOwner();
+
+            if (!actingUser.getGroup().getGroupId().equals(owner.getGroup().getGroupId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be in same group as owner.");
+            }
+
+            // user must be in same group as acting user
+            User userBillUser = dao.getUser(username);
+            if (!actingUser.getGroup().getGroupId().equals(userBillUser.getGroup().getGroupId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be in same group as owner.");
+            }
+
             UserBill userBill = new UserBill();
             userBill.setUser(dao.getUser(username));
             userBill.setBill(dao.getBill(billId));
@@ -565,9 +692,11 @@ public class Server {
             return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
