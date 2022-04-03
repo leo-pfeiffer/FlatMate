@@ -97,6 +97,8 @@ export default {
       const userBills = await getUserBillsForGroup().then((res) => res.data);
       const bills = {};
 
+      if (userBills.length === 0) return [];
+
       if (userBills[0]["bill"] === undefined) {
         await this.$store.dispatch("LogOut");
         await this.$router.push("/login");
@@ -128,6 +130,8 @@ export default {
     getLists: async function () {
       const listItems = await getListItemsForGroup().then((res) => res.data);
       const lists = {};
+
+      if (listItems.length === 0) return [];
 
       if (listItems[0]["list"] === undefined) {
         await this.$store.dispatch("LogOut");
@@ -187,7 +191,8 @@ export default {
   max-width: 300px;
 }
 
-.bill, .list {
+.bill,
+.list {
   height: 100%;
 }
 
