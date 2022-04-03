@@ -10,6 +10,7 @@ import cs5031.groupc.practical3.model.List;
 import cs5031.groupc.practical3.model.ListItem;
 import cs5031.groupc.practical3.model.User;
 import cs5031.groupc.practical3.model.UserBill;
+import cs5031.groupc.practical3.vo.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -127,10 +128,10 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/user/create")
-    public ResponseEntity<Void> createUser(@RequestBody final User user) {
+    public ResponseEntity<HashMap<String, Boolean>> createUser(@RequestBody final User user) {
         try {
             dao.createUser(user.getUsername(), user.getPassword());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (UncategorizedSQLException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username already exists");
         }catch (Exception e) {
@@ -180,12 +181,12 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/create")
-    public ResponseEntity<Void> createGroup(@RequestParam final String groupname) {
+    public ResponseEntity<HashMap<String, Boolean>> createGroup(@RequestParam final String groupname) {
         try {
             dao.createGroup(groupname);
             dao.addUserToGroup(getUser(), groupname);
             dao.setRoleToAdmin(getUser());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             // group or user not found
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
@@ -205,7 +206,7 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/add")
-    public ResponseEntity<Void> addToGroup(@RequestParam final String username) {
+    public ResponseEntity<HashMap<String, Boolean>> addToGroup(@RequestParam final String username) {
         try {
             User actingUser = dao.getUser(getUser());
             String groupname = actingUser.getGroup().getName();
@@ -219,7 +220,7 @@ public class Server {
                         "User " + username + " must leave their current group first.");
             }
             dao.addUserToGroup(username, groupname);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
@@ -236,10 +237,10 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/remove")
-    public ResponseEntity<Void> removeFromGroup(@RequestParam final String username) {
+    public ResponseEntity<HashMap<String, Boolean>> removeFromGroup(@RequestParam final String username) {
         try {
             dao.removeUserFromGroup(username);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
@@ -254,10 +255,10 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/removeCurrent")
-    public ResponseEntity<Void> removeCurrentUserFromGroup() {
+    public ResponseEntity<HashMap<String, Boolean>> removeCurrentUserFromGroup() {
         try {
             dao.removeUserFromGroup(getUser());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
@@ -274,11 +275,11 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/changeAdmin")
-    public ResponseEntity<Void> changeGroupAdmin(@RequestParam final String username) {
+    public ResponseEntity<HashMap<String, Boolean>> changeGroupAdmin(@RequestParam final String username) {
         try {
             dao.setRoleToAdmin(username);
             dao.setRoleToUser(getUser());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
@@ -495,7 +496,7 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/bill/pay")
-    public ResponseEntity<Void> payBill(@RequestParam long billId) {
+    public ResponseEntity<HashMap<String, Boolean>> payBill(@RequestParam long billId) {
         try {
             ArrayList<UserBill> userBills = dao.getUserBillsForUser(getUser());
             for (UserBill ub : userBills) {
@@ -503,7 +504,7 @@ public class Server {
                     dao.setUserBillToPaid(ub.getUserBillId(), getUser());
                 }
             }
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
@@ -544,10 +545,10 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/list/createItem")
-    public ResponseEntity<Void> createListItem(@RequestBody ListItem listItem) {
+    public ResponseEntity<HashMap<String, Boolean>> createListItem(@RequestBody ListItem listItem) {
         try {
             dao.createListItem(listItem);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
@@ -562,7 +563,7 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/bill/createUserBill")
-    public ResponseEntity<Void> createUserBill(@RequestParam long billId, @RequestParam String username, @RequestParam double percentage) {
+    public ResponseEntity<HashMap<String, Boolean>> createUserBill(@RequestParam long billId, @RequestParam String username, @RequestParam double percentage) {
         try {
             UserBill userBill = new UserBill();
             userBill.setUser(dao.getUser(username));
@@ -570,7 +571,7 @@ public class Server {
             userBill.setPercentage(percentage);
 
             dao.createUserBill(userBill);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
