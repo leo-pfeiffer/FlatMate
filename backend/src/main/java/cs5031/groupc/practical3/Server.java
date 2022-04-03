@@ -39,21 +39,22 @@ public class Server {
         this.dao = dao;
     }
 
+    /**
+     * Get the username from the user of the current security context
+     *
+     * @return The name of the user that is currently logged in.
+     */
     private String getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName();
     }
 
-    private Bill protect(Bill b) {
-        b.protect();
-        return b;
-    }
-
-    private User protect(User u) {
-        u.protect();
-        return u;
-    }
-
+    /**
+     * Protects all the objects in the group by setting sensitive information to null;
+     *
+     * @param group The ArrayList of objects to protect.
+     * @return The protected ArrayList.
+     */
     private <T> ArrayList<T> protect(ArrayList<T> group) {
         for (T t : group) {
             DataProtection dp = (DataProtection) t;
@@ -61,20 +62,6 @@ public class Server {
         }
         return group;
     }
-
-
-    private List protect(List l) {
-        l.protect();
-        return l;
-    }
-
-
-    @CrossOrigin(origins = "http://localhost:3000")
-    @GetMapping("/api/test2")
-    public String apitest2() {
-        return "in api test 2";
-    }
-
 
     /**
      * A method that confirms that the server is in fact running. --> Works!
@@ -94,7 +81,9 @@ public class Server {
     @GetMapping("/api/user")
     public User getCurrentUser() {
         try {
-            return protect(dao.getUser(getUser()));
+            User user = dao.getUser(getUser());
+            user.protect();
+            return user;
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
@@ -431,7 +420,8 @@ public class Server {
     public Bill getBillByID(@RequestParam long id) {
         try {
             Bill bill = dao.getBill(id);
-            return protect(bill);
+            bill.protect();
+            return bill;
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
@@ -452,7 +442,8 @@ public class Server {
     public List getListByID(@RequestParam long id) {
         try {
             List list = dao.getList(id);
-            return protect(list);
+            list.protect();
+            return list;
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
