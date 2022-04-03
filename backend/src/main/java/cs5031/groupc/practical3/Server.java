@@ -232,7 +232,8 @@ public class Server {
         try {
             // user to remove must be in group of admin
             validator.inSameGroup(dao.getUser(getUser()), dao.getUser(username));
-
+            // admin cant leave or else group doesnt have an admin
+            validator.userIsNotAdmin(dao.getUser(username));
             dao.removeUserFromGroup(username);
             return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
@@ -253,6 +254,8 @@ public class Server {
     @PostMapping("/api/group/removeCurrent")
     public ResponseEntity<HashMap<String, Boolean>> removeCurrentUserFromGroup() {
         try {
+            // admin cant leave or else group doesnt have an admin
+            validator.userIsNotAdmin(dao.getUser(getUser()));
             dao.removeUserFromGroup(getUser());
             return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
