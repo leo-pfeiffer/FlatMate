@@ -15,6 +15,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -90,10 +91,12 @@ public class Server {
     public User getCurrentUser() {
         try {
             return protect(dao.getUser(getUser()));
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -111,7 +114,7 @@ public class Server {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -122,14 +125,15 @@ public class Server {
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/user/create")
     public ResponseEntity<Void> createUser(@RequestBody final User user) {
-
         try {
             dao.createUser(user.getUsername(), user.getPassword());
             return ResponseEntity.ok().build();
-        } catch (Exception e) {
+        } catch (UncategorizedSQLException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username already exists");
+        }catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 
@@ -137,13 +141,14 @@ public class Server {
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/user/validate")
     public ArrayList<User> validateUsername(@RequestParam String username) {
-
         try {
             return dao.getAllUsers();
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -156,10 +161,12 @@ public class Server {
     public Group getGroup(@RequestParam final String groupname) {
         try {
             return dao.getGroup(groupname);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -176,10 +183,16 @@ public class Server {
             dao.addUserToGroup(getUser(), groupname);
             dao.setRoleToAdmin(getUser());
             return ResponseEntity.ok().build();
+        } catch (EmptyResultDataAccessException e) {
+            // group or user not found
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (UncategorizedSQLException e) {
+            // group name already exists
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Group name already exists.");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -195,15 +208,21 @@ public class Server {
             String groupname = actingUser.getGroup().getName();
             System.out.println(username);
 
-            // TODO: check if user with 'username' is already in a group.
-            //  If yes, abort (user must leave group first).
+            User userToAdd = dao.getUser(username);
 
+            // if user with 'username' is already in a group, user must leave group first
+            if (userToAdd.getGroup() != null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "User " + username + " must leave their current group first.");
+            }
             dao.addUserToGroup(username, groupname);
             return ResponseEntity.ok().build();
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 
@@ -218,10 +237,12 @@ public class Server {
         try {
             dao.removeUserFromGroup(username);
             return ResponseEntity.ok().build();
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -234,10 +255,12 @@ public class Server {
         try {
             dao.removeUserFromGroup(getUser());
             return ResponseEntity.ok().build();
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -253,10 +276,12 @@ public class Server {
             dao.setRoleToAdmin(username);
             dao.setRoleToUser(getUser());
             return ResponseEntity.ok().build();
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 
@@ -286,10 +311,12 @@ public class Server {
             ret.put("users", groupUsers);
             return ret;
 
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 
 
     }
@@ -308,10 +335,12 @@ public class Server {
             HashMap<String, ArrayList<Bill>> ret = new HashMap<>();
             ret.put("bills", groupBills);
             return ret;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -331,10 +360,12 @@ public class Server {
                 groupUserBills.addAll(userBills);
             }
             return groupUserBills;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 
@@ -345,19 +376,19 @@ public class Server {
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getAllLists")
     public HashMap<String, ArrayList<List>> getAllGroupLists() {
-
         try {
             User actingUser = dao.getUser(getUser());
             long groupId = actingUser.getGroup().getGroupId();
             ArrayList<List> groupLists = protect(dao.getListsForGroup(groupId));
-            //TODO: protect groupLists
             HashMap<String, ArrayList<List>> ret = new HashMap<>();
             ret.put("lists", groupLists);
             return ret;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -378,10 +409,12 @@ public class Server {
                 groupListItems.addAll(listItems);
             }
             return groupListItems;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -395,10 +428,12 @@ public class Server {
         try {
             Bill bill = dao.getBill(id);
             return protect(bill);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 
@@ -414,11 +449,12 @@ public class Server {
         try {
             List list = dao.getList(id);
             return protect(list);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
-
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -440,10 +476,12 @@ public class Server {
                 dao.addBillToList(listId, bill.getBillId());
             }
             return createdBill;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 
@@ -463,10 +501,12 @@ public class Server {
                 }
             }
             return ResponseEntity.ok().build();
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 
@@ -486,10 +526,12 @@ public class Server {
             List created = dao.createListAndReturnId(list);
             created.protect();
             return created;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -503,10 +545,12 @@ public class Server {
         try {
             dao.createListItem(listItem);
             return ResponseEntity.ok().build();
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -524,9 +568,11 @@ public class Server {
 
             dao.createUserBill(userBill);
             return ResponseEntity.ok().build();
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
