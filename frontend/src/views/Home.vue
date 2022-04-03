@@ -96,6 +96,12 @@ export default {
       const userBills = await getUserBillsForGroup().then((res) => res.data);
       const bills = {};
 
+      if (userBills[0]["bill"] === undefined) {
+        await this.$store.dispatch("LogOut");
+        await this.$router.push("/login");
+        return;
+      }
+
       for (let ub of userBills) {
         let billId = ub.bill.billId;
         const bill = ub.bill;
@@ -121,6 +127,12 @@ export default {
     getLists: async function () {
       const listItems = await getListItemsForGroup().then((res) => res.data);
       const lists = {};
+
+      if (listItems[0]["list"] === undefined) {
+        await this.$store.dispatch("LogOut");
+        await this.$router.push("/login");
+        return;
+      }
 
       for (let li of listItems) {
         let listId = li.list.listId;
