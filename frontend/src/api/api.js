@@ -93,7 +93,6 @@ const createListItem = function (listItem) {
 
 const createBill = function (bill, listId) {
   const params = {};
-  console.log("listId", listId);
   if (listId !== null && listId !== "") {
     params["listId"] = listId;
   }
