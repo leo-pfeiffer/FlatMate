@@ -44,6 +44,7 @@
                 >
                   <article class="tile is-child">
                     <List
+                      class="List"
                       :id="item.listId"
                       :time="item.createTime"
                       :name="item.name"
@@ -186,7 +187,7 @@ export default {
   max-width: 300px;
 }
 
-.bill {
+.bill, .list {
   height: 100%;
 }
 
