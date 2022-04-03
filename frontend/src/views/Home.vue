@@ -19,6 +19,7 @@
                 >
                   <article class="tile is-child">
                     <Bill
+                      class="bill"
                       :id="item.billId"
                       :name="item.name"
                       :time="item.createTime"
@@ -173,11 +174,15 @@ export default {
   max-width: 300px;
 }
 
+.bill {
+  height: 100%;
+}
+
 #bill-tiles,
 #list-tiles {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-evenly;
-  align-items: center;
+  align-items: stretch;
 }
 </style>
