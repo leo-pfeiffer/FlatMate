@@ -33,10 +33,12 @@ import org.springframework.web.server.ResponseStatusException;
 public class Server {
 
     final DataAccessObject dao;
+    final InputValidationUtils validator;
 
     @Autowired
-    public Server(DataAccessObject dao) {
+    public Server(DataAccessObject dao, InputValidationUtils validator) {
         this.dao = dao;
+        this.validator = validator;
     }
 
     /**
@@ -145,10 +147,7 @@ public class Server {
     public Group getGroup(@RequestParam final String groupname) {
         try {
             // the requesting user must be a member of the group
-            User user = dao.getUser(getUser());
-            if (!user.getGroup().getName().equals(groupname)) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "user can only retrieve their own group");
-            }
+            validator.userInGroup(dao.getUser(getUser()), groupname);
 
             return dao.getGroup(groupname);
         } catch (EmptyResultDataAccessException e) {
@@ -172,11 +171,8 @@ public class Server {
     public ResponseEntity<HashMap<String, Boolean>> createGroup(@RequestParam final String groupname) {
         try {
 
-            User user = dao.getUser(getUser());
             // user must not be in a group when creating a new one. If they are, they should leave the group first.
-            if (user.getGroup() != null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is already in a group.");
-            }
+            validator.userHasNoGroup(dao.getUser(getUser()));
 
             dao.createGroup(groupname);
             dao.addUserToGroup(getUser(), groupname);
@@ -210,10 +206,8 @@ public class Server {
             User userToAdd = dao.getUser(username);
 
             // if user with 'username' is already in a group, user must leave group first
-            if (userToAdd.getGroup() != null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "User " + username + " must leave their current group first.");
-            }
+            validator.userHasNoGroup(userToAdd);
+
             dao.addUserToGroup(username, groupname);
             return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
@@ -236,13 +230,8 @@ public class Server {
     @PostMapping("/api/group/remove")
     public ResponseEntity<HashMap<String, Boolean>> removeFromGroup(@RequestParam final String username) {
         try {
-
-            User actingUser = dao.getUser(getUser());
-            User userToRemove = dao.getUser(username);
-
-            if (!actingUser.getGroup().getGroupId().equals(userToRemove.getGroup().getGroupId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot remove user from different group.");
-            }
+            // user to remove must be in group of admin
+            validator.inSameGroup(dao.getUser(getUser()), dao.getUser(username));
 
             dao.removeUserFromGroup(username);
             return ResponseEntity.ok(Result.SUCCESS.getResult());
@@ -287,12 +276,8 @@ public class Server {
     public ResponseEntity<HashMap<String, Boolean>> changeGroupAdmin(@RequestParam final String username) {
         try {
 
-            User actingUser = dao.getUser(getUser());
-            User userToRemove = dao.getUser(username);
-
-            if (!actingUser.getGroup().getGroupId().equals(userToRemove.getGroup().getGroupId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Users must be in the same group.");
-            }
+            // user must be in group of admin
+            validator.inSameGroup(dao.getUser(getUser()), dao.getUser(username));
 
             dao.setRoleToAdmin(username);
             dao.setRoleToUser(getUser());
@@ -458,13 +443,8 @@ public class Server {
     public Bill getBillByID(@RequestParam long id) {
         try {
             // User must be in same group as owner of bill
-            User actingUser = dao.getUser(getUser());
             Bill bill = dao.getBill(id);
-            User owner = bill.getOwner();
-
-            if (!actingUser.getGroup().getGroupId().equals(owner.getGroup().getGroupId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be in same group as bill owner.");
-            }
+            validator.inSameGroup(dao.getUser(getUser()), bill.getOwner());
 
             bill.protect();
             return bill;
@@ -490,13 +470,8 @@ public class Server {
         try {
 
             // User must be in same group as owner of list
-            User actingUser = dao.getUser(getUser());
             List list = dao.getList(id);
-            User owner = list.getOwner();
-
-            if (!actingUser.getGroup().getGroupId().equals(owner.getGroup().getGroupId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be in same group as list owner.");
-            }
+            validator.inSameGroup(dao.getUser(getUser()), list.getOwner());
 
             list.protect();
             return list;
@@ -526,16 +501,12 @@ public class Server {
             Bill createdBill = dao.createBillAndReturnId(bill);
             createdBill.protect();
 
+            // listId is optional and may be null
             if (listId != null) {
 
                 // list owner must be in same group as user
                 List list = dao.getList(listId);
-                User actingUser = dao.getUser(getUser());
-                User owner = list.getOwner();
-
-                if (!actingUser.getGroup().getGroupId().equals(owner.getGroup().getGroupId())) {
-                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be in same group as list owner.");
-                }
+                validator.inSameGroup(dao.getUser(getUser()), list.getOwner());
 
                 dao.addBillToList(listId, bill.getBillId());
             }
@@ -563,12 +534,7 @@ public class Server {
         try {
             // user must be in the same group as the bill
             Bill bill = dao.getBill(billId);
-            User actingUser = dao.getUser(getUser());
-            User owner = bill.getOwner();
-
-            if (!actingUser.getGroup().getGroupId().equals(owner.getGroup().getGroupId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be in same group as bill owner.");
-            }
+            validator.inSameGroup(dao.getUser(getUser()), bill.getOwner());
 
             ArrayList<UserBill> userBills = dao.getUserBillsForUser(getUser());
             for (UserBill ub : userBills) {
@@ -625,12 +591,7 @@ public class Server {
 
             // user must be in the same group of the owner of the list
             List list = dao.getList(listItem.getList().getListId());
-            User actingUser = dao.getUser(getUser());
-            User owner = list.getOwner();
-
-            if (!actingUser.getGroup().getGroupId().equals(owner.getGroup().getGroupId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be in same group as list owner.");
-            }
+            validator.inSameGroup(dao.getUser(getUser()), list.getOwner());
 
             dao.createListItem(listItem);
             return ResponseEntity.ok(Result.SUCCESS.getResult());
@@ -654,9 +615,7 @@ public class Server {
         try {
 
             // percentage must be between 0 and 1
-            if (0 > percentage || percentage > 1) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Percentage must be between 0 and 1.");
-            }
+            validator.valueInRange(percentage, 0, 1);
 
             // sum of percentages of one user bill must not exceed 1;
             double curSum = percentage;
@@ -664,24 +623,15 @@ public class Server {
             for (UserBill ub : userBills) {
                 curSum += ub.getPercentage();
             }
-            if (curSum > 1) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Percentages must not exceed 1.");
-            }
+            validator.valueInRange(curSum, 0, 1);
 
             // user must be in the same group as owner of associated bill
             Bill bill = dao.getBill(billId);
             User actingUser = dao.getUser(getUser());
-            User owner = bill.getOwner();
-
-            if (!actingUser.getGroup().getGroupId().equals(owner.getGroup().getGroupId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be in same group as owner.");
-            }
+            validator.inSameGroup(actingUser, bill.getOwner());
 
             // user must be in same group as acting user
-            User userBillUser = dao.getUser(username);
-            if (!actingUser.getGroup().getGroupId().equals(userBillUser.getGroup().getGroupId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be in same group as owner.");
-            }
+            validator.inSameGroup(actingUser, dao.getUser(username));
 
             UserBill userBill = new UserBill();
             userBill.setUser(dao.getUser(username));
