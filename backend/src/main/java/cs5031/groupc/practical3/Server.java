@@ -63,12 +63,15 @@ public class Server {
 
 
     private List protect(List l) {
-        l.getOwner().setPassword(null);
-        Bill b = l.getBill();
-        if (b != null) {
-            b.protect();
-        }
+        l.protect();
         return l;
+    }
+
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @GetMapping("/api/test2")
+    public String apitest2() {
+        return "in api test 2";
     }
 
 

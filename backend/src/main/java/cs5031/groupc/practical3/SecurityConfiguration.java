@@ -50,8 +50,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/group/remove").hasAnyAuthority(UserRole.ADMIN.getRole())
                 .antMatchers("/api/group/changeAdmin").hasAnyAuthority(UserRole.ADMIN.getRole())
                 .antMatchers("/api/**").hasAnyAuthority(UserRole.USER.getRole(), UserRole.ADMIN.getRole())
+                .and().httpBasic()
                 .and().formLogin().successHandler(successHandler()).failureHandler(failureHandler())
                 .and().cors().and().csrf().disable();
+
     }
 
     private AuthenticationSuccessHandler successHandler() {
