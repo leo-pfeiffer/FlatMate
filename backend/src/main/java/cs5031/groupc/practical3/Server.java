@@ -172,7 +172,7 @@ public class Server {
         try {
 
             // user must not be in a group when creating a new one. If they are, they should leave the group first.
-            validator.userHasNoGroup(dao.getUser(getUser()));
+            validator.userHasGroup(dao.getUser(getUser()), false);
 
             dao.createGroup(groupname);
             dao.addUserToGroup(getUser(), groupname);
@@ -206,7 +206,7 @@ public class Server {
             User userToAdd = dao.getUser(username);
 
             // if user with 'username' is already in a group, user must leave group first
-            validator.userHasNoGroup(userToAdd);
+            validator.userHasGroup(userToAdd, false);
 
             dao.addUserToGroup(username, groupname);
             return ResponseEntity.ok(Result.SUCCESS.getResult());
@@ -230,11 +230,33 @@ public class Server {
     @PostMapping("/api/group/remove")
     public ResponseEntity<HashMap<String, Boolean>> removeFromGroup(@RequestParam final String username) {
         try {
+
+            User userToRemove = dao.getUser(username);
+
+            // user should have a group
+            validator.userHasGroup(userToRemove, true);
+
             // user to remove must be in group of admin
-            validator.inSameGroup(dao.getUser(getUser()), dao.getUser(username));
-            // admin cant leave or else group doesnt have an admin
-            validator.userIsNotAdmin(dao.getUser(username));
-            dao.removeUserFromGroup(username);
+            validator.inSameGroup(dao.getUser(getUser()), userToRemove);
+
+            // admin can't leave or else group doesn't have an admin
+            validator.userIsNotAdmin(userToRemove);
+
+            // cannot remove a user that is not enabled (since they are no longer active)
+            validator.userEnabled(userToRemove);
+
+            // create new username
+            long time = System.currentTimeMillis() / 1000L;
+            String suffix = " (left @ " + time + ")";
+            String retiredUserName = userToRemove.getUsername() + suffix;
+
+            // update the old instance
+            dao.changeUserName(username, retiredUserName);
+            dao.changeUserEnabled(retiredUserName, false);
+
+            // create the new instance
+            dao.createUser(userToRemove.getUsername(), userToRemove.getPassword());
+
             return ResponseEntity.ok(Result.SUCCESS.getResult());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
@@ -253,19 +275,7 @@ public class Server {
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/removeCurrent")
     public ResponseEntity<HashMap<String, Boolean>> removeCurrentUserFromGroup() {
-        try {
-            // admin cant leave or else group doesnt have an admin
-            validator.userIsNotAdmin(dao.getUser(getUser()));
-            dao.removeUserFromGroup(getUser());
-            return ResponseEntity.ok(Result.SUCCESS.getResult());
-        } catch (EmptyResultDataAccessException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
-        } catch (ResponseStatusException e) {
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return this.removeFromGroup(getUser());
     }
 
     /**
@@ -311,7 +321,8 @@ public class Server {
             ArrayList<String> groupUsers = new ArrayList<>();
             for (User u : users) {
                 Group userGroup = u.getGroup();
-                if (userGroup == null) {
+                // don't add user if the group is null or user is not enabled
+                if (userGroup == null || !u.isEnabled()) {
                     continue;
                 }
                 if (userGroup.getGroupId().equals(groupID)) {

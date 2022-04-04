@@ -802,17 +802,13 @@ class ServerTest {
                 .expectStatus().isForbidden();
     }
 
-
-
     @Test
     public void testRemoveCurrentUserFromGroupNoGroupAdmin() {
         client.post().uri("/api/group/removeCurrent")
                 .headers(headers -> headers.setBasicAuth("admin", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isForbidden();
-
-
+                .expectStatus().isBadRequest();
     }
 
 

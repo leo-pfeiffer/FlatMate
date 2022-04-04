@@ -33,9 +33,14 @@ public class InputValidationUtils {
         }
     }
 
-    public void userHasNoGroup(User user) throws ResponseStatusException {
-        if (user.getGroup() != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is already in a group.");
+    public void userHasGroup(User user, boolean shouldHaveGroup) throws ResponseStatusException {
+        boolean hasGroup = user.getGroup() != null;
+        if (hasGroup != shouldHaveGroup) {
+            if (shouldHaveGroup) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User has no group.");
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User already has a group.");
+            }
         }
     }
 
@@ -48,6 +53,12 @@ public class InputValidationUtils {
     public void valueInRange(double value, double lo, double hi) throws ResponseStatusException {
         if (value < lo || value > hi) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Value out of range.");
+        }
+    }
+
+    public void userEnabled(User user) throws ResponseStatusException {
+        if (!user.isEnabled()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User must be enabled.");
         }
     }
 
