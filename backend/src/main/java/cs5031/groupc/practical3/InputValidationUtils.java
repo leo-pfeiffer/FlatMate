@@ -44,6 +44,12 @@ public class InputValidationUtils {
         }
     }
 
+    public void userHasGroup(User user) throws ResponseStatusException {
+        if (user.getGroup() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User has no group.");
+        }
+    }
+
     public void userIsNotAdmin(User user) throws ResponseStatusException {
         if (user.getRole().getRole().equals(UserRole.ADMIN.getRole())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This would leave the group without admin.");

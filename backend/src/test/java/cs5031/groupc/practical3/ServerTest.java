@@ -138,6 +138,8 @@ class ServerTest {
                 .isEqualTo("The server is running.");
     }
 
+    // ======================== /ServerRunning ===============================================
+
     // ======================== getCurrentUser ===============================================
 
     @Test
@@ -181,6 +183,8 @@ class ServerTest {
                 .exchange()
                 .expectStatus().isUnauthorized();
     }
+
+    // ======================== /getCurrentUser ===============================================
 
     // ======================== getUserExists ===============================================
 
@@ -256,7 +260,7 @@ class ServerTest {
 
     }
 
-
+    // ======================== /getUserExists ===============================================
 
     // ======================== createUser ===============================================
 
@@ -394,6 +398,7 @@ class ServerTest {
     }
 
 
+    // ======================== /createUser ===============================================
 
     // ======================== getGroup ===============================================
 
@@ -450,6 +455,7 @@ class ServerTest {
                 .expectStatus().isUnauthorized();
     }
 
+    // ======================== /getGroup ===============================================
 
     // ======================== createGroup ===============================================
 
@@ -559,6 +565,7 @@ class ServerTest {
     }
 
 
+    // ======================== /createGroup ===============================================
 
     // ======================== getGroupUsers ===============================================
 
@@ -624,6 +631,8 @@ class ServerTest {
                 .expectStatus().isUnauthorized();
     }
 
+
+    // ======================== /getGroupUsers ===============================================
 
     // ======================== addToGroup ===============================================
 
@@ -715,6 +724,8 @@ class ServerTest {
     }
 
 
+    // ======================== /addToGroup ===============================================
+
     // ======================== removeFromGroup ===============================================
 
 
@@ -791,6 +802,8 @@ class ServerTest {
     }
 
 
+    // ======================== /removeFromGroup ===============================================
+
     // ======================== removeCurrentUserFromGroup ===============================================
 
     @Test
@@ -840,6 +853,8 @@ class ServerTest {
                 .exchange()
                 .expectStatus().isUnauthorized();
     }
+
+    // ======================== /removeCurrentUserFromGroup ===============================================
 
     // ======================== changeGroupAdmin ===============================================
 
@@ -922,4 +937,1182 @@ class ServerTest {
                 .exchange()
                 .expectStatus().isUnauthorized();
     }
+
+    // ======================== /changeGroupAdmin ===============================================
+
+    // ======================== getAllBills ===============================================
+
+    @Test
+    public void testGetAllBillsPositiveAdmin() {
+        client.get().uri("/api/group/getAllBills")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.bills[0].name").isEqualTo("spotify")
+                .jsonPath("$.bills[0].billId").isEqualTo(1)
+                .jsonPath("$.bills[0].owner.password").isEqualTo(null)
+
+                .jsonPath("$.bills[1].name").isEqualTo("netflix")
+                .jsonPath("$.bills[1].billId").isEqualTo(2)
+                .jsonPath("$.bills[1].owner.password").isEqualTo(null)
+
+                .jsonPath("$.bills[2].name").isEqualTo("shopping")
+                .jsonPath("$.bills[2].billId").isEqualTo(3)
+                .jsonPath("$.bills[2].owner.password").isEqualTo(null)
+
+                .jsonPath("$.bills[3].name").isEqualTo("shopping")
+                .jsonPath("$.bills[3].billId").isEqualTo(4)
+                .jsonPath("$.bills[3].owner.password").isEqualTo(null);
+
+
+    }
+
+    @Test
+    public void testGetAllBillsNegativeAdmin() {
+        client.get().uri("/api/group/getAllBills")
+                .headers(headers -> headers.setBasicAuth("admin", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testGetAllBillsPositiveUser() {
+        client.get().uri("/api/group/getAllBills")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.bills[0].name").isEqualTo("spotify")
+                .jsonPath("$.bills[0].billId").isEqualTo(1)
+                .jsonPath("$.bills[0].owner.password").isEqualTo(null)
+
+                .jsonPath("$.bills[1].name").isEqualTo("netflix")
+                .jsonPath("$.bills[1].billId").isEqualTo(2)
+                .jsonPath("$.bills[1].owner.password").isEqualTo(null)
+
+                .jsonPath("$.bills[2].name").isEqualTo("shopping")
+                .jsonPath("$.bills[2].billId").isEqualTo(3)
+                .jsonPath("$.bills[2].owner.password").isEqualTo(null)
+
+                .jsonPath("$.bills[3].name").isEqualTo("shopping")
+                .jsonPath("$.bills[3].billId").isEqualTo(4)
+                .jsonPath("$.bills[3].owner.password").isEqualTo(null);
+
+
+    }
+
+    @Test
+    public void testGetAllBillsNegativeUser() {
+        client.get().uri("/api/group/getAllBills")
+                .headers(headers -> headers.setBasicAuth("user", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testGetAllBillsPleb() {
+        client.get().uri("/api/group/getAllBills")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    // ======================== /getAllBills ===============================================
+
+
+    // ======================== getAllUserBills ===============================================
+
+    @Test
+    public void testGetAllUserBillsPositiveAdmin() {
+        client.get().uri("/api/group/getAllUserBills")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.[0].userBillId").isEqualTo(1)
+                .jsonPath("$.[0].user.username").isEqualTo("leopold")
+                .jsonPath("$.[0].user.password").isEqualTo(null)
+                .jsonPath("$.[0].bill.billId").isEqualTo(1)
+                .jsonPath("$.[0].percentage").isEqualTo(0.25)
+                .jsonPath("$.[0].paid").isEqualTo(true)
+
+                .jsonPath("$.[1].userBillId").isEqualTo(2)
+                .jsonPath("$.[1].user.username").isEqualTo("lukas")
+                .jsonPath("$.[1].user.password").isEqualTo(null)
+                .jsonPath("$.[1].bill.billId").isEqualTo(1)
+                .jsonPath("$.[1].percentage").isEqualTo(0.25)
+                .jsonPath("$.[1].paid").isEqualTo(true)
+
+                .jsonPath("$.[2].userBillId").isEqualTo(3)
+                .jsonPath("$.[2].user.username").isEqualTo("lucas")
+                .jsonPath("$.[2].user.password").isEqualTo(null)
+                .jsonPath("$.[2].bill.billId").isEqualTo(1)
+                .jsonPath("$.[2].percentage").isEqualTo(0.25)
+                .jsonPath("$.[2].paid").isEqualTo(true)
+
+                .jsonPath("$.[3].userBillId").isEqualTo(4)
+                .jsonPath("$.[3].user.username").isEqualTo("jonathan")
+                .jsonPath("$.[3].user.password").isEqualTo(null)
+                .jsonPath("$.[3].bill.billId").isEqualTo(1)
+                .jsonPath("$.[3].percentage").isEqualTo(0.25)
+                .jsonPath("$.[3].paid").isEqualTo(true)
+
+                .jsonPath("$.[4].userBillId").isEqualTo(5)
+                .jsonPath("$.[4].user.username").isEqualTo("leopold")
+                .jsonPath("$.[4].user.password").isEqualTo(null)
+                .jsonPath("$.[4].bill.billId").isEqualTo(2)
+                .jsonPath("$.[4].percentage").isEqualTo(0.33)
+                .jsonPath("$.[4].paid").isEqualTo(false)
+
+                .jsonPath("$.[5].userBillId").isEqualTo(6)
+                .jsonPath("$.[5].user.username").isEqualTo("lukas")
+                .jsonPath("$.[5].user.password").isEqualTo(null)
+                .jsonPath("$.[5].bill.billId").isEqualTo(2)
+                .jsonPath("$.[5].percentage").isEqualTo(0.33)
+                .jsonPath("$.[5].paid").isEqualTo(false)
+
+                .jsonPath("$.[6].userBillId").isEqualTo(7)
+                .jsonPath("$.[6].user.username").isEqualTo("lucas")
+                .jsonPath("$.[6].user.password").isEqualTo(null)
+                .jsonPath("$.[6].bill.billId").isEqualTo(2)
+                .jsonPath("$.[6].percentage").isEqualTo(0.34)
+                .jsonPath("$.[6].paid").isEqualTo(false)
+
+                .jsonPath("$.[7].userBillId").isEqualTo(8)
+                .jsonPath("$.[7].user.username").isEqualTo("leopold")
+                .jsonPath("$.[7].user.password").isEqualTo(null)
+                .jsonPath("$.[7].bill.billId").isEqualTo(3)
+                .jsonPath("$.[7].percentage").isEqualTo(0.5)
+                .jsonPath("$.[7].paid").isEqualTo(false)
+
+                .jsonPath("$.[8].userBillId").isEqualTo(9)
+                .jsonPath("$.[8].user.username").isEqualTo("lukas")
+                .jsonPath("$.[8].user.password").isEqualTo(null)
+                .jsonPath("$.[8].bill.billId").isEqualTo(3)
+                .jsonPath("$.[8].percentage").isEqualTo(0.5)
+                .jsonPath("$.[8].paid").isEqualTo(true)
+
+                .jsonPath("$.[9].userBillId").isEqualTo(10)
+                .jsonPath("$.[9].user.username").isEqualTo("jonathan")
+                .jsonPath("$.[9].user.password").isEqualTo(null)
+                .jsonPath("$.[9].bill.billId").isEqualTo(4)
+                .jsonPath("$.[9].percentage").isEqualTo(0.5)
+                .jsonPath("$.[9].paid").isEqualTo(false)
+
+                .jsonPath("$.[10].userBillId").isEqualTo(11)
+                .jsonPath("$.[10].user.username").isEqualTo("lucas")
+                .jsonPath("$.[10].user.password").isEqualTo(null)
+                .jsonPath("$.[10].bill.billId").isEqualTo(4)
+                .jsonPath("$.[10].percentage").isEqualTo(0.5)
+                .jsonPath("$.[10].paid").isEqualTo(false);
+
+    }
+
+    @Test
+    public void testGetAllUserBillsNegativeAdmin() {
+        client.get().uri("/api/group/getAllUserBills")
+                .headers(headers -> headers.setBasicAuth("admin", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testGetAllUserBillsPositiveUser() {
+        client.get().uri("/api/group/getAllUserBills")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+
+                .jsonPath("$.[0].userBillId").isEqualTo(1)
+                .jsonPath("$.[0].user.username").isEqualTo("leopold")
+                .jsonPath("$.[0].user.password").isEqualTo(null)
+                .jsonPath("$.[0].bill.billId").isEqualTo(1)
+                .jsonPath("$.[0].percentage").isEqualTo(0.25)
+                .jsonPath("$.[0].paid").isEqualTo(true)
+
+                .jsonPath("$.[1].userBillId").isEqualTo(2)
+                .jsonPath("$.[1].user.username").isEqualTo("lukas")
+                .jsonPath("$.[1].user.password").isEqualTo(null)
+                .jsonPath("$.[1].bill.billId").isEqualTo(1)
+                .jsonPath("$.[1].percentage").isEqualTo(0.25)
+                .jsonPath("$.[1].paid").isEqualTo(true)
+
+                .jsonPath("$.[2].userBillId").isEqualTo(3)
+                .jsonPath("$.[2].user.username").isEqualTo("lucas")
+                .jsonPath("$.[2].user.password").isEqualTo(null)
+                .jsonPath("$.[2].bill.billId").isEqualTo(1)
+                .jsonPath("$.[2].percentage").isEqualTo(0.25)
+                .jsonPath("$.[2].paid").isEqualTo(true)
+
+                .jsonPath("$.[3].userBillId").isEqualTo(4)
+                .jsonPath("$.[3].user.username").isEqualTo("jonathan")
+                .jsonPath("$.[3].user.password").isEqualTo(null)
+                .jsonPath("$.[3].bill.billId").isEqualTo(1)
+                .jsonPath("$.[3].percentage").isEqualTo(0.25)
+                .jsonPath("$.[3].paid").isEqualTo(true)
+
+                .jsonPath("$.[4].userBillId").isEqualTo(5)
+                .jsonPath("$.[4].user.username").isEqualTo("leopold")
+                .jsonPath("$.[4].user.password").isEqualTo(null)
+                .jsonPath("$.[4].bill.billId").isEqualTo(2)
+                .jsonPath("$.[4].percentage").isEqualTo(0.33)
+                .jsonPath("$.[4].paid").isEqualTo(false)
+
+                .jsonPath("$.[5].userBillId").isEqualTo(6)
+                .jsonPath("$.[5].user.username").isEqualTo("lukas")
+                .jsonPath("$.[5].user.password").isEqualTo(null)
+                .jsonPath("$.[5].bill.billId").isEqualTo(2)
+                .jsonPath("$.[5].percentage").isEqualTo(0.33)
+                .jsonPath("$.[5].paid").isEqualTo(false)
+
+                .jsonPath("$.[6].userBillId").isEqualTo(7)
+                .jsonPath("$.[6].user.username").isEqualTo("lucas")
+                .jsonPath("$.[6].user.password").isEqualTo(null)
+                .jsonPath("$.[6].bill.billId").isEqualTo(2)
+                .jsonPath("$.[6].percentage").isEqualTo(0.34)
+                .jsonPath("$.[6].paid").isEqualTo(false)
+
+                .jsonPath("$.[7].userBillId").isEqualTo(8)
+                .jsonPath("$.[7].user.username").isEqualTo("leopold")
+                .jsonPath("$.[7].user.password").isEqualTo(null)
+                .jsonPath("$.[7].bill.billId").isEqualTo(3)
+                .jsonPath("$.[7].percentage").isEqualTo(0.5)
+                .jsonPath("$.[7].paid").isEqualTo(false)
+
+                .jsonPath("$.[8].userBillId").isEqualTo(9)
+                .jsonPath("$.[8].user.username").isEqualTo("lukas")
+                .jsonPath("$.[8].user.password").isEqualTo(null)
+                .jsonPath("$.[8].bill.billId").isEqualTo(3)
+                .jsonPath("$.[8].percentage").isEqualTo(0.5)
+                .jsonPath("$.[8].paid").isEqualTo(true)
+
+                .jsonPath("$.[9].userBillId").isEqualTo(10)
+                .jsonPath("$.[9].user.username").isEqualTo("jonathan")
+                .jsonPath("$.[9].user.password").isEqualTo(null)
+                .jsonPath("$.[9].bill.billId").isEqualTo(4)
+                .jsonPath("$.[9].percentage").isEqualTo(0.5)
+                .jsonPath("$.[9].paid").isEqualTo(false)
+
+                .jsonPath("$.[10].userBillId").isEqualTo(11)
+                .jsonPath("$.[10].user.username").isEqualTo("lucas")
+                .jsonPath("$.[10].user.password").isEqualTo(null)
+                .jsonPath("$.[10].bill.billId").isEqualTo(4)
+                .jsonPath("$.[10].percentage").isEqualTo(0.5)
+                .jsonPath("$.[10].paid").isEqualTo(false);
+
+    }
+
+    @Test
+    public void testGetAllUserBillsNegativeUser() {
+        client.get().uri("/api/group/getAllUserBills")
+                .headers(headers -> headers.setBasicAuth("user", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testGetAllUserBillsPleb() {
+        client.get().uri("/api/group/getAllUserBills")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    // ======================== /getAllUserBills ===============================================
+
+    // ======================== getAllLists ===============================================
+
+    @Test
+    public void testGetAllListsPositiveAdmin() {
+        client.get().uri("/api/group/getAllLists")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.lists[0].name").isEqualTo("shopping list")
+                .jsonPath("$.lists[0].listId").isEqualTo(1)
+                .jsonPath("$.lists[0].owner.password").isEqualTo(null)
+                .jsonPath("$.lists[0].bill.billId").isEqualTo(3)
+                .jsonPath("$.lists[0].bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.lists[1].name").isEqualTo("shopping list")
+                .jsonPath("$.lists[1].listId").isEqualTo(2)
+                .jsonPath("$.lists[1].owner.password").isEqualTo(null)
+                .jsonPath("$.lists[1].bill.billId").isEqualTo(4)
+                .jsonPath("$.lists[1].bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.lists[2].name").isEqualTo("party planning")
+                .jsonPath("$.lists[2].listId").isEqualTo(3)
+                .jsonPath("$.lists[2].owner.password").isEqualTo(null)
+                .jsonPath("$.lists[2].bill").isEqualTo(null);
+
+
+    }
+
+    @Test
+    public void testGetAllListsNegativeAdmin() {
+        client.get().uri("/api/group/getAllLists")
+                .headers(headers -> headers.setBasicAuth("admin", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testGetAllListsPositiveUser() {
+        client.get().uri("/api/group/getAllLists")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.lists[0].name").isEqualTo("shopping list")
+                .jsonPath("$.lists[0].listId").isEqualTo(1)
+                .jsonPath("$.lists[0].owner.password").isEqualTo(null)
+                .jsonPath("$.lists[0].bill.billId").isEqualTo(3)
+                .jsonPath("$.lists[0].bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.lists[1].name").isEqualTo("shopping list")
+                .jsonPath("$.lists[1].listId").isEqualTo(2)
+                .jsonPath("$.lists[1].owner.password").isEqualTo(null)
+                .jsonPath("$.lists[1].bill.billId").isEqualTo(4)
+                .jsonPath("$.lists[1].bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.lists[2].name").isEqualTo("party planning")
+                .jsonPath("$.lists[2].listId").isEqualTo(3)
+                .jsonPath("$.lists[2].owner.password").isEqualTo(null)
+                .jsonPath("$.lists[2].bill").isEqualTo(null);
+
+
+
+    }
+
+    @Test
+    public void testGetAllListsNegativeUser() {
+        client.get().uri("/api/group/getAllLists")
+                .headers(headers -> headers.setBasicAuth("user", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testGetAllListsPleb() {
+        client.get().uri("/api/group/getAllLists")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    // ======================== /getAllLists ===============================================
+
+
+    // ======================== getAllListItems ===============================================
+
+    @Test
+    public void testGetAllListItemsPositiveAdmin() {
+        client.get().uri("/api/group/getAllListItems")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.[0].listItemId").isEqualTo(1)
+                .jsonPath("$.[0].name").isEqualTo("peach")
+                .jsonPath("$.[0].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[0].list.listId").isEqualTo(1)
+                .jsonPath("$.[0].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[0].list.bill.billId").isEqualTo(3)
+                .jsonPath("$.[0].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[1].listItemId").isEqualTo(2)
+                .jsonPath("$.[1].name").isEqualTo("pears")
+                .jsonPath("$.[1].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[1].list.listId").isEqualTo(1)
+                .jsonPath("$.[1].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[1].list.bill.billId").isEqualTo(3)
+                .jsonPath("$.[1].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[2].listItemId").isEqualTo(3)
+                .jsonPath("$.[2].name").isEqualTo("plums")
+                .jsonPath("$.[2].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[2].list.listId").isEqualTo(1)
+                .jsonPath("$.[2].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[2].list.bill.billId").isEqualTo(3)
+                .jsonPath("$.[2].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[3].listItemId").isEqualTo(4)
+                .jsonPath("$.[3].name").isEqualTo("oranges")
+                .jsonPath("$.[3].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[3].list.listId").isEqualTo(1)
+                .jsonPath("$.[3].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[3].list.bill.billId").isEqualTo(3)
+                .jsonPath("$.[3].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[4].listItemId").isEqualTo(5)
+                .jsonPath("$.[4].name").isEqualTo("tomato")
+                .jsonPath("$.[4].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[4].list.listId").isEqualTo(2)
+                .jsonPath("$.[4].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[4].list.bill.billId").isEqualTo(4)
+                .jsonPath("$.[4].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[5].listItemId").isEqualTo(6)
+                .jsonPath("$.[5].name").isEqualTo("potato")
+                .jsonPath("$.[5].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[5].list.listId").isEqualTo(2)
+                .jsonPath("$.[5].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[5].list.bill.billId").isEqualTo(4)
+                .jsonPath("$.[5].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[6].listItemId").isEqualTo(7)
+                .jsonPath("$.[6].name").isEqualTo("celery")
+                .jsonPath("$.[6].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[6].list.listId").isEqualTo(2)
+                .jsonPath("$.[6].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[6].list.bill.billId").isEqualTo(4)
+                .jsonPath("$.[6].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[7].listItemId").isEqualTo(8)
+                .jsonPath("$.[7].name").isEqualTo("broccoli")
+                .jsonPath("$.[7].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[7].list.listId").isEqualTo(2)
+                .jsonPath("$.[7].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[7].list.bill.billId").isEqualTo(4)
+                .jsonPath("$.[7].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[8].listItemId").isEqualTo(9)
+                .jsonPath("$.[8].name").isEqualTo("crisps")
+                .jsonPath("$.[8].list.name").isEqualTo("party planning")
+                .jsonPath("$.[8].list.listId").isEqualTo(3)
+                .jsonPath("$.[8].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[8].list.bill").isEqualTo(null)
+
+                .jsonPath("$.[9].listItemId").isEqualTo(10)
+                .jsonPath("$.[9].name").isEqualTo("beer")
+                .jsonPath("$.[9].list.name").isEqualTo("party planning")
+                .jsonPath("$.[9].list.listId").isEqualTo(3)
+                .jsonPath("$.[9].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[9].list.bill").isEqualTo(null)
+
+                .jsonPath("$.[10].listItemId").isEqualTo(11)
+                .jsonPath("$.[10].name").isEqualTo("soda")
+                .jsonPath("$.[10].list.name").isEqualTo("party planning")
+                .jsonPath("$.[10].list.listId").isEqualTo(3)
+                .jsonPath("$.[10].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[10].list.bill").isEqualTo(null);
+
+    }
+
+    @Test
+    public void testGetAllListItemsNegativeAdmin() {
+        client.get().uri("/api/group/getAllListItems")
+                .headers(headers -> headers.setBasicAuth("admin", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testGetAllListItemsPositiveUser() {
+        client.get().uri("/api/group/getAllListItems")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.[0].listItemId").isEqualTo(1)
+                .jsonPath("$.[0].name").isEqualTo("peach")
+                .jsonPath("$.[0].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[0].list.listId").isEqualTo(1)
+                .jsonPath("$.[0].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[0].list.bill.billId").isEqualTo(3)
+                .jsonPath("$.[0].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[1].listItemId").isEqualTo(2)
+                .jsonPath("$.[1].name").isEqualTo("pears")
+                .jsonPath("$.[1].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[1].list.listId").isEqualTo(1)
+                .jsonPath("$.[1].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[1].list.bill.billId").isEqualTo(3)
+                .jsonPath("$.[1].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[2].listItemId").isEqualTo(3)
+                .jsonPath("$.[2].name").isEqualTo("plums")
+                .jsonPath("$.[2].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[2].list.listId").isEqualTo(1)
+                .jsonPath("$.[2].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[2].list.bill.billId").isEqualTo(3)
+                .jsonPath("$.[2].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[3].listItemId").isEqualTo(4)
+                .jsonPath("$.[3].name").isEqualTo("oranges")
+                .jsonPath("$.[3].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[3].list.listId").isEqualTo(1)
+                .jsonPath("$.[3].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[3].list.bill.billId").isEqualTo(3)
+                .jsonPath("$.[3].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[4].listItemId").isEqualTo(5)
+                .jsonPath("$.[4].name").isEqualTo("tomato")
+                .jsonPath("$.[4].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[4].list.listId").isEqualTo(2)
+                .jsonPath("$.[4].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[4].list.bill.billId").isEqualTo(4)
+                .jsonPath("$.[4].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[5].listItemId").isEqualTo(6)
+                .jsonPath("$.[5].name").isEqualTo("potato")
+                .jsonPath("$.[5].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[5].list.listId").isEqualTo(2)
+                .jsonPath("$.[5].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[5].list.bill.billId").isEqualTo(4)
+                .jsonPath("$.[5].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[6].listItemId").isEqualTo(7)
+                .jsonPath("$.[6].name").isEqualTo("celery")
+                .jsonPath("$.[6].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[6].list.listId").isEqualTo(2)
+                .jsonPath("$.[6].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[6].list.bill.billId").isEqualTo(4)
+                .jsonPath("$.[6].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[7].listItemId").isEqualTo(8)
+                .jsonPath("$.[7].name").isEqualTo("broccoli")
+                .jsonPath("$.[7].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[7].list.listId").isEqualTo(2)
+                .jsonPath("$.[7].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[7].list.bill.billId").isEqualTo(4)
+                .jsonPath("$.[7].list.bill.owner.password").isEqualTo(null)
+
+                .jsonPath("$.[8].listItemId").isEqualTo(9)
+                .jsonPath("$.[8].name").isEqualTo("crisps")
+                .jsonPath("$.[8].list.name").isEqualTo("party planning")
+                .jsonPath("$.[8].list.listId").isEqualTo(3)
+                .jsonPath("$.[8].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[8].list.bill").isEqualTo(null)
+
+                .jsonPath("$.[9].listItemId").isEqualTo(10)
+                .jsonPath("$.[9].name").isEqualTo("beer")
+                .jsonPath("$.[9].list.name").isEqualTo("party planning")
+                .jsonPath("$.[9].list.listId").isEqualTo(3)
+                .jsonPath("$.[9].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[9].list.bill").isEqualTo(null)
+
+                .jsonPath("$.[10].listItemId").isEqualTo(11)
+                .jsonPath("$.[10].name").isEqualTo("soda")
+                .jsonPath("$.[10].list.name").isEqualTo("party planning")
+                .jsonPath("$.[10].list.listId").isEqualTo(3)
+                .jsonPath("$.[10].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[10].list.bill").isEqualTo(null);
+
+    }
+
+    @Test
+    public void testGetAllListItemsNegativeUser() {
+        client.get().uri("/api/group/getAllListItems")
+                .headers(headers -> headers.setBasicAuth("user", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testGetAllListItemsPleb() {
+        client.get().uri("/api/group/getAllListItems")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    // ======================== /getAllListItems ===============================================
+
+    // ======================== getBill ===============================================
+
+    @Test
+    public void testGetBillPositiveAdmin() {
+        client.get().uri("/api/group/getBill?id=1")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("spotify")
+                .jsonPath("$.description").isEqualTo("monthly music service")
+                .jsonPath("$.billId").isEqualTo(1)
+                .jsonPath("$.owner.password").isEqualTo(null)
+                .jsonPath("$.amount").isEqualTo(9.99)
+                .jsonPath("$.paymentMethod").isEqualTo("cash")
+                .jsonPath("$.createTime").isEqualTo(1648727500);
+    }
+
+    @Test
+    public void testGetBillNegativeAdmin() {
+        client.get().uri("/api/group/getBill?id=1")
+                .headers(headers -> headers.setBasicAuth("admin", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testGetBillPositiveUser() {
+        client.get().uri("/api/group/getBill?id=1")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("spotify")
+                .jsonPath("$.description").isEqualTo("monthly music service")
+                .jsonPath("$.billId").isEqualTo(1)
+                .jsonPath("$.owner.password").isEqualTo(null)
+                .jsonPath("$.amount").isEqualTo(9.99)
+                .jsonPath("$.paymentMethod").isEqualTo("cash")
+                .jsonPath("$.createTime").isEqualTo(1648727500);
+    }
+
+    @Test
+    public void testGetBillNegativeUser() {
+        client.get().uri("/api/group/getBill?id=1")
+                .headers(headers -> headers.setBasicAuth("user", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testGetBillPleb() {
+        client.get().uri("/api/group/getBill?id=1")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    // ======================== /getBill ===============================================
+
+    // ======================== getList ===============================================
+
+    @Test
+    public void testGetListPositiveAdmin() {
+        client.get().uri("/api/group/getList?id=1")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("shopping list")
+                .jsonPath("$.description").isEqualTo("my shopping list")
+                .jsonPath("$.listId").isEqualTo(1)
+                .jsonPath("$.owner.password").isEqualTo(null)
+                .jsonPath("$.bill.billId").isEqualTo(3)
+                .jsonPath("$.bill.owner.password").isEqualTo(null)
+                .jsonPath("$.createTime").isEqualTo(1648727500);
+    }
+
+    @Test
+    public void testGetListNegativeAdmin() {
+        client.get().uri("/api/group/getList?id=1")
+                .headers(headers -> headers.setBasicAuth("admin", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testGetListPositiveUser() {
+        client.get().uri("/api/group/getList?id=1")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("shopping list")
+                .jsonPath("$.description").isEqualTo("my shopping list")
+                .jsonPath("$.listId").isEqualTo(1)
+                .jsonPath("$.owner.password").isEqualTo(null)
+                .jsonPath("$.bill.billId").isEqualTo(3)
+                .jsonPath("$.bill.owner.password").isEqualTo(null)
+                .jsonPath("$.createTime").isEqualTo(1648727500);
+    }
+
+    @Test
+    public void testGetListNegativeUser() {
+        client.get().uri("/api/group/getList?id=1")
+                .headers(headers -> headers.setBasicAuth("user", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testGetListPleb() {
+        client.get().uri("/api/group/getList?id=1")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    // ======================== /getList ===============================================
+
+    // ======================== createBill ===============================================
+
+    @Test
+    public void testCreateBillPositiveAdmin() {
+
+        Bill testBill = new Bill();
+        testBill.setName("TestBillForTesting");
+        testBill.setDescription("TestDes");
+        testBill.setAmount(77.77);
+        testBill.setPaymentMethod("cash");
+
+
+
+        client.post().uri("/api/bill/create")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .body(BodyInserters.fromValue(testBill))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("TestBillForTesting")
+                .jsonPath("$.description").isEqualTo("TestDes")
+                .jsonPath("$.billId").isEqualTo(5)
+                .jsonPath("$.owner.password").isEqualTo(null)
+                .jsonPath("$.owner.username").isEqualTo("leopold")
+                .jsonPath("$.amount").isEqualTo(77.77)
+                .jsonPath("$.paymentMethod").isEqualTo("cash");
+    }
+
+    @Test
+    public void testCreateBillNegativeAdmin() {
+        client.post().uri("/api/bill/create")
+                .headers(headers -> headers.setBasicAuth("admin", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testCreateBillPositiveUser() {
+        Bill testBill = new Bill();
+        testBill.setName("TestBillForTesting");
+        testBill.setDescription("TestDes");
+        testBill.setAmount(77.77);
+        testBill.setPaymentMethod("cash");
+
+
+
+        client.post().uri("/api/bill/create")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .body(BodyInserters.fromValue(testBill))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("TestBillForTesting")
+                .jsonPath("$.description").isEqualTo("TestDes")
+                .jsonPath("$.billId").isEqualTo(5)
+                .jsonPath("$.owner.password").isEqualTo(null)
+                .jsonPath("$.owner.username").isEqualTo("lukas")
+                .jsonPath("$.amount").isEqualTo(77.77)
+                .jsonPath("$.paymentMethod").isEqualTo("cash");
+    }
+
+    @Test
+    public void testCreateBillNegativeUser() {
+        client.post().uri("/api/bill/create")
+                .headers(headers -> headers.setBasicAuth("user", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testCreateBillPleb() {
+        client.post().uri("/api/bill/create")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    // ======================== /createBill ===============================================
+
+
+    // ======================== payBill ===============================================
+
+    @Test
+    public void testPayBillPositiveAdmin() {
+
+
+        client.post().uri("/api/bill/pay?billId=2")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk();
+
+        client.get().uri("/api/group/getAllUserBills")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.[4].userBillId").isEqualTo(5)
+                .jsonPath("$.[4].user.username").isEqualTo("leopold")
+                .jsonPath("$.[4].user.password").isEqualTo(null)
+                .jsonPath("$.[4].bill.billId").isEqualTo(2)
+                .jsonPath("$.[4].percentage").isEqualTo(0.33)
+                .jsonPath("$.[4].paid").isEqualTo(true);
+    }
+
+    @Test
+    public void testPayBillNegativeAdmin() {
+        client.post().uri("/api/bill/pay?billId=2")
+                .headers(headers -> headers.setBasicAuth("admin", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testPayBillPositiveUser() {
+
+        client.post().uri("/api/bill/pay?billId=2")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk();
+
+        client.get().uri("/api/group/getAllUserBills")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.[5].userBillId").isEqualTo(6)
+                .jsonPath("$.[5].user.username").isEqualTo("lukas")
+                .jsonPath("$.[5].user.password").isEqualTo(null)
+                .jsonPath("$.[5].bill.billId").isEqualTo(2)
+                .jsonPath("$.[5].percentage").isEqualTo(0.33)
+                .jsonPath("$.[5].paid").isEqualTo(true);
+    }
+
+    @Test
+    public void testPayBillNegativeUser() {
+        client.post().uri("/api/bill/pay?billId=2")
+                .headers(headers -> headers.setBasicAuth("user", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testPayBillPleb() {
+        client.post().uri("/api/bill/pay?billId=2")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    // ======================== /payBill ===============================================
+
+
+    // ======================== createList ===============================================
+
+    @Test
+    public void testCreateListPositiveAdmin() {
+
+        List testList = new List();
+        testList.setName("TestListForTesting");
+        testList.setDescription("TestDes");
+
+        client.post().uri("/api/list/create")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .body(BodyInserters.fromValue(testList))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("TestListForTesting")
+                .jsonPath("$.description").isEqualTo("TestDes")
+                .jsonPath("$.listId").isEqualTo(4)
+                .jsonPath("$.owner.password").isEqualTo(null)
+                .jsonPath("$.owner.username").isEqualTo("leopold");
+    }
+
+    @Test
+    public void testCreateListNegativeAdmin() {
+        client.post().uri("/api/list/create")
+                .headers(headers -> headers.setBasicAuth("admin", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testCreateListPositiveUser() {
+
+        List testList = new List();
+        testList.setName("TestListForTesting");
+        testList.setDescription("TestDes");
+
+        client.post().uri("/api/list/create")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .body(BodyInserters.fromValue(testList))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("TestListForTesting")
+                .jsonPath("$.description").isEqualTo("TestDes")
+                .jsonPath("$.listId").isEqualTo(4)
+                .jsonPath("$.owner.password").isEqualTo(null)
+                .jsonPath("$.owner.username").isEqualTo("lukas");
+
+    }
+
+    @Test
+    public void testCreateListNegativeUser() {
+        client.post().uri("/api/list/create")
+                .headers(headers -> headers.setBasicAuth("user", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testCreateListPleb() {
+        client.post().uri("/api/list/create")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    // ======================== /createList ===============================================
+
+
+    // ======================== createListItem ===============================================
+
+    @Test
+    public void testCreateListItemPositiveAdmin() {
+
+        ListItem testListItem = new ListItem();
+        testListItem.setName("apple");
+        testListItem.setList(dao.getList(1l));
+
+        client.post().uri("/api/list/createItem")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .body(BodyInserters.fromValue(testListItem))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk();
+
+        client.get().uri("/api/group/getAllListItems")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.[4].listItemId").isEqualTo(12)
+                .jsonPath("$.[4].name").isEqualTo("apple")
+                .jsonPath("$.[4].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[4].list.listId").isEqualTo(1)
+                .jsonPath("$.[4].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[4].list.bill.billId").isEqualTo(3);
+
+    }
+
+    @Test
+    public void testCreateListItemNegativeAdmin() {
+        client.post().uri("/api/list/createItem")
+                .headers(headers -> headers.setBasicAuth("admin", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testCreateListItemPositiveUser() {
+
+
+        ListItem testListItem = new ListItem();
+        testListItem.setName("apple");
+        testListItem.setList(dao.getList(1l));
+
+        client.post().uri("/api/list/createItem")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .body(BodyInserters.fromValue(testListItem))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk();
+
+        client.get().uri("/api/group/getAllListItems")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.[4].listItemId").isEqualTo(12)
+                .jsonPath("$.[4].name").isEqualTo("apple")
+                .jsonPath("$.[4].list.name").isEqualTo("shopping list")
+                .jsonPath("$.[4].list.listId").isEqualTo(1)
+                .jsonPath("$.[4].list.owner.password").isEqualTo(null)
+                .jsonPath("$.[4].list.bill.billId").isEqualTo(3);
+
+    }
+
+    @Test
+    public void testCreateListItemNegativeUser() {
+        client.post().uri("/api/list/createItem")
+                .headers(headers -> headers.setBasicAuth("user", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testCreateListItemPleb() {
+        client.post().uri("/api/list/createItem")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    // ======================== /createListItem ===============================================
+
+
+    // ======================== createUserBill ===============================================
+
+    @Test
+    public void testCreateUserBillPositiveAdmin() {
+
+        Bill testBill = new Bill();
+        testBill.setName("TestBillForTesting");
+        testBill.setDescription("TestDes");
+        testBill.setAmount(77.77);
+        testBill.setPaymentMethod("cash");
+
+
+
+        client.post().uri("/api/bill/create")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .body(BodyInserters.fromValue(testBill))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("TestBillForTesting")
+                .jsonPath("$.description").isEqualTo("TestDes")
+                .jsonPath("$.billId").isEqualTo(5)
+                .jsonPath("$.owner.password").isEqualTo(null)
+                .jsonPath("$.owner.username").isEqualTo("leopold")
+                .jsonPath("$.amount").isEqualTo(77.77)
+                .jsonPath("$.paymentMethod").isEqualTo("cash");
+
+
+        client.post().uri("/api/bill/createUserBill?billId=5&username=lukas&percentage=0.5")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk();
+
+        client.get().uri("/api/group/getAllUserBills")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.[11].userBillId").isEqualTo(12)
+                .jsonPath("$.[11].user.username").isEqualTo("lukas")
+                .jsonPath("$.[11].user.password").isEqualTo(null)
+                .jsonPath("$.[11].bill.billId").isEqualTo(5)
+                .jsonPath("$.[11].percentage").isEqualTo(0.5)
+                .jsonPath("$.[11].paid").isEqualTo(false);
+
+    }
+
+    @Test
+    public void testCreateUserBillNegativeAdmin() {
+        client.post().uri("/api/bill/createUserBill?billId=5&username=lukas&percentage=0.5")
+                .headers(headers -> headers.setBasicAuth("admin", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testCreateUserBillPositiveUser() {
+
+        Bill testBill = new Bill();
+        testBill.setName("TestBillForTesting");
+        testBill.setDescription("TestDes");
+        testBill.setAmount(77.77);
+        testBill.setPaymentMethod("cash");
+
+        client.post().uri("/api/bill/create")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .body(BodyInserters.fromValue(testBill))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("TestBillForTesting")
+                .jsonPath("$.description").isEqualTo("TestDes")
+                .jsonPath("$.billId").isEqualTo(5)
+                .jsonPath("$.owner.password").isEqualTo(null)
+                .jsonPath("$.owner.username").isEqualTo("lukas")
+                .jsonPath("$.amount").isEqualTo(77.77)
+                .jsonPath("$.paymentMethod").isEqualTo("cash");
+
+        client.post().uri("/api/bill/createUserBill?billId=5&username=lukas&percentage=0.5")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk();
+
+        client.get().uri("/api/group/getAllUserBills")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.[11].userBillId").isEqualTo(12)
+                .jsonPath("$.[11].user.username").isEqualTo("lukas")
+                .jsonPath("$.[11].user.password").isEqualTo(null)
+                .jsonPath("$.[11].bill.billId").isEqualTo(5)
+                .jsonPath("$.[11].percentage").isEqualTo(0.5)
+                .jsonPath("$.[11].paid").isEqualTo(false);
+
+
+    }
+
+    @Test
+    public void testCreateUserBillNegativeUser() {
+        client.post().uri("/api/bill/createUserBill?billId=5&username=lukas&percentage=0.5")
+                .headers(headers -> headers.setBasicAuth("user", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testCreateUserBillPleb() {
+        client.post().uri("/api/bill/createUserBill?billId=5&username=lukas&percentage=0.5")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    // ======================== /createUserBill ===============================================
 }

@@ -352,6 +352,7 @@ public class Server {
     public HashMap<String, ArrayList<Bill>> getAllGroupBills() {
         try {
             User actingUser = dao.getUser(getUser());
+            validator.userHasGroup(actingUser);
             long groupId = actingUser.getGroup().getGroupId();
             ArrayList<Bill> groupBills = protect(dao.getBillsForGroup(groupId));
             HashMap<String, ArrayList<Bill>> ret = new HashMap<>();
@@ -376,6 +377,7 @@ public class Server {
     public ArrayList<UserBill> getUserBillsForGroup() {
         try {
             User actingUser = dao.getUser(getUser());
+            validator.userHasGroup(actingUser);
             long groupId = actingUser.getGroup().getGroupId();
             ArrayList<UserBill> groupUserBills = new ArrayList<>();
             ArrayList<Bill> groupBills = protect(dao.getBillsForGroup(groupId));
@@ -404,6 +406,7 @@ public class Server {
     public HashMap<String, ArrayList<List>> getAllGroupLists() {
         try {
             User actingUser = dao.getUser(getUser());
+            validator.userHasGroup(actingUser);
             long groupId = actingUser.getGroup().getGroupId();
             ArrayList<List> groupLists = protect(dao.getListsForGroup(groupId));
             HashMap<String, ArrayList<List>> ret = new HashMap<>();
@@ -428,6 +431,7 @@ public class Server {
     public ArrayList<ListItem> getAllGroupListItems() {
         try {
             User actingUser = dao.getUser(getUser());
+            validator.userHasGroup(actingUser);
             long groupId = actingUser.getGroup().getGroupId();
             ArrayList<ListItem> groupListItems = new ArrayList<>();
             ArrayList<List> groupLists = dao.getListsForGroup(groupId);
@@ -456,8 +460,9 @@ public class Server {
     @GetMapping("/api/group/getBill")
     public Bill getBillByID(@RequestParam long id) {
         try {
-            // User must be in same group as owner of bill
+            // User must have group and be in same group as owner of bill
             Bill bill = dao.getBill(id);
+            validator.userHasGroup(dao.getUser(getUser()));
             validator.inSameGroup(dao.getUser(getUser()), bill.getOwner());
 
             bill.protect();
@@ -483,8 +488,9 @@ public class Server {
     public List getListByID(@RequestParam long id) {
         try {
 
-            // User must be in same group as owner of list
+            // User must in a  group and in same group as owner of list
             List list = dao.getList(id);
+            validator.userHasGroup(dao.getUser(getUser()));
             validator.inSameGroup(dao.getUser(getUser()), list.getOwner());
 
             list.protect();
@@ -508,7 +514,8 @@ public class Server {
     @PostMapping("/api/bill/create")
     public Bill createBill(@RequestBody Bill bill, @RequestParam(required = false) Long listId) {
         try {
-
+            // user has to have a group
+            validator.userHasGroup(dao.getUser(getUser()));
             bill.setOwner(dao.getUser(getUser()));
             long time = System.currentTimeMillis() / 1000L;
             bill.setCreateTime(time);
@@ -546,8 +553,9 @@ public class Server {
     @PostMapping("/api/bill/pay")
     public ResponseEntity<HashMap<String, Boolean>> payBill(@RequestParam long billId) {
         try {
-            // user must be in the same group as the bill
+            // user must be in group and in the same group as the bill
             Bill bill = dao.getBill(billId);
+            validator.userHasGroup(dao.getUser(getUser()));
             validator.inSameGroup(dao.getUser(getUser()), bill.getOwner());
 
             ArrayList<UserBill> userBills = dao.getUserBillsForUser(getUser());
@@ -627,6 +635,9 @@ public class Server {
     @PostMapping("/api/bill/createUserBill")
     public ResponseEntity<HashMap<String, Boolean>> createUserBill(@RequestParam long billId, @RequestParam String username, @RequestParam double percentage) {
         try {
+
+            // the user has to be in group
+            validator.userHasGroup(dao.getUser(getUser()));
 
             // percentage must be between 0 and 1
             validator.valueInRange(percentage, 0, 1);
