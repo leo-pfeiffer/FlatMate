@@ -540,5 +540,17 @@ public class DataAccessObject {
         return jdbcTemplate.update(sql, true, billId, username);
     }
 
+    /**
+     * Inserts a new row into the experiment_tracker table
+     *
+     * @param name The name of the experiment.
+     * @param variant The variant of the experiment.
+     * @param event The event that occurred.
+     * @return The number of rows affected by the insert.
+     */
+    public int insertExperiment(String name, String variant, String event) {
+        String sql = "INSERT INTO 'experiment_tracker' (experiment, variant, event) VALUES (?, ?, ?)";
+        return jdbcTemplate.update(sql, name, variant, event);
+    }
 
 }
