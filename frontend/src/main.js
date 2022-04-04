@@ -4,6 +4,7 @@ import router from "./router";
 import store from "./store";
 import axios from "axios";
 import Buefy from "buefy";
+import VueAB from "vue-a2b";
 import "buefy/dist/buefy.css";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
@@ -32,6 +33,8 @@ Vue.use(Buefy, {
     },
   },
 });
+
+Vue.use(VueAB);
 
 Vue.config.productionTip = false;
 
