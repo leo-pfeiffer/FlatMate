@@ -4,3 +4,4 @@ DROP TABLE IF EXISTS "user_bill";
 DROP TABLE IF EXISTS "bill";
 DROP TABLE IF EXISTS "user";
 DROP TABLE IF EXISTS "group";
+DROP TABLE IF EXISTS "experiment_tracker";

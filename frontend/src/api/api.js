@@ -110,6 +110,16 @@ const createUserBill = function (billId, username, percentage) {
   });
 };
 
+const trackAbTest = function (name, variant, event) {
+  return axios.post("_ab_testing/track", null, {
+    params: {
+      name: name,
+      variant: variant,
+      event: event,
+    },
+  });
+};
+
 module.exports = {
   testServerUp: testServerUp,
   register: register,
@@ -131,4 +141,5 @@ module.exports = {
   createListItem: createListItem,
   createBill: createBill,
   createUserBill: createUserBill,
+  trackAbTest: trackAbTest,
 };
