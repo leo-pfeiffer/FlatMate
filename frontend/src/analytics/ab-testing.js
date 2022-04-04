@@ -1,14 +1,13 @@
 const AlephBet = require("alephbet");
+const { trackAbTest } = require("@/api/api");
 
 const makeAdapter = () => {
   return {
-    experiment_start: function (experiment, variant) {
-      console.log(experiment, variant);
-      // keen_client.addEvent(experiment.name, {variant: variant, event: 'participate'});
+    experiment_start: async function (experiment, variant) {
+      await trackAbTest(experiment.name, variant, "participate");
     },
-    goal_complete: function (experiment, variant, event_name, _props) {
-      console.log(experiment, variant, event_name, _props);
-      // keen_client.addEvent(experiment.name, {variant: variant, event: event_name});
+    goal_complete: async function (experiment, variant, event_name) {
+      await trackAbTest(experiment.name, variant, event_name);
     },
   };
 };
