@@ -1,6 +1,6 @@
 <template>
   <div id="user" class="columns">
-    <UserSideBar id="my-side-bar" class="column" />
+    <UserSideBar id="my-side-bar" class="column" v-if="!isAdmin" />
     <section id="content-section">
       <div class="columns is-centered">
         <div class="column">
@@ -107,22 +107,12 @@ export default {
   },
   data() {
     return {
-      history: [
-        { id: 1, name: "food", amount: 30, percentage: 0.5 },
-        { id: 2, name: "beer", amount: 41, percentage: 0.5 },
-        { id: 3, name: "electricity", amount: 30.1, percentage: 0.5 },
-        { id: 4, name: "water", amount: 27.2, percentage: 0.5 },
-        { id: 5, name: "netflix", amount: 9.99, percentage: 0.5 },
-      ],
-      duePayments: [
-        { id: 6, name: "spotify", amount: 9.99, percentage: 0.5 },
-        { id: 7, name: "dinner", amount: 18.3, percentage: 0.5 },
-        { id: 8, name: "food", amount: 15.34, percentage: 0.5 },
-      ],
+      history: [],
+      duePayments: [],
     };
   },
   computed: {
-    ...mapGetters({ User: "StateUser" }),
+    ...mapGetters({ User: "StateUser", isAdmin: "isAdmin" }),
     totalPaymentAmount: function () {
       return this.history.reduce(
         (agg, next) => next.amount * next.percentage + agg,

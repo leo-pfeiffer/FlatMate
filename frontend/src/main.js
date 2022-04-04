@@ -15,18 +15,6 @@ axios.defaults.withCredentials = true;
 // set the base URL
 axios.defaults.baseURL = process.env.VUE_APP_BASE_URL;
 
-// interceptors for authorisation and rerouting
-axios.interceptors.response.use(undefined, function (error) {
-  if (error) {
-    const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      store.dispatch("LogOut");
-      return router.push("/login");
-    }
-  }
-});
-
 library.add(fas);
 Vue.component("vue-fontawesome", FontAwesomeIcon);
 

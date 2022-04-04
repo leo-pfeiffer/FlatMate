@@ -63,11 +63,10 @@ const actions = {
   },
 
   async LogOut({ commit }) {
-    let user = null;
     // logout from backend
     await logout();
     // remove user object from store
-    commit("logout", user);
+    commit("logout", null, null, null);
   },
 };
 
@@ -81,8 +80,10 @@ const mutations = {
   setGroup(state, group) {
     state.group = group;
   },
-  logout(state, user) {
+  logout(state, user, group, isAdmin) {
     state.user = user;
+    state.group = group;
+    state.isAdmin = isAdmin;
   },
 };
 

@@ -159,6 +159,30 @@ public class DataAccessObject {
     }
 
     /**
+     * Update the username of a user with the given old username to the new username.
+     *
+     * @param oldUsername The username of the user whose username you want to change.
+     * @param newUsername The new username to be set.
+     * @return The number of rows that were updated.
+     */
+    public int changeUserName(String oldUsername, String newUsername) {
+        String sql = "UPDATE 'user' SET 'username' = ? WHERE username = ?";
+        return jdbcTemplate.update(sql, newUsername, oldUsername);
+    }
+
+    /**
+     * Update the enabled field of the user with the given username to the given value
+     *
+     * @param username The username of the user to be updated.
+     * @param enabled The boolean value that will be set to the user's enabled field.
+     * @return The number of rows that were updated.
+     */
+    public int changeUserEnabled(String username, boolean enabled) {
+        String sql = "UPDATE 'user' SET 'enabled' = ? WHERE username = ?";
+        return jdbcTemplate.update(sql, enabled, username);
+    }
+
+    /**
      * Remove a user from a group
      *
      * @param username The username of the user to be removed from the group.
@@ -516,5 +540,17 @@ public class DataAccessObject {
         return jdbcTemplate.update(sql, true, billId, username);
     }
 
+    /**
+     * Inserts a new row into the experiment_tracker table
+     *
+     * @param name The name of the experiment.
+     * @param variant The variant of the experiment.
+     * @param event The event that occurred.
+     * @return The number of rows affected by the insert.
+     */
+    public int insertExperiment(String name, String variant, String event) {
+        String sql = "INSERT INTO 'experiment_tracker' (experiment, variant, event) VALUES (?, ?, ?)";
+        return jdbcTemplate.update(sql, name, variant, event);
+    }
 
 }
