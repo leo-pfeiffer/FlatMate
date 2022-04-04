@@ -19,6 +19,7 @@
                 >
                   <article class="tile is-child">
                     <Bill
+                      class="bill"
                       :id="item.billId"
                       :name="item.name"
                       :time="item.createTime"
@@ -43,6 +44,7 @@
                 >
                   <article class="tile is-child">
                     <List
+                      class="List"
                       :id="item.listId"
                       :time="item.createTime"
                       :name="item.name"
@@ -95,6 +97,14 @@ export default {
       const userBills = await getUserBillsForGroup().then((res) => res.data);
       const bills = {};
 
+      if (userBills.length === 0) return [];
+
+      if (userBills[0]["bill"] === undefined) {
+        await this.$store.dispatch("LogOut");
+        await this.$router.push("/login");
+        return;
+      }
+
       for (let ub of userBills) {
         let billId = ub.bill.billId;
         const bill = ub.bill;
@@ -120,6 +130,14 @@ export default {
     getLists: async function () {
       const listItems = await getListItemsForGroup().then((res) => res.data);
       const lists = {};
+
+      if (listItems.length === 0) return [];
+
+      if (listItems[0]["list"] === undefined) {
+        await this.$store.dispatch("LogOut");
+        await this.$router.push("/login");
+        return;
+      }
 
       for (let li of listItems) {
         let listId = li.list.listId;
@@ -173,11 +191,16 @@ export default {
   max-width: 300px;
 }
 
+.bill,
+.list {
+  height: 100%;
+}
+
 #bill-tiles,
 #list-tiles {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-evenly;
-  align-items: center;
+  align-items: stretch;
 }
 </style>

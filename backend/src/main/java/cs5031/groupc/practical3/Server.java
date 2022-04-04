@@ -10,11 +10,13 @@ import cs5031.groupc.practical3.model.List;
 import cs5031.groupc.practical3.model.ListItem;
 import cs5031.groupc.practical3.model.User;
 import cs5031.groupc.practical3.model.UserBill;
+import cs5031.groupc.practical3.vo.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,27 +33,30 @@ import org.springframework.web.server.ResponseStatusException;
 public class Server {
 
     final DataAccessObject dao;
+    final InputValidationUtils validator;
 
     @Autowired
-    public Server(DataAccessObject dao) {
+    public Server(DataAccessObject dao, InputValidationUtils validator) {
         this.dao = dao;
+        this.validator = validator;
     }
 
+    /**
+     * Get the username from the user of the current security context
+     *
+     * @return The name of the user that is currently logged in.
+     */
     private String getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName();
     }
 
-    private Bill protect(Bill b) {
-        b.protect();
-        return b;
-    }
-
-    private User protect(User u) {
-        u.protect();
-        return u;
-    }
-
+    /**
+     * Protects all the objects in the group by setting sensitive information to null;
+     *
+     * @param group The ArrayList of objects to protect.
+     * @return The protected ArrayList.
+     */
     private <T> ArrayList<T> protect(ArrayList<T> group) {
         for (T t : group) {
             DataProtection dp = (DataProtection) t;
@@ -59,17 +64,6 @@ public class Server {
         }
         return group;
     }
-
-
-    private List protect(List l) {
-        l.getOwner().setPassword(null);
-        Bill b = l.getBill();
-        if (b != null) {
-            b.protect();
-        }
-        return l;
-    }
-
 
     /**
      * A method that confirms that the server is in fact running. --> Works!
@@ -89,11 +83,17 @@ public class Server {
     @GetMapping("/api/user")
     public User getCurrentUser() {
         try {
-            return protect(dao.getUser(getUser()));
+            User user = dao.getUser(getUser());
+            user.protect();
+            return user;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
     /**
@@ -108,10 +108,12 @@ public class Server {
             return user != null;
         } catch (EmptyResultDataAccessException e) {
             return false;
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
     /**
@@ -121,29 +123,18 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/user/create")
-    public ResponseEntity<Void> createUser(@RequestBody final User user) {
-
+    public ResponseEntity<HashMap<String, Boolean>> createUser(@RequestBody final User user) {
         try {
             dao.createUser(user.getUsername(), user.getPassword());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
+        } catch (UncategorizedSQLException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username already exists");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
-    }
-
-
-    // todo do we still need this?
-    @CrossOrigin(origins = "http://localhost:3000")
-    @GetMapping("/api/user/validate")
-    public ArrayList<User> validateUsername(@RequestParam String username) {
-
-        try {
-            return dao.getAllUsers();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
     /**
@@ -155,11 +146,18 @@ public class Server {
     @PostMapping("/api/group")
     public Group getGroup(@RequestParam final String groupname) {
         try {
+            // the requesting user must be a member of the group
+            validator.userInGroup(dao.getUser(getUser()), groupname);
+
             return dao.getGroup(groupname);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
     /**
@@ -170,16 +168,28 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/create")
-    public ResponseEntity<Void> createGroup(@RequestParam final String groupname) {
+    public ResponseEntity<HashMap<String, Boolean>> createGroup(@RequestParam final String groupname) {
         try {
+
+            // user must not be in a group when creating a new one. If they are, they should leave the group first.
+            validator.userHasGroup(dao.getUser(getUser()), false);
+
             dao.createGroup(groupname);
             dao.addUserToGroup(getUser(), groupname);
             dao.setRoleToAdmin(getUser());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
+        } catch (EmptyResultDataAccessException e) {
+            // group or user not found
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (UncategorizedSQLException e) {
+            // group name already exists
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Group name already exists.");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
     /**
@@ -189,21 +199,25 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/add")
-    public ResponseEntity<Void> addToGroup(@RequestParam final String username) {
+    public ResponseEntity<HashMap<String, Boolean>> addToGroup(@RequestParam final String username) {
         try {
             User actingUser = dao.getUser(getUser());
             String groupname = actingUser.getGroup().getName();
-            System.out.println(username);
+            User userToAdd = dao.getUser(username);
 
-            // TODO: check if user with 'username' is already in a group.
-            //  If yes, abort (user must leave group first).
+            // if user with 'username' is already in a group, user must leave group first
+            validator.userHasGroup(userToAdd, false);
 
             dao.addUserToGroup(username, groupname);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
 
     }
 
@@ -214,14 +228,44 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/remove")
-    public ResponseEntity<Void> removeFromGroup(@RequestParam final String username) {
+    public ResponseEntity<HashMap<String, Boolean>> removeFromGroup(@RequestParam final String username) {
         try {
-            dao.removeUserFromGroup(username);
-            return ResponseEntity.ok().build();
+
+            User userToRemove = dao.getUser(username);
+
+            // user should have a group
+            validator.userHasGroup(userToRemove, true);
+
+            // user to remove must be in group of admin
+            validator.inSameGroup(dao.getUser(getUser()), userToRemove);
+
+            // admin can't leave or else group doesn't have an admin
+            validator.userIsNotAdmin(userToRemove);
+
+            // cannot remove a user that is not enabled (since they are no longer active)
+            validator.userEnabled(userToRemove);
+
+            // create new username
+            long time = System.currentTimeMillis() / 1000L;
+            String suffix = " (left @ " + time + ")";
+            String retiredUserName = userToRemove.getUsername() + suffix;
+
+            // update the old instance
+            dao.changeUserName(username, retiredUserName);
+            dao.changeUserEnabled(retiredUserName, false);
+
+            // create the new instance
+            dao.createUser(userToRemove.getUsername(), userToRemove.getPassword());
+
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
     /**
@@ -230,14 +274,8 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/removeCurrent")
-    public ResponseEntity<Void> removeCurrentUserFromGroup() {
-        try {
-            dao.removeUserFromGroup(getUser());
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+    public ResponseEntity<HashMap<String, Boolean>> removeCurrentUserFromGroup() {
+        return this.removeFromGroup(getUser());
     }
 
     /**
@@ -248,15 +286,23 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/group/changeAdmin")
-    public ResponseEntity<Void> changeGroupAdmin(@RequestParam final String username) {
+    public ResponseEntity<HashMap<String, Boolean>> changeGroupAdmin(@RequestParam final String username) {
         try {
+
+            // user must be in group of admin
+            validator.inSameGroup(dao.getUser(getUser()), dao.getUser(username));
+
             dao.setRoleToAdmin(username);
             dao.setRoleToUser(getUser());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
 
     }
 
@@ -275,7 +321,8 @@ public class Server {
             ArrayList<String> groupUsers = new ArrayList<>();
             for (User u : users) {
                 Group userGroup = u.getGroup();
-                if (userGroup == null) {
+                // don't add user if the group is null or user is not enabled
+                if (userGroup == null || !u.isEnabled()) {
                     continue;
                 }
                 if (userGroup.getGroupId().equals(groupID)) {
@@ -286,12 +333,14 @@ public class Server {
             ret.put("users", groupUsers);
             return ret;
 
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
-
-
     }
 
     /**
@@ -303,15 +352,20 @@ public class Server {
     public HashMap<String, ArrayList<Bill>> getAllGroupBills() {
         try {
             User actingUser = dao.getUser(getUser());
+            validator.userHasGroup(actingUser);
             long groupId = actingUser.getGroup().getGroupId();
             ArrayList<Bill> groupBills = protect(dao.getBillsForGroup(groupId));
             HashMap<String, ArrayList<Bill>> ret = new HashMap<>();
             ret.put("bills", groupBills);
             return ret;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
     /**
@@ -323,6 +377,7 @@ public class Server {
     public ArrayList<UserBill> getUserBillsForGroup() {
         try {
             User actingUser = dao.getUser(getUser());
+            validator.userHasGroup(actingUser);
             long groupId = actingUser.getGroup().getGroupId();
             ArrayList<UserBill> groupUserBills = new ArrayList<>();
             ArrayList<Bill> groupBills = protect(dao.getBillsForGroup(groupId));
@@ -331,10 +386,14 @@ public class Server {
                 groupUserBills.addAll(userBills);
             }
             return groupUserBills;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
 
@@ -345,19 +404,22 @@ public class Server {
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getAllLists")
     public HashMap<String, ArrayList<List>> getAllGroupLists() {
-
         try {
             User actingUser = dao.getUser(getUser());
+            validator.userHasGroup(actingUser);
             long groupId = actingUser.getGroup().getGroupId();
             ArrayList<List> groupLists = protect(dao.getListsForGroup(groupId));
-            //TODO: protect groupLists
             HashMap<String, ArrayList<List>> ret = new HashMap<>();
             ret.put("lists", groupLists);
             return ret;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
     /**
@@ -369,6 +431,7 @@ public class Server {
     public ArrayList<ListItem> getAllGroupListItems() {
         try {
             User actingUser = dao.getUser(getUser());
+            validator.userHasGroup(actingUser);
             long groupId = actingUser.getGroup().getGroupId();
             ArrayList<ListItem> groupListItems = new ArrayList<>();
             ArrayList<List> groupLists = dao.getListsForGroup(groupId);
@@ -378,10 +441,14 @@ public class Server {
                 groupListItems.addAll(listItems);
             }
             return groupListItems;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
     /**
@@ -393,13 +460,21 @@ public class Server {
     @GetMapping("/api/group/getBill")
     public Bill getBillByID(@RequestParam long id) {
         try {
+            // User must have group and be in same group as owner of bill
             Bill bill = dao.getBill(id);
-            return protect(bill);
+            validator.userHasGroup(dao.getUser(getUser()));
+            validator.inSameGroup(dao.getUser(getUser()), bill.getOwner());
+
+            bill.protect();
+            return bill;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
-
     }
 
     /**
@@ -412,13 +487,22 @@ public class Server {
     @GetMapping("/api/group/getList")
     public List getListByID(@RequestParam long id) {
         try {
+
+            // User must in a  group and in same group as owner of list
             List list = dao.getList(id);
-            return protect(list);
+            validator.userHasGroup(dao.getUser(getUser()));
+            validator.inSameGroup(dao.getUser(getUser()), list.getOwner());
+
+            list.protect();
+            return list;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
-
     }
 
     /**
@@ -430,20 +514,33 @@ public class Server {
     @PostMapping("/api/bill/create")
     public Bill createBill(@RequestBody Bill bill, @RequestParam(required = false) Long listId) {
         try {
-            System.out.println(listId);
+            // user has to have a group
+            validator.userHasGroup(dao.getUser(getUser()));
             bill.setOwner(dao.getUser(getUser()));
             long time = System.currentTimeMillis() / 1000L;
             bill.setCreateTime(time);
             Bill createdBill = dao.createBillAndReturnId(bill);
             createdBill.protect();
+
+            // listId is optional and may be null
             if (listId != null) {
+
+                // list owner must be in same group as user
+                List list = dao.getList(listId);
+                validator.inSameGroup(dao.getUser(getUser()), list.getOwner());
+
                 dao.addBillToList(listId, bill.getBillId());
             }
+
             return createdBill;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
 
@@ -454,20 +551,28 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/bill/pay")
-    public ResponseEntity<Void> payBill(@RequestParam long billId) {
+    public ResponseEntity<HashMap<String, Boolean>> payBill(@RequestParam long billId) {
         try {
+            // user must be in group and in the same group as the bill
+            Bill bill = dao.getBill(billId);
+            validator.userHasGroup(dao.getUser(getUser()));
+            validator.inSameGroup(dao.getUser(getUser()), bill.getOwner());
+
             ArrayList<UserBill> userBills = dao.getUserBillsForUser(getUser());
             for (UserBill ub : userBills) {
                 if (ub.getBill().getBillId().equals(billId)) {
                     dao.setUserBillToPaid(ub.getUserBillId(), getUser());
                 }
             }
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
-
     }
 
     /**
@@ -486,10 +591,14 @@ public class Server {
             List created = dao.createListAndReturnId(list);
             created.protect();
             return created;
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
     /**
@@ -499,14 +608,23 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/list/createItem")
-    public ResponseEntity<Void> createListItem(@RequestBody ListItem listItem) {
+    public ResponseEntity<HashMap<String, Boolean>> createListItem(@RequestBody ListItem listItem) {
         try {
+
+            // user must be in the same group of the owner of the list
+            List list = dao.getList(listItem.getList().getListId());
+            validator.inSameGroup(dao.getUser(getUser()), list.getOwner());
+
             dao.createListItem(listItem);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 
     /**
@@ -515,18 +633,45 @@ public class Server {
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/bill/createUserBill")
-    public ResponseEntity<Void> createUserBill(@RequestParam long billId, @RequestParam String username, @RequestParam double percentage) {
+    public ResponseEntity<HashMap<String, Boolean>> createUserBill(@RequestParam long billId, @RequestParam String username, @RequestParam double percentage) {
         try {
+
+            // the user has to be in group
+            validator.userHasGroup(dao.getUser(getUser()));
+
+            // percentage must be between 0 and 1
+            validator.valueInRange(percentage, 0, 1);
+
+            // sum of percentages of one user bill must not exceed 1;
+            double curSum = percentage;
+            ArrayList<UserBill> userBills = dao.getUserBillsForBill(billId);
+            for (UserBill ub : userBills) {
+                curSum += ub.getPercentage();
+            }
+            validator.valueInRange(curSum, 0, 1);
+
+            // user must be in the same group as owner of associated bill
+            Bill bill = dao.getBill(billId);
+            User actingUser = dao.getUser(getUser());
+            validator.inSameGroup(actingUser, bill.getOwner());
+
+            // user must be in same group as acting user
+            validator.inSameGroup(actingUser, dao.getUser(username));
+
             UserBill userBill = new UserBill();
             userBill.setUser(dao.getUser(username));
             userBill.setBill(dao.getBill(billId));
             userBill.setPercentage(percentage);
 
             dao.createUserBill(userBill);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Result.SUCCESS.getResult());
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
 }

@@ -93,7 +93,6 @@ const createListItem = function (listItem) {
 
 const createBill = function (bill, listId) {
   const params = {};
-  console.log("listId", listId);
   if (listId !== null && listId !== "") {
     params["listId"] = listId;
   }
@@ -107,6 +106,16 @@ const createUserBill = function (billId, username, percentage) {
       billId: billId,
       username: username,
       percentage: percentage,
+    },
+  });
+};
+
+const trackAbTest = function (name, variant, event) {
+  return axios.post("_ab_testing/track", null, {
+    params: {
+      name: name,
+      variant: variant,
+      event: event,
     },
   });
 };
@@ -132,4 +141,5 @@ module.exports = {
   createListItem: createListItem,
   createBill: createBill,
   createUserBill: createUserBill,
+  trackAbTest: trackAbTest,
 };

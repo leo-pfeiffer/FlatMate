@@ -44,14 +44,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/").permitAll()
                 .antMatchers("/api").permitAll()
                 .antMatchers("/test").permitAll()
-                .antMatchers("/swagger-ui/**").permitAll()
+                .antMatchers("/swagger-ui**").permitAll()
                 .antMatchers("/api/user/create").permitAll()
                 .antMatchers("/api/group/add").hasAnyAuthority(UserRole.ADMIN.getRole())
                 .antMatchers("/api/group/remove").hasAnyAuthority(UserRole.ADMIN.getRole())
                 .antMatchers("/api/group/changeAdmin").hasAnyAuthority(UserRole.ADMIN.getRole())
                 .antMatchers("/api/**").hasAnyAuthority(UserRole.USER.getRole(), UserRole.ADMIN.getRole())
+                .and().httpBasic()
                 .and().formLogin().successHandler(successHandler()).failureHandler(failureHandler())
                 .and().cors().and().csrf().disable();
+
     }
 
     private AuthenticationSuccessHandler successHandler() {

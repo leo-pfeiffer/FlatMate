@@ -31,7 +31,7 @@ CREATE TABLE "bill"
     name           VARCHAR(30)   NOT NULL,
     description    VARCHAR(100),
     amount         DECIMAL(5, 2) NOT NULL,
-    create_time    INTEGER       NOT NULL,  -- UNIX timestamp
+    create_time    INTEGER       NOT NULL, -- UNIX timestamp
     payment_method VARCHAR(30),
     owner          VARCHAR(20)   NOT NULL,
     FOREIGN KEY (owner) REFERENCES "user" ON UPDATE CASCADE
@@ -54,7 +54,7 @@ CREATE TABLE "list"
     list_id     INTEGER PRIMARY KEY AUTOINCREMENT,
     name        VARCHAR(30) NOT NULL,
     description VARCHAR(100),
-    create_time    INTEGER       NOT NULL,  -- UNIX timestamp
+    create_time INTEGER     NOT NULL, -- UNIX timestamp
     owner       VARCHAR(20) NOT NULL,
     bill_id     INTEGER,
     FOREIGN KEY (owner) REFERENCES "user" ON UPDATE CASCADE,
@@ -68,3 +68,13 @@ CREATE TABLE list_item
     list_id      INTEGER     NOT NULL,
     FOREIGN KEY (list_id) REFERENCES "list" ON UPDATE CASCADE
 );
+
+
+-- A/B Testing
+CREATE TABLE experiment_tracker
+(
+    experiment_tracker_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    experiment            VARCHAR(100) NOT NULL,
+    variant               VARCHAR(100) NOT NULL,
+    event                 VARCHAR(100) NOT NULL
+)
