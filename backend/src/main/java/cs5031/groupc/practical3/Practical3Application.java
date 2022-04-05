@@ -9,10 +9,19 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @SpringBootApplication
 public class Practical3Application {
 
-    public static void main(String[] args) {
+    /**
+     * The main method of the program.
+     * @param args The arguments given at the call - not necessary.
+     */
+    public static void main(final String[] args) {
         SpringApplication.run(Practical3Application.class, args);
     }
 
+
+    /**
+     * The cors configurer, necessary to enable cors and connect to the SPA frontend.
+     * @return A WebMvcConfigurer.
+     */
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
