@@ -32,6 +32,11 @@ npm run serve
 ```
 
 ... to use the terminal client:
-TODO
+```bash
+cd cli
+
+TODO!!!!
+```
+
 
 The server exposes its REST API on port 8080, while the web client runs on port 3000.
