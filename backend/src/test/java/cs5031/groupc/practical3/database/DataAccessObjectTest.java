@@ -9,7 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import cs5031.groupc.practical3.model.Bill;
 import cs5031.groupc.practical3.model.Group;
 import cs5031.groupc.practical3.model.List;
@@ -579,7 +581,7 @@ public class DataAccessObjectTest {
         int rowsAffected = dao.changeUserEnabled("lucas", false);
         assertEquals(1, rowsAffected);
         User u = dao.getUser("lucas");
-        assertEquals(false, u.isEnabled());
+        assertFalse(u.isEnabled());
     }
 
     @Test
@@ -610,20 +612,48 @@ public class DataAccessObjectTest {
     public void testGetGroupWithNull() {
         String s = null;
         Group g = dao.getGroup(s);
-        assertEquals(null, g);
+        assertNull(g);
     }
 
     @Test
     public void testGetUserWithNull() {
         String s = null;
         User u = dao.getUser(s);
-        assertEquals(null, u);
+        assertNull(u);
     }
 
     @Test
     public void testGetUserBillWithNull() {
         Long l = null;
         UserBill ub = dao.getUserBill(l);
-        assertEquals(null, ub);
+        assertNull(ub);
+    }
+
+    @Test
+    public void testInsertExperiment() {
+        dao.insertExperiment("experiment", "variant", "event");
+        assertEquals(dao.getAllExperiments().size(), 1);
+    }
+
+    @Test
+    public void testGetAllExperiments() {
+        dao.insertExperiment("experiment1", "variant1", "event1");
+        dao.insertExperiment("experiment2", "variant2", "event2");
+        dao.insertExperiment("experiment3", "variant3", "event3");
+
+        ArrayList<HashMap<String, String>> res = dao.getAllExperiments();
+        assertEquals(res.size(), 3);
+
+        assertEquals("experiment1", res.get(0).get("experiment"));
+        assertEquals("experiment2", res.get(1).get("experiment"));
+        assertEquals("experiment3", res.get(2).get("experiment"));
+
+        assertEquals("variant1", res.get(0).get("variant"));
+        assertEquals("variant2", res.get(1).get("variant"));
+        assertEquals("variant3", res.get(2).get("variant"));
+
+        assertEquals("event1", res.get(0).get("event"));
+        assertEquals("event2", res.get(1).get("event"));
+        assertEquals("event3", res.get(2).get("event"));
     }
 }

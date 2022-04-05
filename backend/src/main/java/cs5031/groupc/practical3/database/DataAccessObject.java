@@ -2,6 +2,7 @@ package cs5031.groupc.practical3.database;
 
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 import cs5031.groupc.practical3.model.Bill;
@@ -586,4 +587,19 @@ public class DataAccessObject {
         return jdbcTemplate.update(sql, name, variant, event);
     }
 
+    /**
+     * Get all experiments.
+     *
+     * @return ArrayList of experiments as hash maps
+     */
+    public ArrayList<HashMap<String, String>> getAllExperiments() {
+        String sql = "SELECT * FROM 'experiment_tracker'";
+        return (ArrayList<HashMap<String, String>>) jdbcTemplate.query(sql, ((rs, rowNum) -> {
+            HashMap<String, String> hm = new HashMap<>();
+            hm.put("experiment", rs.getString("experiment"));
+            hm.put("variant", rs.getString("variant"));
+            hm.put("event", rs.getString("event"));
+            return hm;
+        }));
+    }
 }
