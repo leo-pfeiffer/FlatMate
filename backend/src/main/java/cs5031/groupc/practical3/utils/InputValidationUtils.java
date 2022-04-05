@@ -10,25 +10,47 @@ import cs5031.groupc.practical3.vo.UserRole;
 
 /**
  * Utils class for input validation.
- * */
+ */
 @Component
 public class InputValidationUtils {
 
-    final DataAccessObject dao;
+    /**
+     * The DataAccessObject; grants access to the database.
+     */
+    private final DataAccessObject dao;
 
+    /**
+     * The constructor.
+     *
+     * @param dao The DAO.
+     */
     @Autowired
-    public InputValidationUtils(DataAccessObject dao) {
+    public InputValidationUtils(final DataAccessObject dao) {
         this.dao = dao;
     }
 
-    public void inSameGroup(User user1, User user2) throws ResponseStatusException {
+    /**
+     * Tests if two user are in the same group.
+     *
+     * @param user1 The first user.
+     * @param user2 The second user.
+     * @throws ResponseStatusException Throws exception if not in same group.
+     */
+    public void inSameGroup(final User user1, final User user2) throws ResponseStatusException {
         if (!user1.getGroup().getGroupId().equals(user2.getGroup().getGroupId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Users must be in same group.");
         }
     }
 
-    public void userInGroup(User user, String groupName) throws ResponseStatusException {
-        if (user == null){
+    /**
+     * Tests if user is in group.
+     *
+     * @param user      The user to be tested.
+     * @param groupName The group to be tested.
+     * @throws ResponseStatusException Throws exception if not in the group.
+     */
+    public void userInGroup(final User user, final String groupName) throws ResponseStatusException {
+        if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User is null.");
         }
 
@@ -37,8 +59,15 @@ public class InputValidationUtils {
         }
     }
 
-    public void userHasGroup(User user, boolean shouldHaveGroup) throws ResponseStatusException {
-        if (user == null){
+    /**
+     * Tests if user is in a group and if the user should be in a group.
+     *
+     * @param user            The user to be tested.
+     * @param shouldHaveGroup Boolean if the user should be in a group
+     * @throws ResponseStatusException Throws exception if necessary.
+     */
+    public void userHasGroup(final User user, final boolean shouldHaveGroup) throws ResponseStatusException {
+        if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User is null.");
         }
         boolean hasGroup = user.getGroup() != null;
@@ -51,8 +80,14 @@ public class InputValidationUtils {
         }
     }
 
-    public void userHasGroup(User user) throws ResponseStatusException {
-        if (user == null){
+    /**
+     * Tests if user has a group.
+     *
+     * @param user The user to be tested.
+     * @throws ResponseStatusException Throws exception if user not in Group.
+     */
+    public void userHasGroup(final User user) throws ResponseStatusException {
+        if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User is null.");
         }
         if (user.getGroup() == null) {
@@ -60,8 +95,14 @@ public class InputValidationUtils {
         }
     }
 
-    public void userIsNotAdmin(User user) throws ResponseStatusException {
-        if (user == null){
+    /**
+     * Tests if user is not admin.
+     *
+     * @param user The user to be tested.
+     * @throws ResponseStatusException Throws exception if user is admin.
+     */
+    public void userIsNotAdmin(final User user) throws ResponseStatusException {
+        if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User is null.");
         }
         if (user.getRole().getRole().equals(UserRole.ADMIN.getRole())) {
@@ -69,14 +110,28 @@ public class InputValidationUtils {
         }
     }
 
-    public void valueInRange(double value, double lo, double hi) throws ResponseStatusException {
+    /**
+     * Tests if value is in range.
+     *
+     * @param value The value to be tested.
+     * @param lo    The lower bound (inclusive).
+     * @param hi    The upper bound (inclusive).
+     * @throws ResponseStatusException Throws exception if not in bounds.
+     */
+    public void valueInRange(final double value, final double lo, final double hi) throws ResponseStatusException {
         if (value < lo || value > hi) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Value out of range.");
         }
     }
 
-    public void userEnabled(User user) throws ResponseStatusException {
-        if (user == null){
+    /**
+     * Tests if user is enabled.
+     *
+     * @param user The user to be tested.
+     * @throws ResponseStatusException Throws exception if not enabled.
+     */
+    public void userEnabled(final User user) throws ResponseStatusException {
+        if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User is null.");
         }
         if (!user.isEnabled()) {
