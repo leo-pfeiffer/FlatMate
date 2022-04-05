@@ -14,7 +14,7 @@ From the root directory...
 cd backend
 
 # setup the SQLite schema
-sh ./db_setup.sh
+sh db_setup.sh
 
 # start the Spring app
 gradle bootRun
