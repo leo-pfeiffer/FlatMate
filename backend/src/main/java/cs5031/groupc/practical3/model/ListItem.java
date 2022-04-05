@@ -29,7 +29,6 @@ public class ListItem implements DataProtection {
     /**
      * Protects sensible data.
      */
-    @Override
     public void protect() {
         this.list.protect();
     }

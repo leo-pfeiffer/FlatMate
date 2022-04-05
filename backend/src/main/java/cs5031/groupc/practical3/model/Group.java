@@ -10,6 +10,14 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Group {
+
+    /**
+     * The id of th group.
+     */
     private Long groupId;
+
+    /**
+     * The name of the group.
+     */
     private String name;
 }
