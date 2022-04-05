@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import cs5031.groupc.practical3.model.Bill;
@@ -18,7 +17,7 @@ import cs5031.groupc.practical3.model.List;
 import cs5031.groupc.practical3.model.ListItem;
 import cs5031.groupc.practical3.model.User;
 import cs5031.groupc.practical3.model.UserBill;
-import cs5031.groupc.practical3.testutils.SqlFileReader;
+import cs5031.groupc.practical3.SqlFileReader;
 import cs5031.groupc.practical3.vo.UserRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

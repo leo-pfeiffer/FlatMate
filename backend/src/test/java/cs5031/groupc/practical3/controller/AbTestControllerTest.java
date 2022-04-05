@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import cs5031.groupc.practical3.Practical3Application;
 import cs5031.groupc.practical3.database.DataAccessObject;
-import cs5031.groupc.practical3.testutils.SqlFileReader;
+import cs5031.groupc.practical3.SqlFileReader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

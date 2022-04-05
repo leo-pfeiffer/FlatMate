@@ -1,4 +1,4 @@
-package cs5031.groupc.practical3.testutils;
+package cs5031.groupc.practical3;
 
 import java.io.BufferedReader;
 import java.io.File;

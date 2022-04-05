@@ -1,42 +1,29 @@
 package cs5031.groupc.practical3.utils;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import cs5031.groupc.practical3.Practical3Application;
+import cs5031.groupc.practical3.SqlFileReader;
 import cs5031.groupc.practical3.database.DataAccessObject;
-import cs5031.groupc.practical3.testutils.SqlFileReader;
+import cs5031.groupc.practical3.model.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import cs5031.groupc.practical3.model.*;
-import cs5031.groupc.practical3.utils.InputValidationUtils.*;
 import org.springframework.web.server.ResponseStatusException;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 public class InputValidationUtilsTest {
 
-    @Autowired
-    DataAccessObject dao;
-
-    @Autowired
-    JdbcTemplate jdbcTemplate;
-
-    private InputValidationUtils validator;
-
-    WebTestClient client;
-    ConfigurableApplicationContext ctx;
-
     final static String DELETE_SCRIPT = "src/test/resources/db/delete.sql";
     final static String DEMO_SCRIPT = "src/test/resources/db/demo_data.sql";
+    @Autowired
+    DataAccessObject dao;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+    private InputValidationUtils validator;
 
     @BeforeEach
     public void setUp() {
@@ -76,124 +63,124 @@ public class InputValidationUtilsTest {
     }
 
     @Test
-    public void testInSameGroupPositive(){
+    public void testInSameGroupPositive() {
         User u1 = dao.getUser("leopold");
         User u2 = dao.getUser("lukas");
-        validator.inSameGroup(u1,u2);
+        validator.inSameGroup(u1, u2);
     }
 
     @Test
-    public void testInSameGroupNegative(){
+    public void testInSameGroupNegative() {
         User u1 = dao.getUser("leopold");
         User u2 = dao.getUser("anna");
 
         assertThrows(
                 ResponseStatusException.class,
-                () -> validator.inSameGroup(u1,u2)
+                () -> validator.inSameGroup(u1, u2)
         );
     }
 
 
     @Test
-    public void testUserInGroupPositive(){
+    public void testUserInGroupPositive() {
         User u1 = dao.getUser("leopold");
-        validator.userInGroup(u1,"macintosh");
+        validator.userInGroup(u1, "macintosh");
     }
 
     @Test
-    public void testUserInGroupUserWrong(){
+    public void testUserInGroupUserWrong() {
         User u1 = dao.getUser("anna");
         assertThrows(
                 ResponseStatusException.class,
-                () -> validator.userInGroup(u1,"macintosh")
+                () -> validator.userInGroup(u1, "macintosh")
         );
     }
 
     @Test
-    public void testUserInGroupGroupWrong(){
+    public void testUserInGroupGroupWrong() {
         User u1 = dao.getUser("leopold");
         assertThrows(
                 ResponseStatusException.class,
-                () -> validator.userInGroup(u1,"gannochy")
+                () -> validator.userInGroup(u1, "gannochy")
         );
     }
 
 
     @Test
-    public void testUserInGroupUserNull(){
+    public void testUserInGroupUserNull() {
         //User u1 = dao.getUser("anna");
         assertThrows(
                 ResponseStatusException.class,
-                () -> validator.userInGroup(null,"macintosh")
+                () -> validator.userInGroup(null, "macintosh")
         );
     }
 
     @Test
-    public void testUserInGroupGroupNull(){
+    public void testUserInGroupGroupNull() {
         User u1 = dao.getUser("leopold");
         assertThrows(
                 ResponseStatusException.class,
-                () -> validator.userInGroup(u1,null)
+                () -> validator.userInGroup(u1, null)
         );
     }
 
     @Test
-    public void testUserInGroupShouldHaveGroupPositive(){
+    public void testUserInGroupShouldHaveGroupPositive() {
         User u1 = dao.getUser("leopold");
-        validator.userHasGroup(u1,true);
+        validator.userHasGroup(u1, true);
     }
 
     @Test
-    public void testUserInGroupShouldNotHaveGroupPositive(){
+    public void testUserInGroupShouldNotHaveGroupPositive() {
         User u1 = dao.getUser("user");
-        validator.userHasGroup(u1,false);
+        validator.userHasGroup(u1, false);
     }
 
     @Test
-    public void testUserInGroupShouldHaveGroupNegative(){
+    public void testUserInGroupShouldHaveGroupNegative() {
         User u1 = dao.getUser("leopold");
         assertThrows(
                 ResponseStatusException.class,
-                () -> validator.userHasGroup(u1,false)
+                () -> validator.userHasGroup(u1, false)
         );
     }
 
     @Test
-    public void testUserInGroupShouldNotHaveGroupNegative(){
+    public void testUserInGroupShouldNotHaveGroupNegative() {
         User u1 = dao.getUser("user");
         assertThrows(
                 ResponseStatusException.class,
-                () -> validator.userHasGroup(u1,true)
+                () -> validator.userHasGroup(u1, true)
         );
     }
 
     @Test
-    public void testUserInGroupShouldHaveGroupUserNull(){
+    public void testUserInGroupShouldHaveGroupUserNull() {
         //User u1 = dao.getUser("leopold");
         assertThrows(
                 ResponseStatusException.class,
-                () -> validator.userHasGroup(null,false)
+                () -> validator.userHasGroup(null, false)
         );
     }
 
     @Test
-    public void testUserInGroupShouldNotHaveGroupUserNull(){
+    public void testUserInGroupShouldNotHaveGroupUserNull() {
         //User u1 = dao.getUser("user");
         assertThrows(
                 ResponseStatusException.class,
-                () -> validator.userHasGroup(null,true)
+                () -> validator.userHasGroup(null, true)
         );
     }
 
 
     @Test
-    public void testUserHasGroupPositive(){
+    public void testUserHasGroupPositive() {
         User u1 = dao.getUser("leopold");
         validator.userHasGroup(u1);
     }
 
     @Test
-    public void testUserHasGroupNegative(){
+    public void testUserHasGroupNegative() {
         User u1 = dao.getUser("user");
         assertThrows(
                 ResponseStatusException.class,
@@ -203,23 +190,23 @@ public class InputValidationUtilsTest {
 
 
     @Test
-    public void testUserHasGroupUserNull(){
+    public void testUserHasGroupUserNull() {
         //User u1 = dao.getUser("user");
         assertThrows(
                 ResponseStatusException.class,
-                () -> validator.userHasGroup(null,true)
+                () -> validator.userHasGroup(null, true)
         );
     }
 
 
     @Test
-    public void userIsNotAdminPositive(){
+    public void userIsNotAdminPositive() {
         User u1 = dao.getUser("lukas");
         validator.userIsNotAdmin(u1);
     }
 
     @Test
-    public void userIsNotAdminNegative(){
+    public void userIsNotAdminNegative() {
         User u1 = dao.getUser("leopold");
         assertThrows(
                 ResponseStatusException.class,
@@ -228,7 +215,7 @@ public class InputValidationUtilsTest {
     }
 
     @Test
-    public void userIsNotAdminUserNull(){
+    public void userIsNotAdminUserNull() {
         //User u1 = dao.getUser("leopold");
         assertThrows(
                 ResponseStatusException.class,
@@ -237,60 +224,61 @@ public class InputValidationUtilsTest {
     }
 
     @Test
-    public void testValueInRangePositive1(){
-        validator.valueInRange(1,0,2);
+    public void testValueInRangePositive1() {
+        validator.valueInRange(1, 0, 2);
     }
 
     @Test
-    public void testValueInRangePositive2(){
-        validator.valueInRange(0,0,2);
+    public void testValueInRangePositive2() {
+        validator.valueInRange(0, 0, 2);
     }
 
     @Test
-    public void testValueInRangePositive3(){
-        validator.valueInRange(2,0,2);
+    public void testValueInRangePositive3() {
+        validator.valueInRange(2, 0, 2);
     }
 
     @Test
-    public void testValueInRangeNegative1(){
+    public void testValueInRangeNegative1() {
         assertThrows(
                 ResponseStatusException.class,
-                () -> validator.valueInRange(-1,0,2)
+                () -> validator.valueInRange(-1, 0, 2)
         );
     }
 
     @Test
-    public void testValueInRangeNegative2(){
+    public void testValueInRangeNegative2() {
         assertThrows(
                 ResponseStatusException.class,
-                () -> validator.valueInRange(3,0,2)
+                () -> validator.valueInRange(3, 0, 2)
         );
     }
 
     @Test
-    public void testValueInRangeNegative3(){
+    public void testValueInRangeNegative3() {
         assertThrows(
                 ResponseStatusException.class,
-                () -> validator.valueInRange(-0.0001,0,2)
-        );
-    }
-    @Test
-    public void testValueInRangeNegative4(){
-        assertThrows(
-                ResponseStatusException.class,
-                () -> validator.valueInRange(2.0001,0,2)
+                () -> validator.valueInRange(-0.0001, 0, 2)
         );
     }
 
     @Test
-    public void testUserEnabledPositive(){
+    public void testValueInRangeNegative4() {
+        assertThrows(
+                ResponseStatusException.class,
+                () -> validator.valueInRange(2.0001, 0, 2)
+        );
+    }
+
+    @Test
+    public void testUserEnabledPositive() {
         User u1 = dao.getUser("leopold");
         validator.userEnabled(u1);
     }
 
     @Test
-    public void testUserEnabledNegative(){
-        dao.changeUserEnabled("leopold",false);
+    public void testUserEnabledNegative() {
+        dao.changeUserEnabled("leopold", false);
         User u1 = dao.getUser("leopold");
 
         assertThrows(
@@ -300,7 +288,7 @@ public class InputValidationUtilsTest {
     }
 
     @Test
-    public void testUserEnabledUserNull(){
+    public void testUserEnabledUserNull() {
         assertThrows(
                 ResponseStatusException.class,
                 () -> validator.userEnabled(null)
