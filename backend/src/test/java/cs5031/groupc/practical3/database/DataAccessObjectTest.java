@@ -561,4 +561,69 @@ public class DataAccessObjectTest {
         int rowsAffected = dao.setUserBillToPaid(userBill.getUserBillId(), "nonexistent");
         assertEquals(0, rowsAffected);
     }
+
+    @Test
+    public void testChangeUserName() {
+        User u = dao.getUser("lucas");
+        Group g = u.getGroup();
+        String pass = u.getPassword();
+        int rowsAffected = dao.changeUserName("lucas", "lg70");
+        assertEquals(1, rowsAffected);
+        User u1 = dao.getUser("lg70");
+        assertEquals(g.getName(), u1.getGroup().getName());
+        assertEquals(pass, u1.getPassword());
+    }
+
+    @Test
+    public void testChangeUserEnabled() {
+        int rowsAffected = dao.changeUserEnabled("lucas", false);
+        assertEquals(1, rowsAffected);
+        User u = dao.getUser("lucas");
+        assertEquals(false, u.isEnabled());
+    }
+
+    @Test
+    public void testCreateListAndReturnListBillSet() {
+        User user = dao.getUser("lucas");
+        Bill bill = new Bill();
+        bill.setName("testbill");
+        bill.setDescription("testdescription");
+        bill.setAmount(12.12d);
+        bill.setPaymentMethod("Cash");
+        bill.setOwner(user);
+        bill.setCreateTime(1648727482L);
+        Bill billReturned = dao.createBillAndReturnBill(bill);
+        List list = new List();
+        list.setName("testlist");
+        list.setDescription("testdescription");
+        list.setOwner(user);
+        list.setCreateTime(1648727482L);
+        list.setBill(billReturned);
+        List listReturned = dao.createListAndReturnList(list);
+        assertEquals(list.getName(), listReturned.getName());
+        assertEquals(list.getDescription(), listReturned.getDescription());
+        assertEquals(list.getOwner().getUsername(), listReturned.getOwner().getUsername());
+        assertEquals(list.getBill().getBillId(), listReturned.getBill().getBillId());
+    }
+
+    @Test
+    public void testGetGroupWithNull() {
+        String s = null;
+        Group g = dao.getGroup(s);
+        assertEquals(null, g);
+    }
+
+    @Test
+    public void testGetUserWithNull() {
+        String s = null;
+        User u = dao.getUser(s);
+        assertEquals(null, u);
+    }
+
+    @Test
+    public void testGetUserBillWithNull() {
+        Long l = null;
+        UserBill ub = dao.getUserBill(l);
+        assertEquals(null, ub);
+    }
 }
