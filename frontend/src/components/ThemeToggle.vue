@@ -26,7 +26,11 @@
 <script>
 // Inspiration taken from here
 //  https://codesandbox.io/s/immutable-monad-cotsz?file=/src/App.vue
-import { makeExperiment, makeAdapter } from "@/analytics/ab-testing";
+import {
+  makeExperiment,
+  makeAdapter,
+  experimentVariants,
+} from "@/analytics/ab-testing";
 import AlephBet from "alephbet";
 
 let themeToggled;
@@ -40,8 +44,11 @@ export default {
     };
   },
   mounted() {
+    // set up AB testing experiment
+    const name = "theme toggle";
+    const variants = experimentVariants[name];
     const adapter = makeAdapter();
-    const experiment = makeExperiment(adapter);
+    const experiment = makeExperiment(name, variants, adapter);
     themeToggled = new AlephBet.Goal("theme toggled");
     experiment.add_goal(themeToggled);
     this.init();
@@ -58,6 +65,7 @@ export default {
       }
     },
     toggleTheme() {
+      // register A/B test goal completion
       themeToggled.complete();
       if (this.userTheme === "fancy-theme") {
         this.setTheme("simple-theme");
