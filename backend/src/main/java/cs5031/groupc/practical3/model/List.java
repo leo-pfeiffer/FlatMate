@@ -9,18 +9,44 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class List implements DataProtection{
+public class List implements DataProtection {
 
+    /**
+     * The id of the list.
+     */
     private Long listId;
-    private String name;
-    private String description;
-    private User owner;
-    private Bill bill;
-    private Long createTime;    // unix timestamp
 
-    public void protect(){
+    /**
+     * The name of the list.
+     */
+    private String name;
+
+    /**
+     * The description of the list.
+     */
+    private String description;
+
+    /**
+     * The owner of the list.
+     */
+    private User owner;
+
+    /**
+     * the bill of the list (optional).
+     */
+    private Bill bill;
+
+    /**
+     * The unix timestamp of the creation of the list.
+     */
+    private Long createTime;
+
+    /**
+     * Protects sensible data.
+     */
+    public void protect() {
         this.owner.protect();
-        if (this.bill != null){
+        if (this.bill != null) {
             this.bill.protect();
         }
     }
