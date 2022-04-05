@@ -1,12 +1,5 @@
 package cs5031.groupc.practical3.database;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.util.ArrayList;
 import cs5031.groupc.practical3.model.Bill;
 import cs5031.groupc.practical3.model.Group;
@@ -21,7 +14,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.validation.constraints.AssertTrue;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class DataAccessObjectTest {
@@ -72,7 +71,7 @@ public class DataAccessObjectTest {
     }
 
     @Test
-    public void testGetGroup() {
+    public void testGetGroupById() {
         Group group = dao.getGroup(1L);
         assertNotNull(group);
         assertEquals(1L, group.getGroupId());
@@ -321,4 +320,166 @@ public class DataAccessObjectTest {
 
     }
 
+    @Test
+    public void testCreateBillAndReturnBill() {
+        User user = dao.getUser("lucas");
+        Bill bill = new Bill();
+        bill.setName("testbill");
+        bill.setDescription("testdescription");
+        bill.setAmount(12.12d);
+        bill.setPaymentMethod("Cash");
+        bill.setOwner(user);
+        bill.setCreateTime(1648727482L);
+
+        Bill billReturned = dao.createBillAndReturnBill(bill);
+
+        assertEquals(bill.getName(), billReturned.getName());
+        assertEquals(bill.getDescription(), billReturned.getDescription());
+        assertEquals(bill.getAmount(), billReturned.getAmount());
+        assertEquals(bill.getOwner().getUsername(), billReturned.getOwner().getUsername());
+    }
+
+    @Test
+    public void testCreateListAndReturnList() {
+        User user = dao.getUser("lucas");
+        List list = new List();
+        list.setName("testlist");
+        list.setDescription("testdescription");
+        list.setOwner(user);
+        list.setCreateTime(1648727482L);
+        List listReturned = dao.createListAndReturnList(list);
+        assertEquals(list.getName(), listReturned.getName());
+        assertEquals(list.getDescription(), listReturned.getDescription());
+        assertEquals(list.getOwner().getUsername(), listReturned.getOwner().getUsername());
+    }
+
+    @Test
+    public void testCreateDuplicateUser() {
+        assertThrows(UncategorizedSQLException.class, () -> {
+            dao.createUser("lucas", "1234");
+        });
+    }
+
+    @Test
+    public void testCreateDuplicateBill() {
+        Bill b = new Bill();
+        b.setName("test");
+        b.setAmount(10.20);
+        b.setOwner(dao.getUser("lucas"));
+        b.setCreateTime(1648727482L);
+        b.setDescription("testdescription");
+        b.setPaymentMethod("Cash");
+
+        Bill b1 = dao.createBillAndReturnBill(b);
+        Bill b2 = dao.createBillAndReturnBill(b);
+        assertNotEquals(b1.getBillId(), b2.getBillId());
+    }
+
+    @Test
+    public void testCreateBillNoOwner() {
+        Bill b = new Bill();
+        b.setName("test");
+        b.setAmount(10.20);
+        b.setCreateTime(1648727482L);
+        b.setDescription("testdescription");
+        b.setPaymentMethod("Cash");
+        assertThrows(NullPointerException.class, () -> {
+            dao.createBill(b);
+        });
+    }
+
+    @Test
+    public void testCreateDuplicateList() {
+        User user = dao.getUser("lucas");
+        List list = new List();
+        list.setName("testlist");
+        list.setDescription("testdescription");
+        list.setOwner(user);
+        list.setCreateTime(1648727482L);
+        List l1 = dao.createListAndReturnList(list);
+        List l2 = dao.createListAndReturnList(list);
+        assertNotEquals(l1.getListId(), l2.getListId());
+    }
+
+    @Test
+    public void testCreateDuplicateGroup() {
+        ArrayList<Group> groupsPre = dao.getAllGroups();
+        int numRows = dao.createGroup("testgroup");
+        assertEquals(1, numRows);
+        assertThrows(UncategorizedSQLException.class, () -> {
+            dao.createGroup("testgroup");
+        });
+        Group group = dao.getGroup("testgroup");
+        assertNotNull(group);
+        ArrayList<Group> groupsPost = dao.getAllGroups();
+        assertEquals(groupsPre.size() + 1, groupsPost.size());
+    }
+
+    @Test
+    public void testSetAdminToAdmin() {
+        User user = dao.getUser("lucas");
+        user.setRole(UserRole.ADMIN);
+        user.setRole(UserRole.ADMIN);
+        assertEquals(UserRole.ADMIN, user.getRole());
+    }
+
+    @Test
+    public void testSetUserToUser() {
+        User user = dao.getUser("lucas");
+        user.setRole(UserRole.USER);
+        user.setRole(UserRole.USER);
+        assertEquals(UserRole.USER, user.getRole());
+    }
+
+    @Test
+    public void testGetNonExistentGroup() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+           Group g = dao.getGroup("nonexistent");
+        });
+    }
+
+    @Test
+    public void testGetNonExistentUser() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+           User u = dao.getUser("nonexistent");
+        });
+    }
+
+    @Test
+    public void testGetNonExistentBill() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            Bill b = dao.getBill(123456789L);
+        });
+    }
+
+    @Test
+    public void testGetNonExistentList() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            List l = dao.getList(123456789L);
+        });
+    }
+
+    @Test
+    public void testGetNonExistentListItem() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            ListItem l = dao.getListItem(123456789L);
+        });
+    }
+
+    @Test
+    public void testGetNonExistentUserBill() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+           UserBill ub = dao.getUserBill(123456789L);
+        });
+    }
+
+    @Test
+    public void testRemoveUserFromNonExistentGroup() {
+        dao.removeUserFromGroup("lucas");
+        Group g = dao.getUser("lucas").getGroup();
+        assertEquals(null, g);
+        dao.removeUserFromGroup("lucas");
+        Group g1 = dao.getUser("lucas").getGroup();
+        assertEquals(null, g1);
+    }
 }

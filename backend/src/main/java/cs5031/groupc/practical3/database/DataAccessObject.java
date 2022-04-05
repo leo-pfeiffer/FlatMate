@@ -254,7 +254,7 @@ public class DataAccessObject {
                 bill.getCreateTime());
     }
 
-    public Bill createBillAndReturnId(Bill bill) {
+    public Bill createBillAndReturnBill(Bill bill) {
         assert bill != null;
         String sql = "INSERT INTO 'bill' (name, description, amount, payment_method, owner, create_time) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -354,7 +354,7 @@ public class DataAccessObject {
                 list.getCreateTime());
     }
 
-    public List createListAndReturnId(List list) {
+    public List createListAndReturnList(List list) {
         assert list != null;
         String sql = "INSERT INTO 'list' (name, description, owner, bill_id, create_time) VALUES (?, ?, ?, ?, ?)";
 

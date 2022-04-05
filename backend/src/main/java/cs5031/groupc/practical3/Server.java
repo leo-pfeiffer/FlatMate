@@ -519,7 +519,7 @@ public class Server {
             bill.setOwner(dao.getUser(getUser()));
             long time = System.currentTimeMillis() / 1000L;
             bill.setCreateTime(time);
-            Bill createdBill = dao.createBillAndReturnId(bill);
+            Bill createdBill = dao.createBillAndReturnBill(bill);
             createdBill.protect();
 
             // listId is optional and may be null
@@ -588,7 +588,7 @@ public class Server {
             list.setBill(null);
             long time = System.currentTimeMillis() / 1000L;
             list.setCreateTime(time);
-            List created = dao.createListAndReturnId(list);
+            List created = dao.createListAndReturnList(list);
             created.protect();
             return created;
         } catch (EmptyResultDataAccessException e) {
