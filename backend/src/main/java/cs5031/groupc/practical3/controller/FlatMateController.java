@@ -523,12 +523,11 @@ public class FlatMateController {
 
             // listId is optional and may be null
             if (listId != null) {
-
                 // list owner must be in same group as user
                 List list = dao.getList(listId);
                 validator.inSameGroup(dao.getUser(getUser()), list.getOwner());
 
-                dao.addBillToList(listId, bill.getBillId());
+                dao.addBillToList(listId, createdBill.getBillId());
             }
 
             return createdBill;
