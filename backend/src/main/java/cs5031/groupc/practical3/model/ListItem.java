@@ -10,11 +10,25 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ListItem implements DataProtection {
+
+    /**
+     * The id of the listItem.
+     */
     private Long listItemId;
+
+    /**
+     * The name of the listItem.
+     */
     private String name;
+
+    /**
+     * the list the listItem belongs to.
+     */
     private List list;
 
-    @Override
+    /**
+     * Protects sensible data.
+     */
     public void protect() {
         this.list.protect();
     }

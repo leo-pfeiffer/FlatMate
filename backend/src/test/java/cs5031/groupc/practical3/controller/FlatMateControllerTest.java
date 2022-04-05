@@ -117,6 +117,74 @@ class FlatMateControllerTest {
 
     // ======================== /ServerRunning ===============================================
 
+    // ======================== api ===============================================
+
+    @Test
+    public void testApiAdmin() {
+        client.get().uri("/api")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody();
+    }
+
+    @Test
+    public void testApiUser() {
+        client.get().uri("/api")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody();
+    }
+
+    @Test
+    public void testApiPleb() {
+        client.get().uri("/api")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody();
+    }
+
+    // ======================== /api ===============================================
+
+
+    // ======================== swagger-ui ===============================================
+
+    @Test
+    public void testSwaggerAdmin() {
+        client.get().uri("/swagger-ui/index.html")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody();
+    }
+
+    @Test
+    public void testSwaggerUser() {
+        client.get().uri("/swagger-ui/index.html")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody();
+    }
+
+    @Test
+    public void testSwaggerPleb() {
+        client.get().uri("/swagger-ui/index.html")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody();
+    }
+
+    // ======================== /swagger-ui ===============================================
+
+
     // ======================== getCurrentUser ===============================================
 
     @Test
@@ -1673,6 +1741,66 @@ class FlatMateControllerTest {
     }
 
     @Test
+    public void testCreateBillWithListPositiveAdmin() {
+
+        Bill testBill = new Bill();
+        testBill.setName("TestBillForTesting");
+        testBill.setDescription("TestDes");
+        testBill.setAmount(77.77);
+        testBill.setPaymentMethod("cash");
+
+
+        client.post().uri("/api/bill/create?listId=3")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .body(BodyInserters.fromValue(testBill))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("TestBillForTesting")
+                .jsonPath("$.description").isEqualTo("TestDes")
+                .jsonPath("$.billId").isEqualTo(5)
+                .jsonPath("$.owner.password").isEqualTo(null)
+                .jsonPath("$.owner.username").isEqualTo("leopold")
+                .jsonPath("$.amount").isEqualTo(77.77)
+                .jsonPath("$.paymentMethod").isEqualTo("cash");
+
+        client.get().uri("/api/group/getList?id=3")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("party planning")
+                .jsonPath("$.description").isEqualTo("drinks and snacks")
+                .jsonPath("$.listId").isEqualTo(3)
+                .jsonPath("$.owner.password").isEqualTo(null)
+                .jsonPath("$.bill.billId").isEqualTo(5)
+                .jsonPath("$.bill.owner.password").isEqualTo(null);
+    }
+
+    @Test
+    public void testCreateBillWithListNegativeAdmin() {
+
+        Bill testBill = new Bill();
+        testBill.setName("TestBillForTesting");
+        testBill.setDescription("TestDes");
+        testBill.setAmount(77.77);
+        testBill.setPaymentMethod("cash");
+
+
+        client.post().uri("/api/bill/create?listId=23")
+                .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .body(BodyInserters.fromValue(testBill))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNotFound();
+
+    }
+
+
+
+    @Test
     public void testCreateBillPositiveUser() {
         Bill testBill = new Bill();
         testBill.setName("TestBillForTesting");
@@ -1707,6 +1835,64 @@ class FlatMateControllerTest {
     }
 
     @Test
+    public void testCreateBillWithListPositiveUser() {
+
+        Bill testBill = new Bill();
+        testBill.setName("TestBillForTesting");
+        testBill.setDescription("TestDes");
+        testBill.setAmount(77.77);
+        testBill.setPaymentMethod("cash");
+
+
+        client.post().uri("/api/bill/create?listId=3")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .body(BodyInserters.fromValue(testBill))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("TestBillForTesting")
+                .jsonPath("$.description").isEqualTo("TestDes")
+                .jsonPath("$.billId").isEqualTo(5)
+                .jsonPath("$.owner.password").isEqualTo(null)
+                .jsonPath("$.owner.username").isEqualTo("lukas")
+                .jsonPath("$.amount").isEqualTo(77.77)
+                .jsonPath("$.paymentMethod").isEqualTo("cash");
+
+        client.get().uri("/api/group/getList?id=3")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("party planning")
+                .jsonPath("$.description").isEqualTo("drinks and snacks")
+                .jsonPath("$.listId").isEqualTo(3)
+                .jsonPath("$.owner.password").isEqualTo(null)
+                .jsonPath("$.bill.billId").isEqualTo(5)
+                .jsonPath("$.bill.owner.password").isEqualTo(null);
+    }
+
+    @Test
+    public void testCreateBillWithListNegativeUser() {
+
+        Bill testBill = new Bill();
+        testBill.setName("TestBillForTesting");
+        testBill.setDescription("TestDes");
+        testBill.setAmount(77.77);
+        testBill.setPaymentMethod("cash");
+
+
+        client.post().uri("/api/bill/create?listId=23")
+                .headers(headers -> headers.setBasicAuth("lukas", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
+                .body(BodyInserters.fromValue(testBill))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNotFound();
+
+    }
+
+    @Test
     public void testCreateBillPleb() {
         client.post().uri("/api/bill/create")
                 .accept(MediaType.APPLICATION_JSON)
@@ -1714,8 +1900,15 @@ class FlatMateControllerTest {
                 .expectStatus().isUnauthorized();
     }
 
-    // ======================== /createBill ===============================================
+    @Test
+    public void testCreateBillWithListPleb() {
+        client.post().uri("/api/bill/create?listId=3")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
 
+    // ======================== /createBill ===============================================
 
     // ======================== payBill ===============================================
 

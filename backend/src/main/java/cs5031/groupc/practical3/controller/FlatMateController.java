@@ -2,6 +2,7 @@ package cs5031.groupc.practical3.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import cs5031.groupc.practical3.database.DataAccessObject;
 import cs5031.groupc.practical3.model.Bill;
 import cs5031.groupc.practical3.model.DataProtection;
@@ -31,17 +32,35 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 public class FlatMateController {
 
-    final DataAccessObject dao;
-    final InputValidationUtils validator;
+    /**
+     * The DataAccesObject for the Server; grants access to the database.
+     */
+    private final DataAccessObject dao;
 
+    /**
+     * The Inputvalidator for the server inputs.
+     */
+    private final InputValidationUtils validator;
+
+    /**
+     * Constant to get system time to unix timestamp.
+     */
+    private static final long TIME_DIVISOR = 1000L;
+
+    /**
+     * The constructor.
+     *
+     * @param dao       The DAO for the server.
+     * @param validator The validator for the server.
+     */
     @Autowired
-    public FlatMateController(DataAccessObject dao, InputValidationUtils validator) {
+    public FlatMateController(final DataAccessObject dao, final InputValidationUtils validator) {
         this.dao = dao;
         this.validator = validator;
     }
 
     /**
-     * Get the username from the user of the current security context
+     * Get the username from the user of the current security context.
      *
      * @return The name of the user that is currently logged in.
      */
@@ -51,12 +70,13 @@ public class FlatMateController {
     }
 
     /**
-     * Protects all the objects in the group by setting sensitive information to null;
+     * Protects all the objects in the group by setting sensitive information to null.
      *
      * @param group The ArrayList of objects to protect.
+     * @param <T>   Returns a generic object.
      * @return The protected ArrayList.
      */
-    private <T> ArrayList<T> protect(ArrayList<T> group) {
+    private <T> ArrayList<T> protect(final ArrayList<T> group) {
         for (T t : group) {
             DataProtection dp = (DataProtection) t;
             dp.protect();
@@ -65,7 +85,8 @@ public class FlatMateController {
     }
 
     /**
-     * A method that confirms that the server is in fact running. --> Works!
+     * A method that confirms that the server is in fact running.
+     *
      * @return Returns a string confirming the server is running.
      */
     @CrossOrigin(origins = "http://localhost:3000")
@@ -75,7 +96,8 @@ public class FlatMateController {
     }
 
     /**
-     * Get the user object for the currently logged-in user. --> Works!
+     * Get the user object for the currently logged-in user.
+     *
      * @return User object
      */
     @CrossOrigin(origins = "http://localhost:3000")
@@ -97,11 +119,13 @@ public class FlatMateController {
 
     /**
      * Returns true if the username exists, else false. This can be used, for example, for searches.
-     * @return Boolean
+     *
+     * @param username The username of the user that shall be checked.
+     * @return Boolean.
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/user/exists")
-    public boolean getUserExists(@RequestParam String username) {
+    public boolean getUserExists(@RequestParam final String username) {
         try {
             User user = dao.getUser(username);
             return user != null;
@@ -116,7 +140,8 @@ public class FlatMateController {
     }
 
     /**
-     * An endpoint that creates a new User and stores it in the database. --> Works!
+     * An endpoint that creates a new User and stores it in the database.
+     *
      * @param user The necessary data to create a new user, consisting of the username and password.
      * @return returns a 200 OK response if successful, and a 404 NOT FOUND if unsuccessful.
      */
@@ -137,7 +162,8 @@ public class FlatMateController {
     }
 
     /**
-     * An endpoint that returns a group object from the group name. --> Works!
+     * An endpoint that returns a group object from the group name.
+     *
      * @param groupname The name of the group to be retrieved.
      * @return Returns a group object.
      */
@@ -161,7 +187,8 @@ public class FlatMateController {
 
     /**
      * An endpoint that creates a group, add the creating user to the group, and makes the creating user
-     * to the admin of the group. --> Works!
+     * to the admin of the group.
+     *
      * @param groupname the name of the prospective group.
      * @return returns a 200 OK if successful and a 404 NOT FOUND if unsuccessful.
      */
@@ -192,7 +219,8 @@ public class FlatMateController {
     }
 
     /**
-     * An endpoint that adds a user by username to the group of the user adding the new user.  --> Works!
+     * An endpoint that adds a user by username to the group of the user adding the new user.
+     *
      * @param username The username of the user that will be added to the group.
      * @return Returns a 200 OK if successful and a 404 NOT FOUND if unsuccessful.
      */
@@ -221,7 +249,8 @@ public class FlatMateController {
     }
 
     /**
-     * An endpoint that removes a user by username from the group of the user removing the user.  --> Works!
+     * An endpoint that removes a user by username from the group of the user removing the user.
+     *
      * @param username the username of the user that is supposed to be removed.
      * @return Returns a 200 OK if successful and a 404 NOT FOUND if unsuccessful.
      */
@@ -245,7 +274,7 @@ public class FlatMateController {
             validator.userEnabled(userToRemove);
 
             // create new username
-            long time = System.currentTimeMillis() / 1000L;
+            long time = System.currentTimeMillis() / TIME_DIVISOR;
             String suffix = " (left @ " + time + ")";
             String retiredUserName = userToRemove.getUsername() + suffix;
 
@@ -269,6 +298,7 @@ public class FlatMateController {
 
     /**
      * Remove the current user from their group.
+     *
      * @return Returns a 200 OK if successful and a 404 NOT FOUND if unsuccessful.
      */
     @CrossOrigin(origins = "http://localhost:3000")
@@ -279,7 +309,8 @@ public class FlatMateController {
 
     /**
      * An endpoint that sets a user' role to admin (by username) and set the
-     * role of the current admin to user. --> Works!
+     * role of the current admin to user.
+     *
      * @param username The username of the user soon to be admin
      * @return Returns a 200 OK if successful and a 404 NOT FOUND if unsuccessful.
      */
@@ -306,7 +337,8 @@ public class FlatMateController {
     }
 
     /**
-     * An endpoint that returns all names of members in the calling user's group. --> Works!
+     * An endpoint that returns all names of members in the calling user's group.
+     *
      * @return Returns a HashMap in the style {"user": [USERS]}
      */
     @CrossOrigin(origins = "http://localhost:3000")
@@ -343,7 +375,8 @@ public class FlatMateController {
     }
 
     /**
-     * An endpoint that returns a JSON with all teh bills in teh calling user's group. --> Works!
+     * An endpoint that returns a JSON with all teh bills in teh calling user's group.
+     *
      * @return returns a HashMap in the format {"bills":[BILLS]} (will be cast to JSON).
      */
     @CrossOrigin(origins = "http://localhost:3000")
@@ -369,6 +402,7 @@ public class FlatMateController {
 
     /**
      * An endpoint that returns an array list with all user bill objects of the group.
+     *
      * @return returns an ArrayList in the format (will be cast to JSON).
      */
     @CrossOrigin(origins = "http://localhost:3000")
@@ -397,7 +431,8 @@ public class FlatMateController {
 
 
     /**
-     * An endpoint that returns all lists for a group. --> Works!
+     * An endpoint that returns all lists for a group.
+     *
      * @return returns an ArrayList of all lists.
      */
     @CrossOrigin(origins = "http://localhost:3000")
@@ -422,7 +457,8 @@ public class FlatMateController {
     }
 
     /**
-     * An endpoint that returns all list items for a group. --> Works!
+     * An endpoint that returns all list items for a group.
+     *
      * @return returns an ArrayList of all list items.
      */
     @CrossOrigin(origins = "http://localhost:3000")
@@ -451,13 +487,14 @@ public class FlatMateController {
     }
 
     /**
-     * A method that returns a bill by its id. --> Works!
+     * A method that returns a bill by its id.
+     *
      * @param id The id of the bill.
      * @return Returns a bill object.
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getBill")
-    public Bill getBillByID(@RequestParam long id) {
+    public Bill getBillByID(@RequestParam final long id) {
         try {
             // User must have group and be in same group as owner of bill
             Bill bill = dao.getBill(id);
@@ -477,14 +514,15 @@ public class FlatMateController {
     }
 
     /**
-     * A method that returns a list by its ID. --> Works!
+     * A method that returns a list by its ID.
+     *
      * @param id The id of the list.
      * @return The list.
      */
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/group/getList")
-    public List getListByID(@RequestParam long id) {
+    public List getListByID(@RequestParam final long id) {
         try {
 
             // User must in a  group and in same group as owner of list
@@ -505,30 +543,31 @@ public class FlatMateController {
     }
 
     /**
-     * An endpoint that creates a Bill --> Works!
-     * @param bill The bill name, description, amount, and payment method.
+     * An endpoint that creates a bill.
+     *
+     * @param bill   The bill name, description, amount, and payment method.
+     * @param listId The id of the list to which the bill shall be added. Is optional.
      * @return The created bill object
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/bill/create")
-    public Bill createBill(@RequestBody Bill bill, @RequestParam(required = false) Long listId) {
+    public Bill createBill(@RequestBody final Bill bill, @RequestParam(required = false) final Long listId) {
         try {
             // user has to have a group
             validator.userHasGroup(dao.getUser(getUser()));
             bill.setOwner(dao.getUser(getUser()));
-            long time = System.currentTimeMillis() / 1000L;
+            long time = System.currentTimeMillis() / TIME_DIVISOR;
             bill.setCreateTime(time);
             Bill createdBill = dao.createBillAndReturnBill(bill);
             createdBill.protect();
 
             // listId is optional and may be null
             if (listId != null) {
-
                 // list owner must be in same group as user
                 List list = dao.getList(listId);
                 validator.inSameGroup(dao.getUser(getUser()), list.getOwner());
 
-                dao.addBillToList(listId, bill.getBillId());
+                dao.addBillToList(listId, createdBill.getBillId());
             }
 
             return createdBill;
@@ -544,13 +583,14 @@ public class FlatMateController {
 
 
     /**
-     * An endpoint that lets you pay your bill. --> Works!
+     * An endpoint that lets you pay your bill.
+     *
      * @param billId The id of the userBill object to be paid.
      * @return Returns 200 OK if successful and 404 NOT FOUND if not.
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/bill/pay")
-    public ResponseEntity<HashMap<String, Boolean>> payBill(@RequestParam long billId) {
+    public ResponseEntity<HashMap<String, Boolean>> payBill(@RequestParam final long billId) {
         try {
             // user must be in group and in the same group as the bill
             Bill bill = dao.getBill(billId);
@@ -575,17 +615,18 @@ public class FlatMateController {
     }
 
     /**
-     * An endpoint that creates a new list --> Works!
+     * An endpoint that creates a new list.
+     *
      * @param list A Data object containing the name, description and billID
      * @return The created list item
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/list/create")
-    public List createList(@RequestBody List list) {
+    public List createList(@RequestBody final List list) {
         try {
             list.setOwner(dao.getUser(getUser()));
             list.setBill(null);
-            long time = System.currentTimeMillis() / 1000L;
+            long time = System.currentTimeMillis() / TIME_DIVISOR;
             list.setCreateTime(time);
             List created = dao.createListAndReturnList(list);
             created.protect();
@@ -601,13 +642,14 @@ public class FlatMateController {
     }
 
     /**
-     * An endpoint that creates a new list item
+     * An endpoint that creates a new list item.
+     *
      * @param listItem List Item to create
      * @return 200 OK if successful or 404 NOT FOUND if not.
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/list/createItem")
-    public ResponseEntity<HashMap<String, Boolean>> createListItem(@RequestBody ListItem listItem) {
+    public ResponseEntity<HashMap<String, Boolean>> createListItem(@RequestBody final ListItem listItem) {
         try {
 
             // user must be in the same group of the owner of the list
@@ -626,13 +668,18 @@ public class FlatMateController {
         }
     }
 
+
     /**
-     * An endpoint that creates a new list item
-     * @return 200 OK if successful or 404 NOT FOUND if not.
+     * An endpoint that creates a new list item.
+     *
+     * @param billId     The id of the bill that the userbill item belongs to.
+     * @param username   The username of the user that the userbill belongs to.
+     * @param percentage The percentage of the bill the user has to pay.
+     * @return 200 OK if successful or HTTP error status if not.
      */
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/bill/createUserBill")
-    public ResponseEntity<HashMap<String, Boolean>> createUserBill(@RequestParam long billId, @RequestParam String username, @RequestParam double percentage) {
+    public ResponseEntity<HashMap<String, Boolean>> createUserBill(@RequestParam final long billId, @RequestParam final String username, @RequestParam final double percentage) {
         try {
 
             // the user has to be in group
