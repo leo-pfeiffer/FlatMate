@@ -28,12 +28,19 @@ public class InputValidationUtils {
     }
 
     public void userInGroup(User user, String groupName) throws ResponseStatusException {
+        if (user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User is null.");
+        }
+
         if (!user.getGroup().getName().equals(groupName)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not in group.");
         }
     }
 
     public void userHasGroup(User user, boolean shouldHaveGroup) throws ResponseStatusException {
+        if (user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User is null.");
+        }
         boolean hasGroup = user.getGroup() != null;
         if (hasGroup != shouldHaveGroup) {
             if (shouldHaveGroup) {
@@ -45,12 +52,18 @@ public class InputValidationUtils {
     }
 
     public void userHasGroup(User user) throws ResponseStatusException {
+        if (user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User is null.");
+        }
         if (user.getGroup() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User has no group.");
         }
     }
 
     public void userIsNotAdmin(User user) throws ResponseStatusException {
+        if (user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User is null.");
+        }
         if (user.getRole().getRole().equals(UserRole.ADMIN.getRole())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This would leave the group without admin.");
         }
@@ -63,6 +76,9 @@ public class InputValidationUtils {
     }
 
     public void userEnabled(User user) throws ResponseStatusException {
+        if (user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User is null.");
+        }
         if (!user.isEnabled()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User must be enabled.");
         }
