@@ -1,4 +1,4 @@
-package cs5031.groupc.practical3;
+package cs5031.groupc.practical3.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

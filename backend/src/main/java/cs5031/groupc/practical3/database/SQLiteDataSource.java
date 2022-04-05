@@ -1,6 +1,6 @@
 package cs5031.groupc.practical3.database;
 
-import cs5031.groupc.practical3.SecurityConfiguration;
+import cs5031.groupc.practical3.utils.SecurityConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;

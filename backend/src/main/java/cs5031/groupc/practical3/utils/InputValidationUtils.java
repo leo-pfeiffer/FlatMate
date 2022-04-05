@@ -1,4 +1,4 @@
-package cs5031.groupc.practical3;
+package cs5031.groupc.practical3.utils;
 
 import cs5031.groupc.practical3.database.DataAccessObject;
 import cs5031.groupc.practical3.model.User;

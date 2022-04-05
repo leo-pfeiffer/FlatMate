@@ -1,10 +1,10 @@
-package cs5031.groupc.practical3;
+package cs5031.groupc.practical3.controller;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+import cs5031.groupc.practical3.Practical3Application;
 import cs5031.groupc.practical3.database.DataAccessObject;
 import cs5031.groupc.practical3.testutils.SqlFileReader;
-import cs5031.groupc.practical3.vo.UserRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,49 +12,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.mockito.Mockito;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import cs5031.groupc.practical3.model.Bill;
-import cs5031.groupc.practical3.model.DataProtection;
-import cs5031.groupc.practical3.model.Group;
 import cs5031.groupc.practical3.model.List;
 import cs5031.groupc.practical3.model.ListItem;
 import cs5031.groupc.practical3.model.User;
-import cs5031.groupc.practical3.model.UserBill;
 
 
 @ContextConfiguration
 @SpringBootTest
-class ServerTest {
-
-    @Autowired
-    JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    DataAccessObject dao;
-
-    WebTestClient client;
-    ConfigurableApplicationContext ctx;
-
-    String userrole = "";
-    final static String adminrole = UserRole.ADMIN.getRole();
+class FlatMateControllerTest {
 
     final static String DELETE_SCRIPT = "src/test/resources/db/delete.sql";
     final static String DEMO_SCRIPT = "src/test/resources/db/demo_data.sql";
-
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+    @Autowired
+    DataAccessObject dao;
+    WebTestClient client;
+    ConfigurableApplicationContext ctx;
 
     @BeforeEach
     public void setUp() {
@@ -76,12 +56,9 @@ class ServerTest {
         }
 
         String[] args = new String[0];
-        ctx = SpringApplication.run(Server.class, args);
+        ctx = SpringApplication.run(Practical3Application.class, args);
 
-        client = WebTestClient.
-                //bindToController(new Server(dao))
-                        bindToServer().baseUrl("http://localhost:8080")
-                .build();
+        client = WebTestClient.bindToServer().baseUrl("http://localhost:8080").build();
 
 
     }
@@ -102,7 +79,7 @@ class ServerTest {
         ctx.close();
     }
 
-// ======================== ServerRunning ===============================================
+    // ======================== ServerRunning ===============================================
 
     @Test
     public void testServerRunningAdmin() {
@@ -239,8 +216,6 @@ class ServerTest {
 
     }
 
-
-
     @Test
     public void testGetUserExistsPositivePleb() {
         client.get().uri("/api/user/exists?username=leopold")
@@ -278,7 +253,6 @@ class ServerTest {
                 .body(BodyInserters.fromValue(testUser))
                 .exchange()
                 .expectStatus().isOk();
-
 
 
         client.get().uri("/api/user/exists?username=userForTest")
@@ -637,7 +611,6 @@ class ServerTest {
     // ======================== addToGroup ===============================================
 
 
-
     @Test
     public void testAddToGroupPositiveAdmin() {
         client.post().uri("/api/group/add?username=user")
@@ -699,7 +672,6 @@ class ServerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isBadRequest();
-
 
 
     }
@@ -894,7 +866,6 @@ class ServerTest {
                 .jsonPath("$.enabled").isEqualTo(true);
 
 
-
     }
 
     @Test
@@ -905,7 +876,6 @@ class ServerTest {
                 .exchange()
                 .expectStatus().is5xxServerError();
     }
-
 
 
     @Test
@@ -1295,7 +1265,6 @@ class ServerTest {
                 .jsonPath("$.lists[2].bill").isEqualTo(null);
 
 
-
     }
 
     @Test
@@ -1678,7 +1647,6 @@ class ServerTest {
         testBill.setPaymentMethod("cash");
 
 
-
         client.post().uri("/api/bill/create")
                 .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
                 .body(BodyInserters.fromValue(testBill))
@@ -1711,7 +1679,6 @@ class ServerTest {
         testBill.setDescription("TestDes");
         testBill.setAmount(77.77);
         testBill.setPaymentMethod("cash");
-
 
 
         client.post().uri("/api/bill/create")
@@ -2002,7 +1969,6 @@ class ServerTest {
         testBill.setDescription("TestDes");
         testBill.setAmount(77.77);
         testBill.setPaymentMethod("cash");
-
 
 
         client.post().uri("/api/bill/create")

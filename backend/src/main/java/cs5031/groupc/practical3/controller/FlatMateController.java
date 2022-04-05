@@ -1,4 +1,4 @@
-package cs5031.groupc.practical3;
+package cs5031.groupc.practical3.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,9 +10,9 @@ import cs5031.groupc.practical3.model.List;
 import cs5031.groupc.practical3.model.ListItem;
 import cs5031.groupc.practical3.model.User;
 import cs5031.groupc.practical3.model.UserBill;
+import cs5031.groupc.practical3.utils.InputValidationUtils;
 import cs5031.groupc.practical3.vo.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,14 +29,13 @@ import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
-@SpringBootApplication
-public class Server {
+public class FlatMateController {
 
     final DataAccessObject dao;
     final InputValidationUtils validator;
 
     @Autowired
-    public Server(DataAccessObject dao, InputValidationUtils validator) {
+    public FlatMateController(DataAccessObject dao, InputValidationUtils validator) {
         this.dao = dao;
         this.validator = validator;
     }

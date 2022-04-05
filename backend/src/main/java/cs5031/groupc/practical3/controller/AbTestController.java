@@ -1,4 +1,4 @@
-package cs5031.groupc.practical3;
+package cs5031.groupc.practical3.controller;
 
 import java.util.HashMap;
 import cs5031.groupc.practical3.database.DataAccessObject;
