@@ -136,12 +136,14 @@ export default {
   },
   mounted() {
     // set up AB testing experiment
-    const name = "pay all bills";
-    const variants = experimentVariants[name];
-    const adapter = makeAdapter();
-    const experiment = makeExperiment(name, variants, adapter);
-    payAllDueBillsClicked = new AlephBet.Goal("theme toggled");
-    experiment.add_goal(payAllDueBillsClicked);
+    if (process.env.NODE_ENV !== "test") {
+      const name = "pay all bills";
+      const variants = experimentVariants[name];
+      const adapter = makeAdapter();
+      const experiment = makeExperiment(name, variants, adapter);
+      payAllDueBillsClicked = new AlephBet.Goal("theme toggled");
+      experiment.add_goal(payAllDueBillsClicked);
+    }
 
     this.setHistory();
     this.setDuePayments();
