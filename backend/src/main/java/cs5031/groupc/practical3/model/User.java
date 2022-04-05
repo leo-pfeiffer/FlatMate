@@ -10,17 +10,38 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User implements DataProtection{
+public class User implements DataProtection {
 
+    /**
+     * The username of the user.
+     */
     private String username;
+
+    /**
+     * The password of the user.
+     */
     private String password;
+
+    /**
+     * The group the user belongs to.
+     */
     private Group group;
+
+    /**
+     * The role the user has within the group.
+     */
     private UserRole role;
+
+    /**
+     * Stores whether the user is active or not.
+     */
     private boolean enabled;
 
 
-
-    public void protect(){
+    /**
+     * Protects sensible data.
+     */
+    public void protect() {
         this.password = null;
     }
 }
