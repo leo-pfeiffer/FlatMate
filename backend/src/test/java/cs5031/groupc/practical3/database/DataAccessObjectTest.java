@@ -30,15 +30,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @SpringBootTest
 public class DataAccessObjectTest {
 
-    @Autowired
-    DataAccessObject dao;
-
-    @Autowired
-    JdbcTemplate jdbcTemplate;
-
     final static String DELETE_SCRIPT = "src/test/resources/db/delete.sql";
     final static String DEMO_SCRIPT = "src/test/resources/db/demo_data.sql";
-
+    @Autowired
+    DataAccessObject dao;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     public void setUp() {
@@ -319,10 +316,8 @@ public class DataAccessObjectTest {
     public void testAddBillToList() {
         dao.addBillToList(3L, 2L);
         List gottenList = dao.getList(3L);
-        Bill gottenBill =  gottenList.getBill();
-        assertEquals(2L,gottenBill.getBillId());
-
-
+        Bill gottenBill = gottenList.getBill();
+        assertEquals(2L, gottenBill.getBillId());
     }
 
     @Test
