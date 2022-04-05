@@ -374,9 +374,8 @@ const setupMock = function () {
   ]);
 };
 
-describe("Test", () => {
+describe("Home", () => {
   before(function () {
-    // setup mock routes
     setupVue();
   });
 
@@ -393,7 +392,7 @@ describe("Test", () => {
     expect(result).to.equal("The server is up.");
   });
 
-  it("should mount with correct lists and bills", () => {
+  it("should mount", () => {
     shallowMount(Home);
   });
 });

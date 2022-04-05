@@ -45,12 +45,14 @@ export default {
   },
   mounted() {
     // set up AB testing experiment
-    const name = "theme toggle";
-    const variants = experimentVariants[name];
-    const adapter = makeAdapter();
-    const experiment = makeExperiment(name, variants, adapter);
-    themeToggled = new AlephBet.Goal("theme toggled");
-    experiment.add_goal(themeToggled);
+    if (process.env.NODE_ENV !== "test") {
+      const name = "theme toggle";
+      const variants = experimentVariants[name];
+      const adapter = makeAdapter();
+      const experiment = makeExperiment(name, variants, adapter);
+      themeToggled = new AlephBet.Goal("theme toggled");
+      experiment.add_goal(themeToggled);
+    }
     this.init();
   },
   methods: {
