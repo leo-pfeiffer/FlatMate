@@ -538,8 +538,49 @@ public class DataAccessObjectTest {
     }
 
     @Test
-    public void getListItemsForNonExistentList() {
+    public void testGetListItemsForNonExistentList() {
         ArrayList<ListItem> listItems = dao.getListItemsForList(123456789L);
         assertEquals(0, listItems.size());
+    }
+
+    @Test
+    public void testGetUserBillsForNonExistentBill() {
+        ArrayList<UserBill> ubs = dao.getUserBillsForBill(123456789L);
+        assertEquals(0, ubs.size());
+    }
+
+    @Test
+    public void testGetUserBillsForNonExistentUser() {
+        ArrayList<UserBill> ubs = dao.getUserBillsForUser("nonexistent");
+        assertEquals(0, ubs.size());
+    }
+
+    @Test
+    public void testSetUserBillToPaidForNonExistentBill() {
+        int rowsAffected = dao.setUserBillToPaid(123456789L, "lucas");
+        assertEquals(0, rowsAffected);
+    }
+
+    @Test
+    public void testSetUserBillToPaidForUnrelatedUser() {
+        User user = dao.getUser("lucas");
+        Bill bill = new Bill();
+        bill.setName("testbill");
+        bill.setDescription("testdescription");
+        bill.setAmount(12.12d);
+        bill.setPaymentMethod("Cash");
+        bill.setOwner(user);
+        bill.setCreateTime(1648727482L);
+        Bill billReturned = dao.createBillAndReturnBill(bill);
+
+        User user1 = dao.getUser("leopold");
+        UserBill userBill = new UserBill();
+        userBill.setBill(billReturned);
+        userBill.setUser(user1);
+        userBill.setPercentage(0.5d);
+        userBill.setPaid(false);
+
+        int rowsAffected = dao.setUserBillToPaid(userBill.getUserBillId(), "nonexistent");
+        assertEquals(0, rowsAffected);
     }
 }
