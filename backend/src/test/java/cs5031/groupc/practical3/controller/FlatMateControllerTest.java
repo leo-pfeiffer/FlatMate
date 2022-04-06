@@ -735,7 +735,7 @@ class FlatMateControllerTest {
 
     @Test
     public void testAddToGroupUserChangedGroupAdmin() {
-        client.post().uri("/api/group/add?username=anna")
+        client.post().uri("/api/group/add?username=jane")
                 .headers(headers -> headers.setBasicAuth("leopold", "87bedde97f210319eae092f835432f811eaf19a986072bfa8096f3bc5eed4f61"))
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
@@ -757,7 +757,7 @@ class FlatMateControllerTest {
 
     @Test
     public void testAddToGroupPleb() {
-        client.get().uri("/api/group/add?username=anna")
+        client.get().uri("/api/group/add?username=jane")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isUnauthorized();
@@ -835,7 +835,7 @@ class FlatMateControllerTest {
 
     @Test
     public void testRemoveFromGroupPleb() {
-        client.get().uri("/api/group/remove?username=anna")
+        client.get().uri("/api/group/remove?username=jane")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isUnauthorized();

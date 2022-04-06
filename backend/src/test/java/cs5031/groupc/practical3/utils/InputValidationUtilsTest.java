@@ -19,10 +19,13 @@ public class InputValidationUtilsTest {
 
     final static String DELETE_SCRIPT = "src/test/resources/db/delete.sql";
     final static String DEMO_SCRIPT = "src/test/resources/db/demo_data.sql";
+
     @Autowired
     DataAccessObject dao;
+
     @Autowired
     JdbcTemplate jdbcTemplate;
+
     private InputValidationUtils validator;
 
     @BeforeEach
@@ -72,7 +75,7 @@ public class InputValidationUtilsTest {
     @Test
     public void testInSameGroupNegative() {
         User u1 = dao.getUser("leopold");
-        User u2 = dao.getUser("anna");
+        User u2 = dao.getUser("jane");
 
         assertThrows(
                 ResponseStatusException.class,
@@ -89,7 +92,7 @@ public class InputValidationUtilsTest {
 
     @Test
     public void testUserInGroupUserWrong() {
-        User u1 = dao.getUser("anna");
+        User u1 = dao.getUser("jane");
         assertThrows(
                 ResponseStatusException.class,
                 () -> validator.userInGroup(u1, "macintosh")
@@ -108,7 +111,7 @@ public class InputValidationUtilsTest {
 
     @Test
     public void testUserInGroupUserNull() {
-        //User u1 = dao.getUser("anna");
+        //User u1 = dao.getUser("jane");
         assertThrows(
                 ResponseStatusException.class,
                 () -> validator.userInGroup(null, "macintosh")
