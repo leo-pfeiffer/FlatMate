@@ -3,7 +3,7 @@
     <UserSideBar id="my-side-bar" class="column" v-if="!isAdmin" />
     <section id="content-section">
       <div class="columns is-centered">
-        <div class="column">
+        <div class="column" id="pay-all-bills">
           <div class="card is-center m-4">
             <div class="card-header">
               <div class="card-header-title">Due payments</div>
@@ -99,6 +99,14 @@
 import UserSideBar from "@/components/UserSideBar";
 import { getUserBillsForGroup, payBill } from "@/api/api";
 import { mapGetters } from "vuex";
+import {
+  experimentVariants,
+  makeAdapter,
+  makeExperiment,
+} from "@/analytics/ab-testing";
+import AlephBet from "alephbet";
+
+let payAllDueBillsClicked;
 
 export default {
   name: "User",
@@ -127,11 +135,23 @@ export default {
     },
   },
   mounted() {
+    // set up AB testing experiment
+    if (process.env.NODE_ENV !== "test") {
+      const name = "pay all bills";
+      const variants = experimentVariants[name];
+      const adapter = makeAdapter();
+      const experiment = makeExperiment(name, variants, adapter);
+      payAllDueBillsClicked = new AlephBet.Goal("theme toggled");
+      experiment.add_goal(payAllDueBillsClicked);
+    }
+
     this.setHistory();
     this.setDuePayments();
   },
   methods: {
     payAll: async function () {
+      // register A/B test goal completion
+      payAllDueBillsClicked.complete();
       for (let dueBill of this.duePayments) {
         await payBill(dueBill.id);
       }

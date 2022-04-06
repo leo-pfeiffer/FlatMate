@@ -1,6 +1,6 @@
 package cs5031.groupc.practical3.database;
 
-import cs5031.groupc.practical3.SecurityConfiguration;
+import cs5031.groupc.practical3.utils.SecurityConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -18,14 +18,26 @@ import javax.sql.DataSource;
 @Import({SecurityConfiguration.class})
 public class SQLiteDataSource {
 
-    final
-    Environment env;
+    /**
+     * The environment for the database.
+     */
+    private final Environment env;
 
+    /**
+     * The constructor.
+     *
+     * @param env The environment.
+     */
     @Autowired
-    public SQLiteDataSource(Environment env) {
+    public SQLiteDataSource(final Environment env) {
         this.env = env;
     }
 
+    /**
+     * The DataSource for the Security configuration.
+     *
+     * @return Returns the Datasource
+     */
     @Bean(name = "dataSource")
     public DataSource dataSource() {
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();

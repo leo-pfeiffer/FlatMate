@@ -1,9 +1,10 @@
-package cs5031.groupc.practical3;
+package cs5031.groupc.practical3.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import javax.sql.DataSource;
+
 import com.google.gson.Gson;
 import cs5031.groupc.practical3.vo.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,22 +25,51 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    final
-    DataSource dataSource;
+    /**
+     * The data source for the login.
+     */
+    private final DataSource dataSource;
 
+    /**
+     * Constant for ok.
+     */
+    private static final int OK = 200;
+
+    /**
+     * Constant for unauthorized.
+     */
+    private static final int UNAUTHORIZED = 401;
+
+    /**
+     * The constructor.
+     *
+     * @param dataSource The data source for the login.
+     */
     @Autowired
-    public SecurityConfiguration(DataSource dataSource) {
+    public SecurityConfiguration(final DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
+    /**
+     * The configuration for the authentication.
+     *
+     * @param auth The authentication manager builder to be modified.
+     * @throws Exception Throws exception if not working.
+     */
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
         auth.jdbcAuthentication().dataSource(dataSource)
                 .usersByUsernameQuery("select username,password, enabled from user where username=?")
                 .authoritiesByUsernameQuery("select username, role from user where username=?");
     }
 
-    protected void configure(HttpSecurity http) throws Exception {
+    /**
+     * The configuration for the enpoint access based on authorization.
+     *
+     * @param http The hppt endpoints.
+     * @throws Exception Throws exception if not working.
+     */
+    protected void configure(final HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/").permitAll()
                 .antMatchers("/api").permitAll()
@@ -56,6 +86,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     }
 
+    /**
+     * Creates a object that handles successful authentication.
+     *
+     * @return returns the object.
+     */
     private AuthenticationSuccessHandler successHandler() {
         return (request, response, authentication) -> {
 
@@ -72,18 +107,28 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write(json);
-            response.setStatus(200);
+            response.setStatus(OK);
         };
     }
 
+    /**
+     * Creates a object that handles unsuccessful authentication.
+     *
+     * @return returns the object.
+     */
     private AuthenticationFailureHandler failureHandler() {
         return (request, response, exception) -> {
             // user could not be authenticated
             response.getWriter().append("Authentication failed");
-            response.setStatus(401);
+            response.setStatus(UNAUTHORIZED);
         };
     }
 
+    /**
+     * Encodes the password.
+     *
+     * @return A password encoder.
+     */
     @Bean
     public PasswordEncoder getPasswordEncoder() {
         // NoOpPasswordEncoder is deprecated for security reasons but is fine for out purposes
@@ -91,6 +136,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return NoOpPasswordEncoder.getInstance();
     }
 
+    /**
+     * The source for the cors configuration.
+     *
+     * @return Returns the source.
+     */
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -102,6 +152,5 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 
 }
