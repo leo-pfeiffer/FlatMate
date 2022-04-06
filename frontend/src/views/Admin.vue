@@ -35,6 +35,13 @@
             </div>
           </div>
 
+          <div v-if="searched & !noResults">
+            <p>
+              ℹ️&nbsp;&nbsp;Users must leave their current group<br />before you
+              can add them.
+            </p>
+          </div>
+
           <hr />
 
           <div class="columns is-centered">
