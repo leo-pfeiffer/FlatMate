@@ -38,5 +38,16 @@ cd cli
 TODO!!!!
 ```
 
-
 The server exposes its REST API on port 8080, while the web client runs on port 3000.
+
+## Demo users
+
+The database setup script (`db_setup.sh`) populates the database with some demo data. 
+The following two users are recommended to login to test the app:
+
+USER        | PASSWORD      | ROLE      | GROUP MEMBER
+leopold     | pass          | admin     | yes
+lukas       | pass          | user      | yes
+anna        | pass          | user      | no
+
+
