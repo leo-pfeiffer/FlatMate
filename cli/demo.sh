@@ -4,7 +4,7 @@ bash ./login.sh -u meriadoc -p brandybuck -c
 bash ./login.sh -u smeagol -p gollum -c
 bash ./login.sh -u peregrin -p took -c
 bash ./sendRequest.sh -c /api/group/create?groupname=hobbits
-bash ./login.sh -u peregrin -p took
+bash ./login.sh -u peregrin -p took #Updates session token to have admin
 bash ./sendRequest.sh -c /api/user/ -g
 bash ./sendRequest.sh -c /api/group/add?username=frodo
 bash ./sendRequest.sh -c /api/group/add?username=samwise
