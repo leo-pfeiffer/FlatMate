@@ -34,8 +34,7 @@ npm run serve
 ... to use the terminal client:
 ```bash
 cd cli
-
-TODO!!!!
+# ... see detailed instructions in cli/README.md
 ```
 
 The server exposes its REST API on port 8080, while the web client runs on port 3000.
@@ -45,12 +44,10 @@ The server exposes its REST API on port 8080, while the web client runs on port 
 The database setup script (`db_setup.sh`) populates the database with some demo data. 
 The following two users are recommended to login to test the app:
 
-
-
-
-
 | USER        | PASSWORD      | ROLE      | GROUP MEMBER |
 | ------      | ------        | ------    | ------       |
 | leopold     | pass          | admin     | yes          |   
 | lukas       | pass          | user      | yes          |
 | anna        | pass          | user      | no           |
+
+All demo users have the same password `pass`.
