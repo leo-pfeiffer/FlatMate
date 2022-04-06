@@ -23,4 +23,4 @@ do
     esac
 done
 
-login "${username}" "${password}"  >out.txt
+login "${username}" "${password}"  >>out.txt

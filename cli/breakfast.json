@@ -1,0 +1,6 @@
+{
+  "name": "breakfast",
+  "description": "We had one breakfast",
+  "amount": 22.22,
+  "paymentMethod": "paypal"
+}
